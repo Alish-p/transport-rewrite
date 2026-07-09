@@ -32,13 +32,11 @@ export default function PurchaseOrderFiltersDrawer({
   dateRange,
   createdByDialog,
   approvedByDialog,
-  purchasedByDialog,
   // selected objects
   selectedVendor,
   selectedPart,
   selectedCreatedBy,
   selectedApprovedBy,
-  selectedPurchasedBy,
 }) {
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
@@ -162,13 +160,7 @@ export default function PurchaseOrderFiltersDrawer({
             iconName={APP_ICONS.user}
           />
 
-          {/* 8. Purchased By */}
-          <DialogSelectButton
-            onClick={purchasedByDialog.onTrue}
-            selected={selectedPurchasedBy?.name}
-            placeholder="Purchased By"
-            iconName={APP_ICONS.cart}
-          />
+
         </Stack>
       </Scrollbar>
     </Drawer>

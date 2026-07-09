@@ -59,7 +59,6 @@ const defaultFilters = {
   partLocationId: '',
   createdBy: '',
   approvedBy: '',
-  purchasedBy: '',
   purchaseOrderNo: '',
 };
 
@@ -67,7 +66,6 @@ const STATUS_TABS = [
   { value: 'all', label: 'All', color: 'default' },
   { value: 'pending-approval', label: 'Pending Approval', color: 'warning' },
   { value: 'approved', label: 'Approved', color: 'info' },
-  { value: 'purchased', label: 'Purchased', color: 'primary' },
   { value: 'partial-received', label: 'Partially Received', color: 'warning' },
   { value: 'received', label: 'Received', color: 'success' },
   { value: 'closed', label: 'Closed', color: 'default' },
@@ -88,7 +86,6 @@ export function PurchaseOrderListView() {
 
   const [selectedCreatedBy, setSelectedCreatedBy] = useState(null);
   const [selectedApprovedBy, setSelectedApprovedBy] = useState(null);
-  const [selectedPurchasedBy, setSelectedPurchasedBy] = useState(null);
 
   const {
     visibleColumns,
@@ -111,7 +108,6 @@ export function PurchaseOrderListView() {
     partLocation: filters.partLocationId || undefined,
     createdBy: filters.createdBy || undefined,
     approvedBy: filters.approvedBy || undefined,
-    purchasedBy: filters.purchasedBy || undefined,
     purchaseOrderNo: filters.purchaseOrderNo || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
@@ -226,9 +222,7 @@ export function PurchaseOrderListView() {
     if (!filters.approvedBy) setSelectedApprovedBy(null);
   }, [filters.approvedBy]);
 
-  useEffect(() => {
-    if (!filters.purchasedBy) setSelectedPurchasedBy(null);
-  }, [filters.purchasedBy]);
+
 
   return (
     <DashboardContent>
@@ -320,8 +314,6 @@ export function PurchaseOrderListView() {
           onSelectCreatedBy={setSelectedCreatedBy}
           selectedApprovedBy={selectedApprovedBy}
           onSelectApprovedBy={setSelectedApprovedBy}
-          selectedPurchasedBy={selectedPurchasedBy}
-          onSelectPurchasedBy={setSelectedPurchasedBy}
         />
 
         {canReset && (
@@ -333,7 +325,6 @@ export function PurchaseOrderListView() {
             selectedVendor={selectedVendor}
             selectedCreatedBy={selectedCreatedBy}
             selectedApprovedBy={selectedApprovedBy}
-            selectedPurchasedBy={selectedPurchasedBy}
             results={totalCount}
             sx={{ p: 2.5, pt: 0 }}
           />
@@ -405,7 +396,6 @@ export function PurchaseOrderListView() {
                                 partLocation: filters.partLocationId || undefined,
                                 createdBy: filters.createdBy || undefined,
                                 approvedBy: filters.approvedBy || undefined,
-                                purchasedBy: filters.purchasedBy || undefined,
                                 purchaseOrderNo: filters.purchaseOrderNo || undefined,
                                 columns: orderedIds.join(','),
                                 order: table.order,

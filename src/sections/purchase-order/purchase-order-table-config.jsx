@@ -18,7 +18,6 @@ import { Label } from 'src/components/label';
 const STATUS_CONFIG = {
   'pending-approval': { label: 'Pending Approval', color: 'warning' },
   approved: { label: 'Approved', color: 'info' },
-  purchased: { label: 'Purchased', color: 'primary' },
   'partial-received': { label: 'Partially Received', color: 'warning' },
   rejected: { label: 'Rejected', color: 'error' },
   received: { label: 'Received', color: 'success' },
@@ -258,13 +257,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row.description,
   },
-  {
-    id: 'paymentReference',
-    label: 'Payment Ref',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row.paymentReference,
-  },
+
   {
     id: 'rejectionReason',
     label: 'Rejection Reason',
@@ -286,13 +279,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => row.approvedBy?.name || '-',
   },
-  {
-    id: 'purchasedBy',
-    label: 'Purchased By',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => row.purchasedBy?.name || '-',
-  },
+
   {
     id: 'approvedAt',
     label: 'Approved Date',
@@ -315,27 +302,7 @@ export const TABLE_COLUMNS = [
       );
     },
   },
-  {
-    id: 'purchasedAt',
-    label: 'Purchased Date',
-    defaultVisible: false,
-    disabled: false,
-    getter: (row) => fDate(row.purchasedAt),
-    render: (row) => {
-      const value = row.purchasedAt;
-      if (!value) return '-';
-      return (
-        <>
-          <Typography variant="body2" noWrap>
-            {fDate(value)}
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }} noWrap>
-            {fTime(value)}
-          </Typography>
-        </>
-      );
-    },
-  },
+
   {
     id: 'receivedAt',
     label: 'Received Date',

@@ -41,8 +41,6 @@ export default function PurchaseOrderTableToolbar({
   onSelectCreatedBy,
   selectedApprovedBy,
   onSelectApprovedBy,
-  selectedPurchasedBy,
-  onSelectPurchasedBy,
 }) {
   const columnsPopover = usePopover();
   const filtersDrawer = useBoolean();
@@ -51,7 +49,6 @@ export default function PurchaseOrderTableToolbar({
   const dateRange = useBoolean();
   const createdByDialog = useBoolean();
   const approvedByDialog = useBoolean();
-  const purchasedByDialog = useBoolean();
 
   const handleSelectPart = useCallback(
     (part) => {
@@ -93,15 +90,7 @@ export default function PurchaseOrderTableToolbar({
     [onFilters, onSelectApprovedBy, approvedByDialog]
   );
 
-  const handleSelectPurchasedBy = useCallback(
-    (assignees) => {
-      const user = assignees[0];
-      onFilters('purchasedBy', user?._id || '');
-      if (onSelectPurchasedBy) onSelectPurchasedBy(user || null);
-      purchasedByDialog.onFalse();
-    },
-    [onFilters, onSelectPurchasedBy, purchasedByDialog]
-  );
+
 
   const handleFilterPurchaseOrderNo = useCallback(
     (event) => {
@@ -245,13 +234,7 @@ export default function PurchaseOrderTableToolbar({
         single
       />
 
-      <KanbanContactsDialog
-        assignees={selectedPurchasedBy ? [selectedPurchasedBy] : []}
-        open={purchasedByDialog.value}
-        onClose={purchasedByDialog.onFalse}
-        onAssigneeChange={handleSelectPurchasedBy}
-        single
-      />
+
 
       <PurchaseOrderFiltersDrawer
         open={filtersDrawer.value}
@@ -263,12 +246,10 @@ export default function PurchaseOrderTableToolbar({
         dateRange={dateRange}
         createdByDialog={createdByDialog}
         approvedByDialog={approvedByDialog}
-        purchasedByDialog={purchasedByDialog}
         selectedVendor={selectedVendor}
         selectedPart={selectedPart}
         selectedCreatedBy={selectedCreatedBy}
         selectedApprovedBy={selectedApprovedBy}
-        selectedPurchasedBy={selectedPurchasedBy}
       />
     </>
   );

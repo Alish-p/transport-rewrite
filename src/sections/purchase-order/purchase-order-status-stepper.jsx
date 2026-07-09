@@ -8,7 +8,6 @@ const STATUS_ORDER = [
   'pending-approval',
   'rejected',
   'approved',
-  'purchased',
   'received',
   'closed',
 ];
@@ -16,7 +15,6 @@ const STATUS_ORDER = [
 const STATUS_DESCRIPTIONS = {
   'pending-approval': 'Purchase order has been created and is awaiting approval',
   approved: 'Purchase order has been approved and can be processed',
-  purchased: 'Items have been purchased / ordered from the vendor',
   received: 'Ordered items have been received into inventory',
   rejected: 'Purchase order was rejected and will not be processed',
   closed: 'Purchase order has been closed. No further actions can be taken.',
@@ -60,7 +58,6 @@ export function PurchaseOrderStatusStepper({ status }) {
     let iconName = 'mdi:clock-outline';
 
     if (statusKey === 'approved') iconName = 'eva:checkmark-circle-2-outline';
-    if (statusKey === 'purchased') iconName = 'mdi:cart-outline';
     if (statusKey === 'received') {
       iconName = isPartialReceived
         ? 'mdi:alert-circle-outline'

@@ -30,11 +30,10 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import {
-  usePayPurchaseOrder,
-  useClosePurchaseOrder,
   useRejectPurchaseOrder,
   useApprovePurchaseOrder,
   useReceivePurchaseOrder,
+  useClosePurchaseOrder,
 } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
@@ -51,7 +50,6 @@ import { PurchaseOrderStatusStepper } from '../purchase-order-status-stepper';
 const STATUS_LABELS = {
   'pending-approval': 'Pending Approval',
   approved: 'Approved',
-  purchased: 'Purchased',
   'partial-received': 'Partially Received',
   rejected: 'Rejected',
   received: 'Received',
@@ -61,7 +59,6 @@ const STATUS_LABELS = {
 const STATUS_COLORS = {
   'pending-approval': 'warning',
   approved: 'info',
-  purchased: 'primary',
   'partial-received': 'warning',
   rejected: 'error',
   received: 'success',
@@ -100,33 +97,26 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
 
   const approvePo = useApprovePurchaseOrder();
   const rejectPo = useRejectPurchaseOrder();
-  const payPo = usePayPurchaseOrder();
   const receivePo = useReceivePurchaseOrder();
+  const closePo = useClosePurchaseOrder();
 
   const approveDialog = useBoolean();
   const rejectDialog = useBoolean();
-  const payDialog = useBoolean();
   const receiveDialog = useBoolean();
   const closeDialog = useBoolean();
   const grnDrawer = useBoolean();
 
   const [rejectReason, setRejectReason] = useState('');
-  const [paymentReference, setPaymentReference] = useState('');
   const [receiveLines, setReceiveLines] = useState([]);
   const [receiveNotes, setReceiveNotes] = useState('');
   const [closeReason, setCloseReason] = useState('');
-
-  const closePo = useClosePurchaseOrder();
 
   const handleCloseRejectDialog = useCallback(() => {
     rejectDialog.onFalse();
     setRejectReason('');
   }, [rejectDialog]);
 
-  const handleClosePayDialog = useCallback(() => {
-    payDialog.onFalse();
-    setPaymentReference('');
-  }, [payDialog]);
+
 
   const allFullyReceived =
     Array.isArray(lines) &&
@@ -149,16 +139,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     );
   }
 
-  if (status === 'approved') {
-    actions.push({
-      label: 'Mark as Paid',
-      icon: 'ri:money-rupee-circle-line',
-      onClick: payDialog.onTrue,
-    });
-  }
-
   if (
-    (status === 'approved' || status === 'purchased' || status === 'partial-received') &&
+    (status === 'approved' || status === 'partial-received') &&
     !allFullyReceived
   ) {
     actions.push({
@@ -315,14 +297,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     }
   }, [rejectPo, _id, rejectReason, handleCloseRejectDialog]);
 
-  const handlePay = useCallback(async () => {
-    try {
-      await payPo({ id: _id, paymentReference: paymentReference || '' });
-      handleClosePayDialog();
-    } catch (error) {
-      console.error(error);
-    }
-  }, [payPo, _id, paymentReference, handleClosePayDialog]);
+
 
   const handleReceiveAll = useCallback(async () => {
     try {
@@ -756,25 +731,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         }
       />
 
-      <ConfirmDialog
-        open={payDialog.value}
-        onClose={handleClosePayDialog}
-        title="Mark as Paid"
-        content={
-          <TextField
-            autoFocus
-            fullWidth
-            label="Payment reference (optional)"
-            value={paymentReference}
-            onChange={(event) => setPaymentReference(event.target.value)}
-          />
-        }
-        action={
-          <Button variant="contained" onClick={handlePay}>
-            Mark as Paid
-          </Button>
-        }
-      />
+
 
       <ConfirmDialog
         open={receiveDialog.value}

@@ -39,11 +39,6 @@ const rejectPurchaseOrderApi = async (id, reason) => {
   return data;
 };
 
-const payPurchaseOrderApi = async (id, payload) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}/pay`, payload);
-  return data;
-};
-
 const receivePurchaseOrderApi = async (id, payload) => {
   const { data } = await axios.put(`${ENDPOINT}/${id}/receive`, payload);
   return data;
@@ -143,25 +138,6 @@ export function useRejectPurchaseOrder() {
     onError: (error) => {
       const errorMessage =
         error?.response?.data?.message || error?.message || 'Failed to reject purchase order';
-      toast.error(errorMessage);
-    },
-  });
-
-  return mutateAsync;
-}
-
-export function usePayPurchaseOrder() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: ({ id, ...payload }) => payPurchaseOrderApi(id, payload),
-    onSuccess: (updatedPo) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      queryClient.setQueryData([QUERY_KEY, updatedPo._id], updatedPo);
-      toast.success('Purchase order marked as paid');
-    },
-    onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || 'Failed to mark purchase order paid';
       toast.error(errorMessage);
     },
   });

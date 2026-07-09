@@ -20,7 +20,6 @@ export default function PurchaseOrderTableFiltersResult({
   selectedVendor,
   selectedCreatedBy,
   selectedApprovedBy,
-  selectedPurchasedBy,
   ...other
 }) {
   const handleRemoveStatus = () => {
@@ -52,9 +51,7 @@ export default function PurchaseOrderTableFiltersResult({
     onFilters('approvedBy', '');
   };
 
-  const handleRemovePurchasedBy = () => {
-    onFilters('purchasedBy', '');
-  };
+
 
   const handleRemovePurchaseOrderNo = () => {
     onFilters('purchaseOrderNo', '');
@@ -161,15 +158,7 @@ export default function PurchaseOrderTableFiltersResult({
           </Block>
         )}
 
-        {filters.purchasedBy && (
-          <Block label="Purchased By :">
-            <Chip
-              size="small"
-              label={selectedPurchasedBy?.name || filters.purchasedBy}
-              onDelete={handleRemovePurchasedBy}
-            />
-          </Block>
-        )}
+
 
         <Button
           color="error"
