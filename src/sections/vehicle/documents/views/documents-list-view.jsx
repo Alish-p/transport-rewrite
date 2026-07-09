@@ -70,7 +70,11 @@ export function VehicleDocumentsListView() {
   const theme = useTheme();
   const tenant = useTenantContext();
   const navigate = useNavigate();
-  const table = useTable({ syncToUrl: true });
+  const table = useTable({
+    defaultOrderBy: 'expiryDate',
+    defaultOrder: 'asc',
+    syncToUrl: true,
+  });
   const [view, setView] = useState('list');
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
@@ -107,6 +111,8 @@ export function VehicleDocumentsListView() {
       expiryTo: filters.expiryTo || undefined,
       days: filters.days || undefined,
       hasAttachment: filters.hasAttachment || undefined,
+      orderBy: table.orderBy || undefined,
+      order: table.order || undefined,
     },
     { enabled: view === 'list' }
   );
@@ -328,6 +334,7 @@ export function VehicleDocumentsListView() {
                   headLabel={[...visibleHeaders, { id: 'actions', label: 'Actions', align: 'right' }]}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
+                  onSort={table.onSort}
                   onOrderChange={moveColumn}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
@@ -339,20 +346,20 @@ export function VehicleDocumentsListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                        <TableSkeleton key={i} />
-                      ))
+                      <TableSkeleton key={i} />
+                    ))
                     : tableData.map((row) => (
-                        <DocumentsTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onDeleteRow={handleDeleteRow}
-                          visibleColumns={visibleColumns}
-                          disabledColumns={disabledColumns}
-                          columnOrder={columnOrder}
-                        />
-                      ))}
+                      <DocumentsTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onDeleteRow={handleDeleteRow}
+                        visibleColumns={visibleColumns}
+                        disabledColumns={disabledColumns}
+                        columnOrder={columnOrder}
+                      />
+                    ))}
                   <TableNoData notFound={!tableData.length && canReset} />
                 </TableBody>
               </Table>

@@ -80,6 +80,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     disabled: false,
     align: 'center',
+    sortable: true,
     getter: (row) => row?.issueDate || '-',
     render: (row) => (
       <ListItemText
@@ -97,6 +98,7 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row?.expiryDate || '-',
+    sortable: true,
     render: (row) => (
       <ListItemText
         primary={row?.expiryDate ? fDate(new Date(row.expiryDate)) : '-'}
