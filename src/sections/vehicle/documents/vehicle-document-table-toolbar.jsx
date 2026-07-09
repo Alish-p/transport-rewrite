@@ -27,10 +27,10 @@ import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { DOC_TYPES } from './config/constants';
-import { TABLE_COLUMNS } from './config/table-columns';
+import { DOC_TYPES } from './vehicle-document-config';
+import { TABLE_COLUMNS } from './vehicle-document-table-config';
 
-export default function DocumentsTableToolbar({
+export default function VehicleDocumentTableToolbar({
   filters,
   onFilters,
   visibleColumns,
@@ -227,8 +227,6 @@ export default function DocumentsTableToolbar({
           >
             Columns
           </Button>
-
-          {/* Removed export popover (moved to TableSelectedAction) */}
         </Stack>
       </Stack>
 
@@ -243,8 +241,6 @@ export default function DocumentsTableToolbar({
         onResetColumns={onResetColumns}
         canResetColumns={canResetColumns}
       />
-
-      {/* Removed export popover */}
 
       <KanbanVehicleDialog
         open={vehicleDialog.value}

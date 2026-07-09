@@ -8,7 +8,7 @@ import { useVehicleDocument } from 'src/query/use-documents';
 import { EmptyContent } from 'src/components/empty-content';
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { VehicleDocumentDetailsView } from 'src/sections/vehicle/documents/views';
+import { VehicleDocumentDetailView } from 'src/sections/vehicle/documents/views';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <VehicleDocumentDetailsView doc={doc} />
+      <VehicleDocumentDetailView doc={doc} />
     </>
   );
 }

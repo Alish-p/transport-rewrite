@@ -9,7 +9,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import VehicleDocumentForm from '../components/vehicle-document-form';
+import VehicleDocumentForm from '../vehicle-document-form';
 
 export function VehicleDocumentEditView({ doc }) {
   const navigate = useNavigate();

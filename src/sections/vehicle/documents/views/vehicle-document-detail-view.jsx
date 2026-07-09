@@ -43,7 +43,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { getStatusMeta, getExpiryStatus } from '../../utils/document-utils';
 
-export function VehicleDocumentDetailsView({ doc }) {
+export function VehicleDocumentDetailView({ doc }) {
   const navigate = useNavigate();
   const confirmDelete = useBoolean();
   const [deleting, setDeleting] = useState(false);

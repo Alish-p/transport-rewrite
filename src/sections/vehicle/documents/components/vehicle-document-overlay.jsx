@@ -31,7 +31,7 @@ import { openDocumentDownload } from '../utils/download';
 
 const DOCS_PAGE_SIZE = 20;
 
-export function VehicleDocumentsOverlay({ open, onClose, vehicle }) {
+export function VehicleDocumentOverlay({ open, onClose, vehicle }) {
   const vehicleId = useMemo(() => vehicle?._id, [vehicle]);
   const [includeInactive, setIncludeInactive] = useState(false);
 

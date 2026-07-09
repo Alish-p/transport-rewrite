@@ -12,12 +12,12 @@ import { useInfiniteVehicles } from 'src/query/use-vehicle';
 import { LoadingSpinner } from 'src/components/loading-spinner';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { VehicleFolderCard } from './vehicle-folder-card';
-import { VehicleDocumentsOverlay } from './vehicle-documents-overlay';
+import { VehicleFolderCard } from './vehicle-document-folder-card';
+import { VehicleDocumentOverlay } from './vehicle-document-overlay';
 
 const VEHICLE_PAGE_SIZE = 20;
 
-export function VehicleDocumentsGridContent() {
+export function VehicleDocumentGridContent() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [overlayOpen, setOverlayOpen] = useState(false);
 
@@ -73,7 +73,7 @@ export function VehicleDocumentsGridContent() {
         </>
       )}
 
-      <VehicleDocumentsOverlay
+      <VehicleDocumentOverlay
         open={overlayOpen}
         onClose={() => setOverlayOpen(false)}
         vehicle={selectedVehicle}
@@ -82,7 +82,7 @@ export function VehicleDocumentsGridContent() {
   );
 }
 
-export function VehicleDocumentsGridView() {
+export function VehicleDocumentGridView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -94,9 +94,9 @@ export function VehicleDocumentsGridView() {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <VehicleDocumentsGridContent />
+      <VehicleDocumentGridContent />
     </DashboardContent>
   );
 }
 
-export default VehicleDocumentsGridView;
+export default VehicleDocumentGridView;

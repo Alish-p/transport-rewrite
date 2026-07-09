@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { VehicleDocumentsListView } from 'src/sections/vehicle/documents/views';
+import { VehicleDocumentListView } from 'src/sections/vehicle/documents/views';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <VehicleDocumentsListView />
+      <VehicleDocumentListView />
     </>
   );
 }

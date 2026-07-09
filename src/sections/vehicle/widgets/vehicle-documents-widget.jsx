@@ -43,7 +43,7 @@ import { TableNoData, TableSkeleton } from 'src/components/table';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 
-import { REQUIRED_DOC_TYPES } from '../documents/config/constants';
+import { REQUIRED_DOC_TYPES } from '../documents/vehicle-document-config';
 
 export function VehicleDocumentsWidget({ vehicleId, vehicleNo }) {
   const navigate = useNavigate();

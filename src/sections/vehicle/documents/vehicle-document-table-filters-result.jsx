@@ -9,7 +9,7 @@ import { fDateRangeShortLabel } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
-export default function DocumentsFiltersResult({
+export default function VehicleDocumentTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,

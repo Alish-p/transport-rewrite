@@ -93,7 +93,7 @@ const DocumentHistoryItem = ({ h, onDownload }) => {
   );
 };
 
-export function DocumentHistoryChatList({ vehicleId, items = [] }) {
+export function VehicleDocumentHistoryChatList({ vehicleId, items = [] }) {
   const handleDownload = useCallback(
     async (doc) => {
       if (!doc?._id || !vehicleId) return;

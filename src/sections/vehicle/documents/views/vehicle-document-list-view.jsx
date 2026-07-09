@@ -41,14 +41,13 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { VehicleDocumentsGridContent } from 'src/sections/vehicle/documents/components/documents-grid-view';
-
 import { useTenantContext } from 'src/auth/tenant';
 
-import DocumentsTableRow from '../documents-table-row';
-import { TABLE_COLUMNS } from '../config/table-columns';
-import DocumentsTableToolbar from '../documents-table-toolbar';
-import DocumentsFiltersResult from '../documents-filters-result';
+import { TABLE_COLUMNS } from '../vehicle-document-table-config';
+import VehicleDocumentTableRow from '../vehicle-document-table-row';
+import VehicleDocumentTableToolbar from '../vehicle-document-table-toolbar';
+import { VehicleDocumentGridContent } from '../components/vehicle-document-grid-view';
+import VehicleDocumentTableFiltersResult from '../vehicle-document-table-filters-result';
 
 const STORAGE_KEY = 'vehicle-documents-table-columns';
 
@@ -66,7 +65,7 @@ const defaultFilters = {
   hasAttachment: '',
 };
 
-export function VehicleDocumentsListView() {
+export function VehicleDocumentListView() {
   const theme = useTheme();
   const tenant = useTenantContext();
   const navigate = useNavigate();
@@ -229,7 +228,7 @@ export function VehicleDocumentsListView() {
             ))}
           </Tabs>
 
-          <DocumentsTableToolbar
+          <VehicleDocumentTableToolbar
             filters={filters}
             onFilters={handleFilters}
             visibleColumns={visibleColumns}
@@ -243,7 +242,7 @@ export function VehicleDocumentsListView() {
           />
 
           {canReset && (
-            <DocumentsFiltersResult
+            <VehicleDocumentTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={() => {
@@ -349,7 +348,7 @@ export function VehicleDocumentsListView() {
                       <TableSkeleton key={i} />
                     ))
                     : tableData.map((row) => (
-                      <DocumentsTableRow
+                      <VehicleDocumentTableRow
                         key={row._id}
                         row={row}
                         selected={table.selected.includes(row._id)}
@@ -375,7 +374,7 @@ export function VehicleDocumentsListView() {
           />
         </Card>
       ) : (
-        <VehicleDocumentsGridContent />
+        <VehicleDocumentGridContent />
       )}
     </DashboardContent>
   );

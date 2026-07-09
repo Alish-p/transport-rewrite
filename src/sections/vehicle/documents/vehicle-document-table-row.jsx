@@ -10,9 +10,9 @@ import { GenericTableRow } from 'src/components/table';
 
 import { getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 
-import { TABLE_COLUMNS } from './config/table-columns';
+import { TABLE_COLUMNS } from './vehicle-document-table-config';
 
-export default function DocumentsTableRow({
+export default function VehicleDocumentTableRow({
   row,
   selected,
   onSelectRow,

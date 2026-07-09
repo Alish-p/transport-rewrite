@@ -24,7 +24,7 @@ import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
-import { DOC_TYPES } from '../config/constants';
+import { DOC_TYPES } from './vehicle-document-config';
 
 async function uploadViaPresigned({ vehicleId, docType, file }) {
   const contentType = file?.type || 'application/octet-stream';
@@ -273,8 +273,6 @@ export default function VehicleDocumentForm({
               label="Expiry Date"
             />
           </Stack>
-
-
 
           <Field.Upload
             name="file"
