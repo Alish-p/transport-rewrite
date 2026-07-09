@@ -6,6 +6,7 @@ import { GenericTableRow } from 'src/components/table';
 
 import { TABLE_COLUMNS } from './work-order-table-config';
 import { WorkOrderStartDialog } from './work-order-start-dialog';
+import { WorkOrderCloseDialog } from './work-order-close-dialog';
 
 export default function WorkOrderTableRow({
   row,
@@ -19,6 +20,7 @@ export default function WorkOrderTableRow({
   columnOrder,
 }) {
   const startWorkDialog = useBoolean(false);
+  const closeDialog = useBoolean(false);
 
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
   const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
@@ -33,6 +35,15 @@ export default function WorkOrderTableRow({
       color: 'warning.main',
       onClick: () => {
         startWorkDialog.onTrue();
+      },
+    });
+  } else if (row.status === 'inprogress') {
+    customActions.push({
+      label: 'Close Work Order',
+      icon: 'mdi:check-decagram-outline',
+      color: 'success.main',
+      onClick: () => {
+        closeDialog.onTrue();
       },
     });
   }
@@ -56,6 +67,12 @@ export default function WorkOrderTableRow({
       <WorkOrderStartDialog
         open={startWorkDialog.value}
         onClose={startWorkDialog.onFalse}
+        workOrder={row}
+      />
+
+      <WorkOrderCloseDialog
+        open={closeDialog.value}
+        onClose={closeDialog.onFalse}
         workOrder={row}
       />
     </>

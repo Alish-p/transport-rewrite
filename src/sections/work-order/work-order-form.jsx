@@ -169,7 +169,7 @@ export default function WorkOrderForm({ currentWorkOrder }) {
       workshopName: currentWorkOrder?.workshopName || '',
       billNo: currentWorkOrder?.billNo || '',
       issues: (() => {
-        if (!currentWorkOrder?.issues) return [];
+        if (!currentWorkOrder?.issues) return [{ issue: '', assignedTo: [] }];
         return currentWorkOrder.issues.map((issue) => {
           if (typeof issue === 'string') {
             return { issue, assignedTo: [] };
@@ -228,6 +228,12 @@ export default function WorkOrderForm({ currentWorkOrder }) {
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (Object.keys(methods.formState.errors).length > 0) {
+      console.log('RHF Validation Errors:', methods.formState.errors);
+    }
+  }, [methods.formState.errors]);
 
   const values = watch();
   const priorityMenuOpen = Boolean(priorityAnchorEl);
@@ -610,20 +616,22 @@ export default function WorkOrderForm({ currentWorkOrder }) {
               )}
             </Stack>
 
-            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-              <Typography variant="body2" sx={{ minWidth: 72 }}>
-                Actual Start:
-              </Typography>
-              <IconButton size="small" color="primary" onClick={actualDateDialog.onTrue}>
-                <Iconify icon="solar:calendar-linear" />
-              </IconButton>
-              <Typography
-                variant="body2"
-                sx={{ color: values.actualStartDate ? 'text.primary' : 'text.secondary' }}
-              >
-                {values.actualStartDate ? fDate(values.actualStartDate) : 'Select date'}
-              </Typography>
-            </Stack>
+            {!!currentWorkOrder?._id && (
+              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                <Typography variant="body2" sx={{ minWidth: 72 }}>
+                  Actual Start:
+                </Typography>
+                <IconButton size="small" color="primary" onClick={actualDateDialog.onTrue}>
+                  <Iconify icon="solar:calendar-linear" />
+                </IconButton>
+                <Typography
+                  variant="body2"
+                  sx={{ color: values.actualStartDate ? 'text.primary' : 'text.secondary' }}
+                >
+                  {values.actualStartDate ? fDate(values.actualStartDate) : 'Select date'}
+                </Typography>
+              </Stack>
+            )}
           </Stack>
         </Stack>
       </Stack>
@@ -704,9 +712,16 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         </Stack>
 
         {issueFields.length === 0 ? (
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            No issues added. Use &quot;Add Issue&quot; to capture reported problems or observations.
-          </Typography>
+          <Stack spacing={1}>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              No issues added. Use &quot;Add Issue&quot; to capture reported problems or observations.
+            </Typography>
+            {methods.formState.errors.issues?.message && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                {methods.formState.errors.issues.message}
+              </Alert>
+            )}
+          </Stack>
         ) : (
           <TableContainer sx={{ overflowX: 'auto' }}>
             <Table size="small">

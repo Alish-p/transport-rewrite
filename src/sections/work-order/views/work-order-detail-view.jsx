@@ -6,7 +6,6 @@ import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Radio from '@mui/material/Radio';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -16,16 +15,12 @@ import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
-import FormLabel from '@mui/material/FormLabel';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import RadioGroup from '@mui/material/RadioGroup';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -39,7 +34,7 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import WorkOrderPdf from 'src/pdfs/work-order-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useCloseWorkOrder, useAddWorkOrderExpense } from 'src/query/use-work-order';
+import { useAddWorkOrderExpense } from 'src/query/use-work-order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -48,6 +43,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useTenantContext } from 'src/auth/tenant';
 
 import { WorkOrderStartDialog } from '../work-order-start-dialog';
+import { WorkOrderCloseDialog } from '../work-order-close-dialog';
 import { WorkOrderStatusStepper } from '../work-order-status-stepper';
 import {
   WORK_ORDER_STATUS_LABELS,
@@ -61,10 +57,7 @@ export function WorkOrderDetailView({ workOrder }) {
   const tenant = useTenantContext();
   const closeDialog = useBoolean(false);
   const viewPdf = useBoolean();
-  const closeWorkOrder = useCloseWorkOrder();
   const addWorkOrderExpense = useAddWorkOrderExpense();
-  const [isClosing, setIsClosing] = useState(false);
-  const [closeMode, setCloseMode] = useState('closeOnly'); // 'closeOnly' | 'closeAndExpense'
   const addExpenseDialog = useBoolean(false);
   const [isAddingExpense, setIsAddingExpense] = useState(false);
 
@@ -113,23 +106,7 @@ export function WorkOrderDetailView({ workOrder }) {
     router.push(paths.dashboard.workOrder.edit(_id));
   }, [_id, router]);
 
-  const handleConfirmClose = useCallback(async () => {
-    if (!_id) return;
-    try {
-      setIsClosing(true);
-      await closeWorkOrder({
-        id: _id,
-        createExpense: closeMode === 'closeAndExpense',
-      });
-      closeDialog.onFalse();
-    } catch (error) {
-      // error toast handled in hook
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      setIsClosing(false);
-    }
-  }, [_id, closeDialog, closeWorkOrder, closeMode]);
+
 
   const handleConfirmAddExpense = useCallback(async () => {
     if (!_id) return;
@@ -557,61 +534,11 @@ export function WorkOrderDetailView({ workOrder }) {
       </Card>
     </Stack>
 
-      <Dialog open={closeDialog.value} onClose={closeDialog.onFalse} maxWidth="xs" fullWidth>
-        <DialogTitle>Close Work Order</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            This will mark the work order as <strong>Completed</strong>
-            {category === 'External Workshop'
-              ? ' without deducting inventory since it is an External Workshop work order.'
-              : ' and adjust inventory for all parts used.'}
-          </Typography>
-
-          <FormControl component="fieldset" sx={{ mt: 2, width: '100%' }}>
-            <FormLabel component="legend">Action</FormLabel>
-            <RadioGroup
-              aria-label="close-mode"
-              name="close-mode"
-              value={closeMode}
-              onChange={(e) => setCloseMode(e.target.value)}
-            >
-              <FormControlLabel value="closeOnly" control={<Radio />} label="Close Only" />
-              <FormControlLabel
-                value="closeAndExpense"
-                control={<Radio />}
-                label="Close & Add as Vehicle Expense"
-              />
-            </RadioGroup>
-          </FormControl>
-
-          {closeMode === 'closeAndExpense' && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-              An expense of <strong>{fCurrency(computed.totalCost)}</strong> will be added to this
-              vehicle.
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDialog.onFalse} disabled={isClosing}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleConfirmClose}
-            disabled={isClosing}
-            startIcon={
-              isClosing ? (
-                <CircularProgress size={18} color="inherit" />
-              ) : (
-                <Iconify icon="mdi:check-decagram-outline" />
-              )
-            }
-          >
-            {isClosing ? 'Closing...' : 'Confirm'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <WorkOrderCloseDialog
+        open={closeDialog.value}
+        onClose={closeDialog.onFalse}
+        workOrder={workOrder}
+      />
 
       <Dialog
         open={addExpenseDialog.value}
