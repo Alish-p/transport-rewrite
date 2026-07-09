@@ -187,7 +187,6 @@ export default function VehicleDocumentForm({
           issuer: values.issuer?.trim() ? values.issuer.trim() : undefined,
           issueDate: values.issueDate || undefined,
           expiryDate: values.expiryDate || undefined,
-          isActive: values.isActive,
           ...(fileKeyChanged ? { fileKey: nextFileKey } : {}),
         };
         await updateDocument({ vehicleId, docId: doc?._id, payload });
@@ -267,9 +266,7 @@ export default function VehicleDocumentForm({
             />
           </Stack>
 
-          {isEdit && (
-            <Field.Switch name="isActive" label="Mark as active" disabled={!effectiveVehicleId} />
-          )}
+
 
           <Field.Upload
             name="file"
