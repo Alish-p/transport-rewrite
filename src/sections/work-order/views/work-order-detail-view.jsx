@@ -48,6 +48,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { useTenantContext } from 'src/auth/tenant';
 
 import { WorkOrderStartDialog } from '../work-order-start-dialog';
+import { WorkOrderStatusStepper } from '../work-order-status-stepper';
 import {
   WORK_ORDER_STATUS_LABELS,
   WORK_ORDER_STATUS_COLORS,
@@ -145,8 +146,6 @@ export function WorkOrderDetailView({ workOrder }) {
 
 
 
-  const canClose = status !== 'completed';
-
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -198,7 +197,7 @@ export function WorkOrderDetailView({ workOrder }) {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          {!canClose && !expenseAdded && (
+          {status === 'completed' && !expenseAdded && (
             <Button
               variant="outlined"
               color="primary"
@@ -225,14 +224,17 @@ export function WorkOrderDetailView({ workOrder }) {
             color="primary"
             startIcon={<Iconify icon="mdi:check-decagram-outline" />}
             onClick={closeDialog.onTrue}
-            disabled={!canClose}
+            disabled={status !== 'inprogress'}
           >
-            {canClose ? 'Close Work Order' : 'Already Closed'}
+            {status === 'completed' ? 'Already Closed' : 'Close Work Order'}
           </Button>
         </Stack>
       </Stack>
 
-      <Card sx={{ p: 3 }}>
+      <Stack spacing={3} sx={{ mt: 3 }}>
+        <WorkOrderStatusStepper status={status} />
+
+        <Card sx={{ p: 3 }}>
         <Box
           rowGap={3}
           display="grid"
@@ -553,6 +555,7 @@ export function WorkOrderDetailView({ workOrder }) {
           </Card>
         </Box>
       </Card>
+    </Stack>
 
       <Dialog open={closeDialog.value} onClose={closeDialog.onFalse} maxWidth="xs" fullWidth>
         <DialogTitle>Close Work Order</DialogTitle>

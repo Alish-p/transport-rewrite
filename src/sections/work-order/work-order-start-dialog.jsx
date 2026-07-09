@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker';
 
 import { useUpdateWorkOrder } from 'src/query/use-work-order';
 
@@ -57,10 +57,17 @@ export function WorkOrderStartDialog({ open, onClose, workOrder }) {
         <Typography variant="body2" sx={{ mb: 2 }}>
           Please select the actual start date to put this work order <strong>In Progress</strong>.
         </Typography>
-        <DateCalendar
+        <MobileDateTimePicker
+          label="Actual Start Date & Time"
           value={selectedStartDate}
           onChange={(newValue) => setSelectedStartDate(newValue)}
-          maxDate={dayjs()}
+          maxDateTime={dayjs()}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              variant: 'outlined',
+            },
+          }}
         />
       </DialogContent>
       <DialogActions>
