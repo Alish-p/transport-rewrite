@@ -264,7 +264,8 @@ export function VehicleDocumentDetailsView({ doc }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 minHeight: 320,
-                p: 2,
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
               {loadingUrl ? (
@@ -275,9 +276,18 @@ export function VehicleDocumentDetailsView({ doc }) {
                   tooltip
                   onDownload={handleDownload}
                   file={previewUrl}
-                  sx={{ width: '100%', height: 'auto', maxHeight: 400, alignSelf: 'center' }}
+                  sx={{
+                    width: 1,
+                    height: 1,
+                    minHeight: 320,
+                    borderRadius: 'inherit',
+                  }}
                   slotProps={{
-                    img: { width: '100%', height: 'auto', maxHeight: 400, objectFit: 'contain' },
+                    img: {
+                      width: 1,
+                      height: 1,
+                      objectFit: 'contain',
+                    },
                     icon: { width: 96, height: 96 },
                   }}
                 />
