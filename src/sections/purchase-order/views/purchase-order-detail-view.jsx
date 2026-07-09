@@ -30,10 +30,10 @@ import { getTenantLogoUrl } from 'src/utils/tenant-branding';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import {
+  useClosePurchaseOrder,
   useRejectPurchaseOrder,
   useApprovePurchaseOrder,
   useReceivePurchaseOrder,
-  useClosePurchaseOrder,
 } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
