@@ -63,6 +63,7 @@ const defaultFilters = {
   expiryFrom: null,
   expiryTo: null,
   days: '', // expiring window (optional)
+  hasAttachment: '',
 };
 
 export function VehicleDocumentsListView() {
@@ -105,6 +106,7 @@ export function VehicleDocumentsListView() {
       expiryFrom: filters.expiryFrom || undefined,
       expiryTo: filters.expiryTo || undefined,
       days: filters.days || undefined,
+      hasAttachment: filters.hasAttachment || undefined,
     },
     { enabled: view === 'list' }
   );

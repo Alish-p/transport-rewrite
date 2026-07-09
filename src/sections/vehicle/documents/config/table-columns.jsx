@@ -69,7 +69,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'issuer',
     label: 'Issuer',
-    defaultVisible: false,
+    defaultVisible: true,
     disabled: false,
     align: 'center',
     getter: (row) => row?.issuer || '-',
@@ -77,7 +77,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'issueDate',
     label: 'Issue Date',
-    defaultVisible: true,
+    defaultVisible: false,
     disabled: false,
     align: 'center',
     getter: (row) => row?.issueDate || '-',

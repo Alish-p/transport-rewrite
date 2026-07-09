@@ -49,6 +49,10 @@ export default function DocumentsFiltersResult({
     onFilters('expiryTo', null);
   };
 
+  const handleRemoveHasAttachment = () => {
+    onFilters('hasAttachment', '');
+  };
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -113,6 +117,16 @@ export default function DocumentsFiltersResult({
               size="small"
               label={fDateRangeShortLabel(filters.expiryFrom, filters.expiryTo)}
               onDelete={handleRemoveExpiryRange}
+            />
+          </Block>
+        )}
+
+        {filters.hasAttachment && (
+          <Block label="Attachment:">
+            <Chip
+              size="small"
+              label={filters.hasAttachment === 'yes' ? 'Has Attachment' : 'No Attachment'}
+              onDelete={handleRemoveHasAttachment}
             />
           </Block>
         )}

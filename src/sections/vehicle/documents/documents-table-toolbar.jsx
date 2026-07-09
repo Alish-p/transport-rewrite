@@ -17,6 +17,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
@@ -156,6 +157,30 @@ export default function DocumentsTableToolbar({
                 {type}
               </MenuItem>
             ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 180 } }}>
+          <InputLabel id="attachment-select-label">Attachment</InputLabel>
+          <Select
+            value={filters.hasAttachment || ''}
+            onChange={(event) => onFilters('hasAttachment', event.target.value)}
+            input={<OutlinedInput label="Attachment" />}
+            labelId="attachment-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            <MenuItem value="yes">
+              <Label variant="soft" color="success">
+                Yes
+              </Label>
+            </MenuItem>
+            <MenuItem value="no">
+              <Label variant="soft" color="error">
+                No
+              </Label>
+            </MenuItem>
           </Select>
         </FormControl>
 
