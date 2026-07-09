@@ -131,7 +131,7 @@ export default function WorkOrderLearn({ open, onClose }) {
           />
           <Box>
             <Typography variant="subtitle2" sx={{ color: 'warning.main' }}>
-              Pending
+              In Progress
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
               Work is in progress. The vehicle is being serviced, parts are being used, and the
@@ -317,7 +317,7 @@ export default function WorkOrderLearn({ open, onClose }) {
           <br />
           <b>Important:</b> Inventory is only adjusted when the work order is
           <b> closed</b>, not when parts are added to the work order. This means you can freely add
-          or remove parts while the work order is still Open or Pending without affecting stock
+          or remove parts while the work order is still Open or In Progress without affecting stock
           levels.
         </>
       ),
@@ -396,13 +396,13 @@ export default function WorkOrderLearn({ open, onClose }) {
         <>
           • <b>Open</b> — The work order has been created but work hasn&apos;t started. You can
           freely edit everything.
-          <br />• <b>Pending</b> — Work is actively in progress. The vehicle is being serviced. You
+          <br />• <b>In Progress</b> — Work is actively in progress. The vehicle is being serviced. You
           can still make changes at this stage.
           <br />• <b>Completed</b> — The work order is finalized. Inventory has been adjusted, costs
           are locked in, and the work order is effectively closed.
           <br />
           <br />
-          The status progression is typically: <code>Open → Pending → Completed</code>, but you can
+          The status progression is typically: <code>Open → In Progress → Completed</code>, but you can
           move directly from <code>Open → Completed</code> for quick repairs.
         </>
       ),
@@ -415,7 +415,7 @@ export default function WorkOrderLearn({ open, onClose }) {
         <>
           <b>Yes</b>, you can delete a work order from the list view. However, please note:
           <br />
-          <br />• If the work order is <b>Open</b> or <b>Pending</b>, it can be deleted safely since
+          <br />• If the work order is <b>Open</b> or <b>In Progress</b>, it can be deleted safely since
           inventory has not been adjusted yet.
           <br />• If the work order has been <b>Completed</b>, deleting it will <b>not reverse</b>{' '}
           the inventory deductions or expenses that were already recorded. Use deletion with caution
@@ -434,7 +434,7 @@ export default function WorkOrderLearn({ open, onClose }) {
       answer: (
         <>
           <b>Yes</b>, you can edit a work order at any time while it is <b>Open</b> or{' '}
-          <b>Pending</b>. You can change the vehicle, add/remove issues and assignees, modify parts
+          <b>In Progress</b>. You can change the vehicle, add/remove issues and assignees, modify parts
           and quantities, update the category, priority, dates, odometer reading, and description.
           <br />
           <br />

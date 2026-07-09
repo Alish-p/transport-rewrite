@@ -1,18 +1,18 @@
 export const WORK_ORDER_STATUS_LABELS = {
   open: 'Open',
-  pending: 'Pending',
+  inprogress: 'In Progress',
   completed: 'Completed',
 };
 
 export const WORK_ORDER_STATUS_COLORS = {
   open: 'info',
-  pending: 'warning',
+  inprogress: 'warning',
   completed: 'success',
 };
 
 export const WORK_ORDER_STATUS_ICONS = {
   open: 'solar:file-check-bold',
-  pending: 'solar:clock-circle-bold',
+  inprogress: 'solar:clock-circle-bold',
   completed: 'solar:check-circle-bold',
 };
 

@@ -47,6 +47,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import { WorkOrderStartDialog } from '../work-order-start-dialog';
 import {
   WORK_ORDER_STATUS_LABELS,
   WORK_ORDER_STATUS_COLORS,
@@ -65,6 +66,8 @@ export function WorkOrderDetailView({ workOrder }) {
   const [closeMode, setCloseMode] = useState('closeOnly'); // 'closeOnly' | 'closeAndExpense'
   const addExpenseDialog = useBoolean(false);
   const [isAddingExpense, setIsAddingExpense] = useState(false);
+
+  const startWorkDialog = useBoolean(false);
 
   const {
     _id,
@@ -140,6 +143,8 @@ export function WorkOrderDetailView({ workOrder }) {
     }
   }, [_id, addExpenseDialog, addWorkOrderExpense]);
 
+
+
   const canClose = status !== 'completed';
 
   return (
@@ -201,6 +206,17 @@ export function WorkOrderDetailView({ workOrder }) {
               onClick={addExpenseDialog.onTrue}
             >
               Add Final Expense
+            </Button>
+          )}
+
+          {status === 'open' && (
+            <Button
+              variant="contained"
+              color="warning"
+              startIcon={<Iconify icon="solar:play-bold" />}
+              onClick={startWorkDialog.onTrue}
+            >
+              Start Work
             </Button>
           )}
 
@@ -627,6 +643,12 @@ export function WorkOrderDetailView({ workOrder }) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <WorkOrderStartDialog
+        open={startWorkDialog.value}
+        onClose={startWorkDialog.onFalse}
+        workOrder={workOrder}
+      />
 
       <Dialog fullScreen open={viewPdf.value} onClose={viewPdf.onFalse}>
         <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>

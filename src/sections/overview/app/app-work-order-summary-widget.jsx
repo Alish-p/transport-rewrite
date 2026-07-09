@@ -28,12 +28,12 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
 
   const totalParts = data?.totalWorkOrders || 0;
   const openWorkOrders = data?.openWorkOrders || 0;
-  const pendingWorkOrders = data?.pendingWorkOrders || 0;
+  const inprogressWorkOrders = data?.inprogressWorkOrders || 0;
   const completedWorkOrders = data?.completedWorkOrders || 0;
 
   const statusBreakdown = [
     { label: 'Open', value: openWorkOrders },
-    { label: 'Pending', value: pendingWorkOrders },
+    { label: 'In Progress', value: inprogressWorkOrders },
     { label: 'Completed', value: completedWorkOrders },
   ];
 
@@ -81,8 +81,8 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
       color: theme.palette.info.main,
     },
     {
-      title: 'Pending',
-      value: pendingWorkOrders,
+      title: 'In Progress',
+      value: inprogressWorkOrders,
       icon: 'mdi:clock-outline',
       color: theme.palette.warning.main,
     },
