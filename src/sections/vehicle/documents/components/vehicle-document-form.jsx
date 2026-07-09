@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import { Stack, Button, Typography } from '@mui/material';
@@ -44,10 +44,10 @@ async function uploadViaPresigned({ vehicleId, docType, file }) {
 const AddDocSchema = zod
   .object({
     docType: zod.preprocess((v) => (v == null ? '' : v), zod.string().min(1, 'Type is required')),
-    docNumber: zod.string().min(1, 'Document number is required'),
+    docNumber: zod.string().optional(),
     issuer: zod.string().optional(),
-    issueDate: schemaHelper.date().optional(),
-    expiryDate: schemaHelper.date().optional(),
+    issueDate: schemaHelper.dateOptional(),
+    expiryDate: schemaHelper.date({ message: { required_error: 'Expiry date is required!' } }),
     isActive: zod.boolean().optional(),
     file: zod.any().optional().nullable(),
   })
@@ -94,7 +94,13 @@ export default function VehicleDocumentForm({
     setSelectedVehicle(initialVehicle || null);
   }, [initialVehicle]);
 
-  const effectiveVehicleId = doc?.vehicle?._id || doc?.vehicleId || selectedVehicle?._id || null;
+  const effectiveVehicleId = useMemo(() => {
+    const raw = doc?.vehicleId || doc?.vehicle?._id || doc?.vehicle?.id || doc?.vehicle || selectedVehicle?._id || selectedVehicle?.id || null;
+    if (!raw) return null;
+    if (typeof raw === 'string') return raw;
+    return raw?._id || raw?.id || null;
+  }, [doc, selectedVehicle]);
+
   const { data: providedVehicle } = useVehicle(effectiveVehicleId);
 
   const defaultValues = useMemo(
@@ -119,46 +125,51 @@ export default function VehicleDocumentForm({
   });
 
   // Pre-populate existing file for edit by fetching a temporary download URL
-  const [loadingFile, setLoadingFile] = useState(false);
   const [initialFileSet, setInitialFileSet] = useState(false);
+
+  const docId = doc?._id;
 
   useEffect(() => {
     methods.reset(defaultValues);
     setInitialFileSet(false);
-  }, [defaultValues, methods]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docId, methods]);
 
-  const handlePrefillFile = useCallback(
-    async (signal) => {
-      if (!isEdit || !doc?._id || initialFileSet || !effectiveVehicleId) return;
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+
+    const prefillFile = async () => {
+      if (!isEdit || !docId || initialFileSet || !effectiveVehicleId) return;
+      if (!doc?.fileKey && !doc?.fileUrl) {
+        setInitialFileSet(true);
+        return;
+      }
       try {
-        setLoadingFile(true);
         const { data } = await axios.get(
-          `/api/documents/${effectiveVehicleId}/${doc._id}/download`,
-          { signal }
+          `/api/documents/${effectiveVehicleId}/${docId}/download`,
+          { signal: controller.signal }
         );
-        if (!signal?.aborted && data?.url) {
+        if (active && data?.url) {
           methods.setValue('file', data.url, { shouldValidate: false });
         }
       } catch (e) {
         // ignore; file may not be available or request aborted
       } finally {
-        if (!signal?.aborted) {
+        if (active) {
           setInitialFileSet(true);
-          setLoadingFile(false);
         }
       }
-    },
-    [isEdit, doc?._id, initialFileSet, effectiveVehicleId, methods]
-  );
+    };
 
-  useEffect(() => {
-    if (isEdit && !initialFileSet && !loadingFile) {
-      const controller = new AbortController();
-      handlePrefillFile(controller.signal);
-      return () => controller.abort();
-    }
-    return undefined;
-  }, [isEdit, initialFileSet, loadingFile, handlePrefillFile]);
+    prefillFile();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, docId, doc?.fileKey, doc?.fileUrl, initialFileSet, effectiveVehicleId, methods]);
 
   const onSubmit = async (values) => {
     try {
@@ -241,28 +252,25 @@ export default function VehicleDocumentForm({
             disableClearable={false}
             autoHighlight
             fullWidth
-            disabled={isEdit || !effectiveVehicleId}
+            disabled={isEdit}
           />
 
-          <Field.Text name="docNumber" label="Document Number" disabled={!effectiveVehicleId} />
+          <Field.Text name="docNumber" label="Document Number" />
 
           <Field.Text
             name="issuer"
             label="Issuer"
             placeholder="ICICI, RTO Karnataka, Govt. of India"
-            disabled={!effectiveVehicleId}
           />
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Field.DatePicker
               name="issueDate"
               label="Issue Date"
-              disabled={!effectiveVehicleId}
             />
             <Field.DatePicker
               name="expiryDate"
               label="Expiry Date"
-              disabled={!effectiveVehicleId}
             />
           </Stack>
 
@@ -278,7 +286,6 @@ export default function VehicleDocumentForm({
                 File is optional. Accepted: images or PDF. Max size 5MB.
               </Typography>
             }
-            disabled={!effectiveVehicleId}
           />
 
           <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ mt: 3 }}>
