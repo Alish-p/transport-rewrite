@@ -164,6 +164,7 @@ export function VehicleDocumentListView() {
     { value: 'valid', label: 'Valid', color: 'success', count: data?.totalValid || 0 },
     { value: 'expiring', label: 'Expiring', color: 'warning', count: data?.totalExpiring || 0 },
     { value: 'expired', label: 'Expired', color: 'error', count: data?.totalExpired || 0 },
+    { value: 'missing', label: 'Missing', color: 'info', count: data?.totalMissing || 0 },
   ];
 
   return (
@@ -349,10 +350,10 @@ export function VehicleDocumentListView() {
                     ))
                     : tableData.map((row) => (
                       <VehicleDocumentTableRow
-                        key={row._id}
+                        key={row._id || `${row.vehicle?._id || row.vehicle}-${row.docType}`}
                         row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
+                        selected={row._id ? table.selected.includes(row._id) : false}
+                        onSelectRow={() => row._id && table.onSelectRow(row._id)}
                         onDeleteRow={handleDeleteRow}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}

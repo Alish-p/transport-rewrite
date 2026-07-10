@@ -36,11 +36,35 @@ export default function VehicleDocumentTableRow({
     onDeleteRow?.(r);
   };
 
+  const isMissing = row?.status === 'missing' || row?.missing;
   const status = getExpiryStatus(row?.expiryDate);
   const isExpiringOrExpired = status === 'Expired' || status === 'Expiring';
 
   const customActions = [];
-  if (isExpiringOrExpired) {
+  if (isMissing) {
+    customActions.push({
+      label: 'Upload Document',
+      icon: 'bytesize:upload',
+      onClick: (r) => {
+        const vehicleId = r?.vehicle?._id || r?.vehicle;
+        const docType = r?.docType;
+        const qs = `?vehicleId=${vehicleId}&docType=${docType}`;
+        navigate(`${paths.dashboard.vehicle.newDocument}${qs}`);
+      },
+    });
+    customActions.push({
+      label: 'Fetch from Portal',
+      icon: 'solar:import-bold',
+      onClick: async (r) => {
+        const vehicleNo = r?.vehicle?.vehicleNo || r?.vehicleNo;
+        if (vehicleNo && r?.docType) {
+          await syncDocuments({ vehicleNo, docType: r.docType });
+        } else {
+          toast.error('Vehicle number or document type missing');
+        }
+      },
+    });
+  } else if (isExpiringOrExpired) {
     customActions.push({
       label: 'Fetch from Portal',
       icon: 'solar:import-bold',
@@ -61,13 +85,14 @@ export default function VehicleDocumentTableRow({
       columns={TABLE_COLUMNS}
       selected={selected}
       onSelectRow={onSelectRow}
-      onViewRow={handleView}
-      onEditRow={handleEdit}
-      onDeleteRow={handleDelete}
+      onViewRow={isMissing ? null : handleView}
+      onEditRow={isMissing ? null : handleEdit}
+      onDeleteRow={isMissing ? null : handleDelete}
       customActions={customActions}
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
       columnOrder={columnOrder}
+      hideSelection={isMissing}
     />
   );
 }

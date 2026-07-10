@@ -17,6 +17,7 @@ export function VehicleDocumentCreateView() {
   const navigate = useNavigate();
   const searchParams = useSearchParams();
   const vehicleId = searchParams.get('vehicleId') || '';
+  const docType = searchParams.get('docType') || '';
   
   const { data: vehicle } = useVehicle(vehicleId, {
     enabled: !!vehicleId,
@@ -54,6 +55,7 @@ export function VehicleDocumentCreateView() {
         <Card sx={{ p: 4 }}>
           <VehicleDocumentForm
             mode="create"
+            doc={docType ? { docType } : null}
             initialVehicle={vehicle || null}
             disableVehicleSelection={!!vehicleId}
             onSuccess={handleSuccess}
