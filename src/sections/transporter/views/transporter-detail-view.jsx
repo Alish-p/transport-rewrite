@@ -8,7 +8,7 @@ import { HeroHeader } from 'src/components/hero-header-card';
 import {
   TransporterBasicWidget,
   TransporterFinanceWidget,
-  TransporterExpensesWidget,
+  TransporterAdvancesWidget,
   TransporterPaymentsWidget,
   TransporterSubtripsWidget,
   TransporterVehiclesWidget,
@@ -53,7 +53,7 @@ export function TransporterDetailView({ transporter }) {
             <TransporterSubtripsWidget transporterId={transporter._id} />
           </Grid>
           <Grid xs={12}>
-            <TransporterExpensesWidget transporterId={transporter._id} />
+            <TransporterAdvancesWidget transporterId={transporter._id} />
           </Grid>
           <Grid xs={12}>
             <TransporterDocumentsWidget transporter={transporter} />
