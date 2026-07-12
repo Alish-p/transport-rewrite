@@ -4,15 +4,20 @@ import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
-import { Stack, Button, Typography } from '@mui/material';
+import { Box, Stack, Alert, Button, Typography } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios from 'src/utils/axios';
+import { fDate } from 'src/utils/format-time';
 
 import { useVehicle } from 'src/query/use-vehicle';
 import {
   getPresignedUploadUrl,
+  usePaginatedDocuments,
   useCreateVehicleDocument,
   useUpdateVehicleDocument,
 } from 'src/query/use-documents';
@@ -22,6 +27,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
+import { getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
 import { DOC_TYPES } from './vehicle-document-config';
@@ -123,6 +129,51 @@ export default function VehicleDocumentForm({
     defaultValues,
     mode: 'all',
   });
+
+  const watchDocType = methods.watch('docType');
+
+  const { data: docsResp } = usePaginatedDocuments(
+    effectiveVehicleId && !isEdit
+      ? { vehicleId: effectiveVehicleId, page: 1, rowsPerPage: 1000, isActive: true }
+      : null,
+    { enabled: !!effectiveVehicleId && !isEdit }
+  );
+
+  const existingDoc = useMemo(() => {
+    if (isEdit || !docsResp?.results || !watchDocType) return null;
+    return docsResp.results.find(
+      (d) => String(d.docType).toLowerCase() === String(watchDocType).toLowerCase()
+    );
+  }, [docsResp, watchDocType, isEdit]);
+
+  const existingDocMeta = useMemo(() => {
+    if (!existingDoc) return null;
+    const status = getExpiryStatus(existingDoc.expiryDate);
+    const formattedDate = existingDoc.expiryDate ? fDate(existingDoc.expiryDate) : '';
+
+    if (status === 'Expired') {
+      return {
+        severity: 'error',
+        title: 'Document Expired',
+        message: `This vehicle has an expired ${existingDoc.docType} document (Expired on ${formattedDate}).`,
+      };
+    }
+    if (status === 'Expiring') {
+      return {
+        severity: 'warning',
+        title: 'Document Expiring Soon',
+        message: `This vehicle has a ${existingDoc.docType} document expiring soon (Expires on ${formattedDate}).`,
+      };
+    }
+    // Valid or null (no expiry date)
+    return {
+      severity: 'info',
+      title: 'Document Already Exists',
+      message: `This vehicle already has a valid ${existingDoc.docType} document${
+        formattedDate ? ` (Valid till ${formattedDate})` : ''
+      }.`,
+    };
+  }, [existingDoc]);
 
   // Pre-populate existing file for edit by fetching a temporary download URL
   const [initialFileSet, setInitialFileSet] = useState(false);
@@ -254,6 +305,45 @@ export default function VehicleDocumentForm({
             fullWidth
             disabled={isEdit}
           />
+
+          {existingDocMeta && (
+            <Alert
+              severity={existingDocMeta.severity}
+              variant="outlined"
+              sx={{
+                my: 1,
+                '& .MuiAlert-message': {
+                  width: '100%',
+                },
+              }}
+            >
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                justifyContent="space-between"
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                spacing={1.5}
+              >
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                    {existingDocMeta.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                    {existingDocMeta.message}
+                  </Typography>
+                </Box>
+                <Button
+                  component={RouterLink}
+                  href={paths.dashboard.vehicle.documentDetails(existingDoc._id)}
+                  variant="text"
+                  size="small"
+                  color="inherit"
+                  sx={{ textDecoration: 'underline' }}
+                >
+                  View Document
+                </Button>
+              </Stack>
+            </Alert>
+          )}
 
           <Field.Text name="docNumber" label="Document Number" />
 
