@@ -62,7 +62,7 @@ export default function LRPDF({ subtrip, tenant }) {
       ],
     ];
 
-    return <PDFTable styles={styles} headers={headers} data={data} />;
+    return <PDFTable styles={styles} headers={headers} data={data} columnWidths={[2, 2, 1, 1, 1, 1, 2, 2]} />;
   };
 
   const renderTables = () => {
