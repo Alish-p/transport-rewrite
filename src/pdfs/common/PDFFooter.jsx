@@ -25,12 +25,13 @@ export default function PDFFooter({ additionalInfo = [] }) {
       <Text style={[PDFStyles.caption, PDFStyles.textCenter]}>
         Powered by{' '}
         <Link
-          src="https://transport-rewrite.onrender.com/"
+          src="https://tranzitsolutions.com/"
           style={[PDFStyles.caption, PDFStyles.textPrimary, PDFStyles.underline]}
         >
-          Transport++
+          Tranzit Solutions
         </Link>
       </Text>
     </View>
   );
 }
+
