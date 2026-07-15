@@ -1,5 +1,4 @@
 import Card from '@mui/material/Card';
-import Link from '@mui/material/Link';
 import Timeline from '@mui/lab/Timeline';
 import TimelineDot from '@mui/lab/TimelineDot';
 import Typography from '@mui/material/Typography';
@@ -9,17 +8,11 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-
-import { safeStr } from 'src/utils/safe-str';
 import { fDateTime } from 'src/utils/format-time';
-import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-
-import { useSubtripExpenseTypes } from '../../expense/expense-config';
+import { EventMessage } from 'src/components/event-message/event-message';
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +31,12 @@ const EVENT_ICONS = {
   TRANSPORTER_PAYMENT_PAID: 'mdi:bank-check',
   TRANSPORTER_PAYMENT_CANCELLED: 'mdi:bank-remove',
   UPDATED: 'mdi:refresh',
+  STATUS_CHANGED: 'mdi:swap-horizontal',
+  ERROR_REPORTED: 'mdi:alert-circle-outline',
+  ERROR_RESOLVED: 'mdi:check-circle-outline',
+  EPOD_SUBMITTED: 'mdi:file-check-outline',
+  ADVANCE_ADDED: 'mdi:cash-plus',
+  ADVANCE_DELETED: 'mdi:cash-minus',
 };
 
 const EVENT_COLORS = {
@@ -57,181 +56,15 @@ const EVENT_COLORS = {
   TRANSPORTER_PAYMENT_PAID: 'success',
   TRANSPORTER_PAYMENT_CANCELLED: 'error',
   UPDATED: 'grey',
+  STATUS_CHANGED: 'grey',
+  ADVANCE_ADDED: 'info',
+  ADVANCE_DELETED: 'error',
+  EPOD_SUBMITTED: 'success',
 };
 
-function getExpenseLabel(expenseTypes, value) {
-  return expenseTypes.find((t) => t.label === value)?.label || value;
-}
-
-function formatEventMessage(event, subtripExpenseTypes) {
-  const { details = {}, eventType, user } = event;
-  const userPrefix = user?.name ? `${user.name}: ` : '';
-
-  // Handle subtrip updates with changed fields
-  if (eventType === 'UPDATED') {
-    const baseMessage = userPrefix + (details.note || details.message || 'Updated');
-    const changed = details.changedFields || {};
-    const changeLines = Object.entries(changed)
-      .map(([field, change]) => {
-        if (change && typeof change === 'object' && 'from' in change && 'to' in change) {
-          return `${field}: ${safeStr(change.from)} → ${safeStr(change.to)}`;
-        }
-        return `${field}: ${safeStr(change)}`;
-      })
-      .join('\n');
-    return changeLines ? `${baseMessage}\n${changeLines}` : baseMessage;
-  }
-
-  // 1. Explicit “note” or “message” fields always win
-  if (details.note || details.message) {
-    return userPrefix + (details.note || details.message);
-  }
-
-  // 2. Expense added/removed (you already have this)
-  if (details.expenseType && typeof details.amount !== 'undefined') {
-    const label = getExpenseLabel(subtripExpenseTypes, details.expenseType);
-    const action = eventType === 'EXPENSE_DELETED' ? 'removed' : 'added';
-    return `${userPrefix}${label} expense ${action} for ${fCurrency(details.amount)}`;
-  }
-
-  // 3. Invoice events
-  if (eventType === 'INVOICE_GENERATED' && details.invoiceNo && details.amount != null) {
-    return (
-      <span>
-        {userPrefix}Generated invoice{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.invoice.details(details.invoiceId)}
-          color="primary"
-        >
-          {details.invoiceNo}
-        </Link>{' '}
-        for {fCurrency(details.amount)}
-      </span>
-    );
-  }
-  if (eventType === 'INVOICE_PAID' && details.invoiceNo) {
-    return (
-      <span>
-        {userPrefix}Marked invoice{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.invoice.details(details.invoiceId)}
-          color="primary"
-        >
-          {details.invoiceNo}
-        </Link>{' '}
-        as paid
-      </span>
-    );
-  }
-  if (eventType === 'INVOICE_DELETED' && details.invoiceNo) {
-    return `${userPrefix}Deleted invoice ${details.invoiceNo}`;
-  }
-
-  // Driver salary events (This block is not called because of early return but moving the logic out so it's consistent)
-  if (eventType === 'DRIVER_SALARY_GENERATED' && details.paymentId) {
-    return (
-      <span>
-        {userPrefix}Processed driver salary{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.driverSalary.details(details.salaryId)}
-          color="primary"
-        >
-          {details.paymentId}
-        </Link>
-      </span>
-    );
-  }
-
-  if (eventType === 'DRIVER_SALARY_CANCELLED' && details.paymentId) {
-    return (
-      <span>
-        {userPrefix}Cancelled driver salary{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.driverSalary.details(details.salaryId)}
-          color="primary"
-        >
-          {details.paymentId}
-        </Link>
-      </span>
-    );
-  }
-
-  // Transporter payment events
-  if (eventType === 'TRANSPORTER_PAYMENT_GENERATED' && details.paymentId) {
-    return (
-      <span>
-        {userPrefix}Processed transporter payment{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
-          color="primary"
-        >
-          {details.paymentId}
-        </Link>
-      </span>
-    );
-  }
-
-  if (eventType === 'TRANSPORTER_PAYMENT_PAID' && details.paymentId) {
-    return (
-      <span>
-        {userPrefix}Marked transporter payment{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
-          color="primary"
-        >
-          {details.paymentId}
-        </Link>{' '}
-        as paid
-      </span>
-    );
-  }
-
-  if (eventType === 'TRANSPORTER_PAYMENT_CANCELLED' && details.paymentId) {
-    return (
-      <span>
-        {userPrefix}Cancelled transporter payment{' '}
-        <Link
-          component={RouterLink}
-          href={paths.dashboard.transporterPayment.details(details.paymentReceiptId)}
-          color="primary"
-        >
-          {details.paymentId}
-        </Link>
-      </span>
-    );
-  }
-
-  // 4. Material added event
-  if (eventType === 'MATERIAL_ADDED') {
-    const { materialType, quantity, loadingWeight, rate } = details;
-    const parts = [];
-    if (materialType) parts.push(materialType);
-    if (typeof quantity !== 'undefined') parts.push(`qty ${fNumber(quantity)}`);
-    if (typeof loadingWeight !== 'undefined') parts.push(`weight ${fNumber(loadingWeight)}`);
-    if (typeof rate !== 'undefined') parts.push(`rate ${fCurrency(rate)}`);
-    const detail = parts.join(', ');
-    return `${userPrefix}Added material${detail ? ` ${detail}` : ''}`;
-  }
-
-  // 5. Received event
-  if (eventType === 'RECEIVED' && typeof details.unloadingWeight === 'number') {
-    return `${userPrefix}Recorded unloading weight of ${fNumber(details.unloadingWeight)} kg`;
-  }
-
-  // 6. Any other details just JSON-dumped (or empty)
-  const detailString = JSON.stringify(details);
-  return userPrefix + (detailString === '{}' ? '' : detailString);
-}
+// ----------------------------------------------------------------------
 
 export function SubtripTimeline({ events = [] }) {
-  const subtripExpenseTypes = useSubtripExpenseTypes();
-
   return (
     <Card
       sx={{
@@ -269,18 +102,7 @@ export function SubtripTimeline({ events = [] }) {
                   <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                     {fDateTime(event.timestamp)}
                   </Typography>
-                  {formatEventMessage(event, subtripExpenseTypes) && (
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: 'text.secondary',
-                        whiteSpace: 'pre-line',
-                        wordBreak: 'break-word',
-                      }}
-                    >
-                      {formatEventMessage(event, subtripExpenseTypes)}
-                    </Typography>
-                  )}
+                  <EventMessage message={event.displayMessage} />
                 </TimelineContent>
               </TimelineItem>
             );
