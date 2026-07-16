@@ -23,6 +23,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components/router-link';
 
 import { useFilters } from 'src/hooks/use-filters';
+import { useBoolean } from 'src/hooks/use-boolean';
 
 import axios from 'src/utils/axios';
 import { paramCase } from 'src/utils/change-case';
@@ -48,6 +49,7 @@ import {
 
 import { useTenantContext } from 'src/auth/tenant';
 
+import JobLearn from '../job-learn';
 import { SUBTRIP_STATUS_COLORS } from '../constants';
 import SubtripTableRow from '../active-list/subtrip-table-row';
 import { useVisibleColumns } from '../hooks/use-visible-columns';
@@ -90,6 +92,7 @@ export function SubtripListView() {
   const navigate = useNavigate();
   const table = useTable({ defaultOrderBy: 'createDate', syncToUrl: true });
   const deleteSubtrip = useDeleteSubtrip();
+  const learn = useBoolean();
 
   const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -322,8 +325,31 @@ export function SubtripListView() {
 
   return (
     <DashboardContent>
+      <JobLearn open={learn.value} onClose={learn.onFalse} />
+
       <CustomBreadcrumbs
-        heading="Job List"
+        heading={
+          <Stack direction="row" alignItems="center" spacing={1} component="span">
+            <span>Job List</span>
+            <IconButton
+              color="default"
+              onClick={learn.onTrue}
+              sx={{
+                color: 'warning.main',
+                animation: 'pulseGlow 2s ease-in-out infinite',
+                '@keyframes pulseGlow': {
+                  '0%, 100%': { transform: 'scale(1)', filter: 'drop-shadow(0 0 0px transparent)' },
+                  '50%': {
+                    transform: 'scale(1.18)',
+                    filter: 'drop-shadow(0 0 6px rgba(255,171,0,0.5))',
+                  },
+                },
+              }}
+            >
+              <Iconify icon="mage:light-bulb" />
+            </IconButton>
+          </Stack>
+        }
         links={[
           {
             name: 'Dashboard',

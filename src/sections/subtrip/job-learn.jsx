@@ -15,12 +15,13 @@ import { alpha, useTheme } from '@mui/material/styles';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 
-export default function PurchaseOrderLearn({ open, onClose }) {
+export default function JobLearn({ open, onClose }) {
   const theme = useTheme();
   const [currentTab, setCurrentTab] = useState('overview');
 
@@ -30,124 +31,101 @@ export default function PurchaseOrderLearn({ open, onClose }) {
 
   const faqData = [
     {
-      icon: 'solar:user-check-bold',
+      icon: 'solar:user-plus-bold',
       iconColor: theme.palette.info.main,
-      question: 'Who can approve or reject a PO?',
+      question: 'Who can create a Job?',
       answer: (
         <>
-          Any user who has the <code>purchaseOrder &gt; update</code> permission can approve or
-          reject a purchase order. The system records who approved/rejected it and when.
+          Fleet managers, logistics operators, dispatch officers, and admin users create jobs to
+          coordinate and track vehicle consignments.
           <br />
           <br />
-          <b>Important:</b> Only POs in <b>Pending Approval</b> status can be approved or
-          rejected. Once a PO moves past this stage, the approval decision is locked.
+          The system records <b>who dispatched</b> and <b>who received</b> each job for full audit
+          trail accountability.
+        </>
+      ),
+    },
+    {
+      icon: 'solar:document-bold',
+      iconColor: theme.palette.primary.main,
+      question: 'What is an E-way Bill and is it mandatory?',
+      answer: (
+        <>
+          <b>Yes.</b> The E-way Bill (Electronic Way Bill) is a mandatory document required under GST
+          rules for transporting goods. The system tracks the e-way bill number and its expiry date.
+          <br />
+          <br />
+          <b>Alerts:</b> If a job is active and the e-way bill is close to expiry, the system displays
+          clear warnings to dispatchers to prevent transit penalties.
         </>
       ),
     },
     {
       icon: 'solar:box-bold',
       iconColor: theme.palette.success.main,
-      question: 'What happens when I receive items?',
+      question: 'How does shortage calculation work?',
       answer: (
         <>
-          Receiving items triggers several important actions:
+          Shortage occurs if the unloading weight is less than the loading weight.
           <br />
           <br />
-          1. The <b>Quantity Received</b> on each PO line is incremented by the amount you enter.
+          Formula:
           <br />
-          2. The physical <b>Part Stock</b> at the designated warehouse location is increased.
-          <br />
-          3. An <b>Inventory Transaction</b> (audit trail) is recorded for compliance.
-          <br />
-          4. The <b>Average Unit Cost</b> (Moving Average Price) for that part is automatically
-          recalculated using a weighted average formula:
-          <br />
-          <code>
-            New Avg Cost = (Current Stock × Old Avg Cost + New Qty × New Unit Cost) ÷ Total Qty
-          </code>
+          <code>Shortage Weight = Loading Weight - Unloading Weight</code>
           <br />
           <br />
-          If all lines are fully received, the PO moves to <b>Received</b>. If only some lines are
-          done, it moves to <b>Partially Received</b>.
+          If shortage weight is positive, you can enter the <b>shortage amount (penalty)</b>.
+          This penalty is deducted from the transporter&apos;s final payout or recorded as a cargo loss.
         </>
       ),
     },
     {
-      icon: 'solar:document-text-bold',
-      iconColor: theme.palette.info.main,
-      question: 'What is a Goods Receipt Note (GRN)?',
-      answer: (
-        <>
-          A <b>Goods Receipt Note (GRN)</b> is generated each time you receive items. It records
-          exactly what was received, when, and by whom.
-          <br />
-          <br />
-          <b>Price Variances:</b> When receiving, you can override the original PO cost with the
-          actual unit cost paid. The GRN captures this actual cost and calculates the variance.
-          Your inventory valuation (Moving Average Price) will update using the <b>Actual Cost</b>,
-          not the PO cost.
-          <br />
-          <br />
-          <b>Over-Receiving:</b> You are allowed to receive more quantity than originally ordered
-          if needed (e.g., vendor sent extra items). A warning will be displayed, but the system
-          will accept the items and generate the GRN correctly.
-        </>
-      ),
-    },
-    {
-      icon: 'solar:calculator-bold',
-      iconColor: theme.palette.secondary.main,
-      question: 'How is the PO total calculated?',
-      answer: (
-        <>
-          The total is built up from the line items:
-          <br />
-          <br />
-          1. <b>Subtotal</b> = Sum of (Quantity Ordered × Unit Cost) for each line.
-          <br />
-          2. <b>Discount</b> is subtracted (can be a fixed amount or a percentage of subtotal).
-          <br />
-          3. <b>Tax</b> is added (can be a fixed amount or a percentage of the discounted amount).
-          <br />
-          4. <b>Shipping</b> cost is added.
-          <br />
-          <br />
-          <code>Total = Subtotal - Discount + Tax + Shipping</code>
-        </>
-      ),
-    },
-    {
-      icon: 'solar:pen-bold',
+      icon: 'solar:delivery-bold',
       iconColor: theme.palette.warning.main,
-      question: 'Can I edit a PO after items are received?',
+      question: 'What is the difference between Own vs Market Vehicles?',
       answer: (
         <>
-          <b>No.</b> Once any line item on a PO has received even a partial quantity, the entire
-          PO becomes locked for editing. This protects the integrity of your inventory records and
-          cost calculations.
+          The system supports two vehicle ownership types:
           <br />
           <br />
-          You also cannot edit a PO that is in <b>Received</b> or <b>Rejected</b> status.
+          1. <b>Own Vehicles</b> — Operated internally. The system tracks actual route expenses (fuel,
+          tolls, maintenance) and driver salaries to calculate actual Job profitability.
           <br />
-          <br />
-          If you need to make changes, you must create a new purchase order with the corrected
-          details.
+          2. <b>Market Vehicles</b> — Outsourced from third-party transporters. You negotiate a
+          freight rate with the customer, pay the transporter a rate minus your commission, and track
+          outbound transporter advances.
         </>
       ),
     },
     {
-      icon: 'solar:trash-bin-trash-bold',
-      iconColor: theme.palette.error.main,
-      question: 'Can I delete a Purchase Order?',
+      icon: 'solar:wallet-money-bold',
+      iconColor: theme.palette.secondary.main,
+      question: 'How is driver advance tracked?',
       answer: (
         <>
-          You can only delete a PO if it has <b>not</b> been purchased, partially received, or
-          fully received. Once any stock movement has been made against a PO, it cannot be deleted
-          to maintain inventory audit integrity.
+          Driver advances are cash or fuel allocations given to drivers to cover transit costs:
+          <br />
+          <br />• <b>Self Advance</b> — Cash or bank transfers paid directly by your organization.
+          <br />• <b>Fuel Pump Advance</b> — Fuel vouchers or pump cards assigned to the driver at
+          partner pumps.
           <br />
           <br />
-          POs in <b>Pending Approval</b> or <b>Approved</b> status can be safely deleted. A user
-          with <code>purchaseOrder &gt; delete</code> permission is required.
+          These advances are settled and reconciled when the driver submits receipts after delivery.
+        </>
+      ),
+    },
+    {
+      icon: 'solar:gallery-check-bold',
+      iconColor: theme.palette.success.main,
+      question: 'What is EPOD?',
+      answer: (
+        <>
+          EPOD stands for <b>Electronic Proof of Delivery</b>. When a consignment is received, the
+          unloading officer uploads a signed delivery receipt or digital signature.
+          <br />
+          <br />
+          Once EPOD is uploaded and unloading weight is confirmed, the Job status changes to
+          <b> Received</b>, preparing it for invoicing and billing.
         </>
       ),
     },
@@ -174,16 +152,16 @@ export default function PurchaseOrderLearn({ open, onClose }) {
               height: 40,
             }}
           >
-            <Iconify icon="solar:cart-large-2-bold" width={24} />
+            <Iconify icon="solar:delivery-bold" width={24} />
           </Avatar>
           <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-              What is a Purchase Order?
+              What is a Job?
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-              A Purchase Order (PO) is a formal request document used to order spare parts or
-              inventory items from a Vendor. It tracks the entire procurement lifecycle — from
-              requesting approval, making payment, to physically receiving items into your warehouse.
+              A Job (Subtrip) represents a single logistics and transit transaction to deliver a
+              consignment of goods from a loading point to an unloading point. It coordinates
+              customers, vehicles, drivers, transporters, cargo weights, and financial records.
             </Typography>
           </Box>
         </Box>
@@ -212,11 +190,11 @@ export default function PurchaseOrderLearn({ open, onClose }) {
           </Avatar>
           <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-              How are PO Numbers generated?
+              How are Job Numbers generated?
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-              The system automatically assigns a unique, sequential PO number when you create a new
-              purchase order. This provides an audit trail for accounting.
+              Job numbers are auto-generated and incremented sequentially (e.g. <code>JOB-0001</code>)
+              by the system upon creation. This acts as a unique transit identifier.
             </Typography>
           </Box>
         </Box>
@@ -224,7 +202,7 @@ export default function PurchaseOrderLearn({ open, onClose }) {
 
       <Card sx={{ p: 3 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
-          What does a Purchase Order contain?
+          What does a Job contain?
         </Typography>
         <Box
           sx={{
@@ -234,14 +212,14 @@ export default function PurchaseOrderLearn({ open, onClose }) {
           }}
         >
           {[
-            { icon: 'solar:user-bold', text: 'Vendor Details' },
-            { icon: 'solar:map-draw-bold', text: 'Warehouse Location' },
-            { icon: 'solar:box-bold', text: 'Ordered Parts & Qty' },
-            { icon: 'solar:calculator-bold', text: 'Unit Costs & Totals' },
-            { icon: 'solar:wallet-money-bold', text: 'Discounts & Taxes' },
-            { icon: 'solar:delivery-bold', text: 'Shipping Charges' },
-            { icon: 'solar:user-check-bold', text: 'Approval Records' },
-            { icon: 'solar:gallery-check-bold', text: 'Goods Receipts (GRNs)' },
+            { icon: 'solar:user-bold', text: 'Customer Details' },
+            { icon: 'solar:delivery-bold', text: 'Vehicle & Driver' },
+            { icon: 'solar:box-bold', text: 'Material & Quantity' },
+            { icon: 'solar:scale-bold', text: 'Loading Weight' },
+            { icon: 'solar:scale-bold', text: 'Unloading Weight' },
+            { icon: 'solar:calculator-bold', text: 'Freight Pricing Model' },
+            { icon: 'solar:wallet-money-bold', text: 'Driver Advances' },
+            { icon: 'solar:gallery-check-bold', text: 'EPOD & Shortages' },
           ].map((item, index) => (
             <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Avatar
@@ -279,10 +257,10 @@ export default function PurchaseOrderLearn({ open, onClose }) {
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
-            Purchase Order Statuses
+            Job Statuses Explained
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            A PO progresses through these main stages in order:
+            Track the lifecycle of your jobs through these transit stages:
           </Typography>
         </Box>
       </Box>
@@ -293,9 +271,9 @@ export default function PurchaseOrderLearn({ open, onClose }) {
         <Box
           sx={{
             position: 'absolute',
-            top: 20,
-            left: '10%',
-            right: '10%',
+            top: 24,
+            left: '12.5%',
+            right: '12.5%',
             height: '2px',
             bgcolor: alpha(theme.palette.grey[500], 0.2),
             zIndex: 1,
@@ -304,39 +282,32 @@ export default function PurchaseOrderLearn({ open, onClose }) {
 
         {[
           {
-            key: 'pending-approval',
-            label: 'Pending',
+            key: 'in-queue',
+            label: 'In-Queue',
             color: 'warning',
             icon: 'solar:clock-circle-bold',
-            desc: 'Awaiting approval.',
+            desc: 'Created & assigned a vehicle. Awaiting loading.',
           },
           {
-            key: 'approved',
-            label: 'Approved',
+            key: 'loaded',
+            label: 'Loaded',
             color: 'info',
-            icon: 'solar:shield-check-bold',
-            desc: 'Review approved.',
-          },
-          {
-            key: 'purchased',
-            label: 'Purchased',
-            color: 'primary',
-            icon: 'solar:card-bold',
-            desc: 'Payment completed.',
-          },
-          {
-            key: 'partial-received',
-            label: 'Partial',
-            color: 'warning',
-            icon: 'solar:pie-chart-2-bold',
-            desc: 'Some items arrived.',
+            icon: 'solar:delivery-bold',
+            desc: 'Fully loaded & departed. In transit to destination.',
           },
           {
             key: 'received',
             label: 'Received',
+            color: 'primary',
+            icon: 'solar:gallery-check-bold',
+            desc: 'Unloaded at destination. EPOD signature confirmed.',
+          },
+          {
+            key: 'billed',
+            label: 'Billed',
             color: 'success',
             icon: 'solar:check-circle-bold',
-            desc: 'All items received.',
+            desc: 'Invoice generated. Job finalized & locked.',
           },
         ].map((step) => {
           const stepColor = theme.palette[step.color].main;
@@ -344,7 +315,7 @@ export default function PurchaseOrderLearn({ open, onClose }) {
             <Box
               key={step.key}
               sx={{
-                width: '18%',
+                width: '22%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -356,27 +327,27 @@ export default function PurchaseOrderLearn({ open, onClose }) {
                 sx={{
                   bgcolor: alpha(stepColor, 0.12),
                   color: stepColor,
-                  width: 40,
-                  height: 40,
+                  width: 48,
+                  height: 48,
                   border: `2px solid ${stepColor}`,
                 }}
               >
-                <Iconify icon={step.icon} width={20} />
+                <Iconify icon={step.icon} width={24} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontSize: '12px', fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
                 {step.label}
               </Typography>
 
               <Typography
                 variant="caption"
                 sx={{
-                  mt: 0.5,
+                  mt: 1,
                   color: 'text.secondary',
-                  fontSize: '10.5px',
-                  lineHeight: 1.3,
+                  fontSize: '11px',
+                  lineHeight: 1.4,
                   display: '-webkit-box',
-                  WebkitLineClamp: 3,
+                  WebkitLineClamp: 4,
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
                 }}
@@ -390,35 +361,95 @@ export default function PurchaseOrderLearn({ open, onClose }) {
 
       <Divider sx={{ my: 3 }} />
 
-      {/* Alternate Statuses */}
-      <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 700 }}>
-        Alternative States
-      </Typography>
+      {/* Error Status Box */}
+      <Box sx={{ display: 'flex', gap: 2, bgcolor: alpha(theme.palette.error.main, 0.06), p: 2, borderRadius: 1.5 }}>
+        <Iconify icon="solar:danger-bold" color={theme.palette.error.main} width={24} sx={{ flexShrink: 0 }} />
+        <Box>
+          <Typography variant="subtitle2" sx={{ color: 'error.main', fontWeight: 700 }}>
+            Error Status
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '13px' }}>
+            Indicates a critical transit issue (e.g. document mismatch, major shortages, vehicle
+            breakdown). It halts the billing pipeline until resolved.
+          </Typography>
+        </Box>
+      </Box>
+    </Card>
+  );
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: alpha(theme.palette.grey[500], 0.06), borderRadius: 1.5 }}>
-          <Iconify icon="solar:lock-password-bold" color={theme.palette.text.secondary} width={24} sx={{ flexShrink: 0 }} />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'text.primary', fontWeight: 700 }}>
-              Closed
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '13px' }}>
-              The PO is manually locked and closed. No further items can be received, even if some ordered items are still pending.
+  const renderFreightGuide = (
+    <Card sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 3 }}>
+        <Avatar
+          sx={{
+            bgcolor: alpha(theme.palette.secondary.main, 0.16),
+            color: 'secondary.main',
+            width: 40,
+            height: 40,
+          }}
+        >
+          <Iconify icon="solar:calculator-bold" width={24} />
+        </Avatar>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+            Freight Rate Models
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Configure how transport costs are calculated for billing:
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
+        {[
+          {
+            value: 'per_ton',
+            color: 'info',
+            label: 'Per Ton',
+            description: 'Billed based on unloading weight in tons (Loading Weight is used if unloading weight is missing).',
+          },
+          {
+            value: 'per_kl',
+            color: 'info',
+            label: 'Per KL',
+            description: 'Billed based on unloading volume in Kilolitres (typically for liquid/gas commodities).',
+          },
+          {
+            value: 'fixed',
+            color: 'primary',
+            label: 'Fixed Rate',
+            description: 'A pre-negotiated fixed freight amount, regardless of weight, volume, or distance.',
+          },
+          {
+            value: 'per_km',
+            color: 'warning',
+            label: 'Per KM',
+            description: 'Billed dynamically based on trip distance: (End KM - Start KM) × rate per KM.',
+          },
+          {
+            value: 'per_hour',
+            color: 'secondary',
+            label: 'Per Hour',
+            description: 'Time-based billing: duration of the transit hours × hourly rate.',
+          },
+          {
+            value: 'hybrid',
+            color: 'default',
+            label: 'Hybrid',
+            description: 'A custom blended rate calculation incorporating multiple base variables.',
+          },
+        ].map((item) => (
+          <Box key={item.value} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+            <Box sx={{ width: 120, flexShrink: 0, pt: 0.2 }}>
+              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'capitalize', py: 1.5 }}>
+                {item.label}
+              </Label>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
+              {item.description}
             </Typography>
           </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: alpha(theme.palette.error.main, 0.06), borderRadius: 1.5 }}>
-          <Iconify icon="solar:close-circle-bold" color={theme.palette.error.main} width={24} sx={{ flexShrink: 0 }} />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'error.main', fontWeight: 700 }}>
-              Rejected
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '13px' }}>
-              A reviewer denied the purchase request. Rejected POs cannot be edited or processed further.
-            </Typography>
-          </Box>
-        </Box>
+        ))}
       </Box>
     </Card>
   );
@@ -477,6 +508,7 @@ export default function PurchaseOrderLearn({ open, onClose }) {
   const TABS = [
     { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
     { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
+    { value: 'freight', label: 'Freight Models', icon: <Iconify icon="solar:calculator-bold" width={16} /> },
     { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
   ];
 
@@ -508,7 +540,7 @@ export default function PurchaseOrderLearn({ open, onClose }) {
       >
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            Learn: Purchase Orders
+            Learn: Jobs
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             Quick reference guide & instructions
@@ -550,6 +582,7 @@ export default function PurchaseOrderLearn({ open, onClose }) {
         <Box sx={{ p: 3 }}>
           {currentTab === 'overview' && renderOverview}
           {currentTab === 'statuses' && renderStatusGuide}
+          {currentTab === 'freight' && renderFreightGuide}
           {currentTab === 'faqs' && renderFAQs}
 
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>

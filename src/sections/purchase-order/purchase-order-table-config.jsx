@@ -88,6 +88,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'status',
     label: 'Status',
+    tooltip: 'Track lifecycle: Pending Approval, Approved, Purchased, Received/Partially Received, Closed, Rejected',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.status,

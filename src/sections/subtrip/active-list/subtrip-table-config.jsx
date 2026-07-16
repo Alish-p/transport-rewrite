@@ -566,6 +566,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'subtripStatus',
     label: 'Job Status',
+    tooltip: 'Track lifecycle: In-Queue (created), Loaded (in transit), Received (delivered), Billed (invoiced), Error (issue)',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row?.subtripStatus || '-',
