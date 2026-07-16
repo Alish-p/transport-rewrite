@@ -1,6 +1,7 @@
+import Markdown from 'react-markdown';
+
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
-import Markdown from 'react-markdown';
 
 import { RouterLink } from 'src/routes/components';
 

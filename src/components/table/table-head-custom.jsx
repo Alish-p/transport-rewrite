@@ -11,6 +11,7 @@ import {
 } from '@dnd-kit/core';
 
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableHead from '@mui/material/TableHead';
@@ -87,7 +88,13 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
             },
           })}
         >
-          {headCell.label}
+          {headCell.tooltip ? (
+            <Tooltip title={headCell.tooltip} arrow>
+              <span>{headCell.label}</span>
+            </Tooltip>
+          ) : (
+            headCell.label
+          )}
 
           {orderBy === headCell.id ? (
             <Box sx={{ ...visuallyHidden }}>
@@ -95,6 +102,10 @@ function DraggableHeaderCell({ headCell, order, orderBy, onSort, isDraggable }) 
             </Box>
           ) : null}
         </TableSortLabel>
+      ) : headCell.tooltip ? (
+        <Tooltip title={headCell.tooltip} arrow>
+          <span>{headCell.label}</span>
+        </Tooltip>
       ) : (
         headCell.label
       )}

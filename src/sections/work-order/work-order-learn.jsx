@@ -1,14 +1,20 @@
+import React, { useState, useCallback } from 'react';
+
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
-import Avatar from '@mui/material/Avatar';
+import Tabs from '@mui/material/Tabs';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
+import Avatar from '@mui/material/Avatar';
 import Accordion from '@mui/material/Accordion';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
@@ -16,255 +22,11 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 export default function WorkOrderLearn({ open, onClose }) {
   const theme = useTheme();
+  const [currentTab, setCurrentTab] = useState('overview');
 
-  const renderOverview = (
-    <Card
-      sx={{
-        p: 3,
-        mb: 2,
-        background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.08)} 0%, ${alpha(
-          theme.palette.info.main,
-          0.02
-        )} 100%)`,
-        border: `1px solid ${alpha(theme.palette.info.main, 0.12)}`,
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-        <Avatar
-          sx={{
-            bgcolor: alpha(theme.palette.info.main, 0.16),
-            color: 'info.main',
-            width: 40,
-            height: 40,
-          }}
-        >
-          <Iconify icon="solar:settings-bold" width={24} />
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-            What is a Work Order?
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-            A Work Order is an internal maintenance document used to track repair, inspection, or
-            servicing tasks for a vehicle. It captures the reported issues, the parts consumed,
-            labour charges, and the overall cost of maintenance.
-            <br />
-            <br />
-            <strong>How are Work Order Numbers generated?</strong>
-            <br />
-            The system auto-generates work order numbers incrementally. Each work order receives a
-            unique sequential number (e.g. <code>WO-0001</code>, <code>WO-0002</code>) so you can
-            easily reference them.
-            <br />
-            <br />
-            <strong>What does a work order contain?</strong>
-            <br />
-            Every work order is linked to a <b>Vehicle</b> and can include one or more <b>Issues</b>{' '}
-            (with optional assignees), <b>Parts</b> used (with quantity, price, and location), a{' '}
-            <b>Labour Charge</b>, <b>Category</b>, <b>Priority</b>, scheduled/actual dates, and an
-            odometer reading at the time of service.
-          </Typography>
-        </Box>
-      </Box>
-    </Card>
-  );
-
-  const renderStatusGuide = (
-    <Card
-      sx={{
-        p: 3,
-        mb: 2,
-        background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.08)} 0%, ${alpha(
-          theme.palette.warning.main,
-          0.02
-        )} 100%)`,
-        border: `1px solid ${alpha(theme.palette.warning.main, 0.12)}`,
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
-        <Avatar
-          sx={{
-            bgcolor: alpha(theme.palette.warning.main, 0.16),
-            color: 'warning.main',
-            width: 40,
-            height: 40,
-          }}
-        >
-          <Iconify icon="solar:info-circle-bold" width={24} />
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-            Work Order Statuses Explained
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-            Track the lifecycle of your work orders using these statuses:
-          </Typography>
-        </Box>
-      </Box>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Iconify
-            icon="solar:file-check-bold"
-            color={theme.palette.info.main}
-            width={20}
-            mt={0.3}
-          />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
-              Open
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              The work order has been created and is awaiting action. No work has started yet. Parts
-              can still be added or removed, issues can be updated, and assignees can be changed
-              freely.
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Iconify
-            icon="solar:clock-circle-bold"
-            color={theme.palette.warning.main}
-            width={20}
-            mt={0.3}
-          />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'warning.main' }}>
-              In Progress
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Work is in progress. The vehicle is being serviced, parts are being used, and the
-              assigned technicians are actively working on the reported issues. You can still edit
-              the work order at this stage.
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Iconify
-            icon="solar:check-circle-bold"
-            color={theme.palette.success.main}
-            width={20}
-            mt={0.3}
-          />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'success.main' }}>
-              Completed
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              The work order has been closed. All issues have been resolved, parts consumed have
-              been deducted from inventory, and the total cost (parts + labour) has been finalized.
-              Optionally, the cost can be recorded as a vehicle expense.
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Card>
-  );
-
-  const renderPriorityGuide = (
-    <Card
-      sx={{
-        p: 3,
-        mb: 2,
-        background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.08)} 0%, ${alpha(
-          theme.palette.secondary.main,
-          0.02
-        )} 100%)`,
-        border: `1px solid ${alpha(theme.palette.secondary.main, 0.12)}`,
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
-        <Avatar
-          sx={{
-            bgcolor: alpha(theme.palette.secondary.main, 0.16),
-            color: 'secondary.main',
-            width: 40,
-            height: 40,
-          }}
-        >
-          <Iconify icon="solar:flag-bold" width={24} />
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-            Priority Levels
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-            Set the urgency of maintenance tasks:
-          </Typography>
-        </Box>
-      </Box>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              bgcolor: 'info.main',
-              mt: 0.7,
-              flexShrink: 0,
-            }}
-          />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
-              Scheduled
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Planned maintenance that can be scheduled in advance — e.g. periodic servicing,
-              preventive maintenance, tyre rotation, or factory recommended servicing intervals.
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              bgcolor: 'text.disabled',
-              mt: 0.7,
-              flexShrink: 0,
-            }}
-          />
-          <Box>
-            <Typography variant="subtitle2">Non Scheduled</Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Unplanned maintenance that arises from day-to-day wear and tear, minor issues noticed
-              during inspections, or driver-reported problems that are not urgent but need
-              attention.
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              bgcolor: 'error.main',
-              mt: 0.7,
-              flexShrink: 0,
-            }}
-          />
-          <Box>
-            <Typography variant="subtitle2" sx={{ color: 'error.main' }}>
-              Emergency
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Critical, time-sensitive repairs — e.g. on-road breakdowns, brake failures, engine
-              overheating, or any issue that prevents the vehicle from operating safely. These
-              should be addressed immediately.
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Card>
-  );
+  const handleChangeTab = useCallback((event, newValue) => {
+    setCurrentTab(newValue);
+  }, []);
 
   const faqData = [
     {
@@ -373,7 +135,7 @@ export default function WorkOrderLearn({ open, onClose }) {
     {
       icon: 'solar:flag-bold',
       iconColor: theme.palette.error.main,
-      question: 'What are priorities and when should I use each?',
+      question: 'What are priorities?',
       answer: (
         <>
           Priority determines how urgently the work order should be addressed:
@@ -518,6 +280,289 @@ export default function WorkOrderLearn({ open, onClose }) {
     },
   ];
 
+  const renderOverview = (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Card
+        sx={{
+          p: 3,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.08)} 0%, ${alpha(
+            theme.palette.info.main,
+            0.02
+          )} 100%)`,
+          border: `1px solid ${alpha(theme.palette.info.main, 0.12)}`,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+          <Avatar
+            sx={{
+              bgcolor: alpha(theme.palette.info.main, 0.16),
+              color: 'info.main',
+              width: 40,
+              height: 40,
+            }}
+          >
+            <Iconify icon="solar:settings-bold" width={24} />
+          </Avatar>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+              What is a Work Order?
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+              A Work Order is an internal maintenance document used to track repair, inspection, or
+              servicing tasks for a vehicle. It captures the reported issues, the parts consumed,
+              labour charges, and the overall cost of maintenance.
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
+
+      <Card
+        sx={{
+          p: 3,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(
+            theme.palette.primary.main,
+            0.02
+          )} 100%)`,
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+          <Avatar
+            sx={{
+              bgcolor: alpha(theme.palette.primary.main, 0.16),
+              color: 'primary.main',
+              width: 40,
+              height: 40,
+            }}
+          >
+            <Iconify icon="solar:document-bold" width={24} />
+          </Avatar>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+              How are Work Order Numbers generated?
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+              The system auto-generates work order numbers incrementally. Each work order receives a
+              unique sequential number (e.g. <code>WO-0001</code>, <code>WO-0002</code>) so you can
+              easily reference them.
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
+
+      <Card sx={{ p: 3 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+          What does a work order contain?
+        </Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 2,
+          }}
+        >
+          {[
+            { icon: 'solar:file-check-bold', text: 'Vehicle Link' },
+            { icon: 'solar:users-group-rounded-bold', text: 'Issues & Assignees' },
+            { icon: 'solar:box-bold', text: 'Parts Used & Cost' },
+            { icon: 'solar:calculator-bold', text: 'Labour Charges' },
+            { icon: 'solar:folder-open-bold', text: 'Category' },
+            { icon: 'solar:flag-bold', text: 'Priority Level' },
+            { icon: 'solar:calendar-bold', text: 'Scheduled Dates' },
+            { icon: 'solar:speedometer-bold', text: 'Odometer Reading' },
+          ].map((item, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Avatar
+                sx={{
+                  bgcolor: alpha(theme.palette.grey[500], 0.08),
+                  color: 'text.secondary',
+                  width: 32,
+                  height: 32,
+                }}
+              >
+                <Iconify icon={item.icon} width={18} />
+              </Avatar>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                {item.text}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Card>
+    </Box>
+  );
+
+  const renderStatusGuide = (
+    <Card sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 4 }}>
+        <Avatar
+          sx={{
+            bgcolor: alpha(theme.palette.warning.main, 0.16),
+            color: 'warning.main',
+            width: 40,
+            height: 40,
+          }}
+        >
+          <Iconify icon="solar:info-circle-bold" width={24} />
+        </Avatar>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+            Work Order Statuses Explained
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Track the lifecycle of your work orders through three main stages:
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Horizontal Pipeline Diagram */}
+      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+        {/* Connector Line */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 24,
+            left: '16.6%',
+            right: '16.6%',
+            height: '2px',
+            bgcolor: alpha(theme.palette.grey[500], 0.2),
+            zIndex: 1,
+          }}
+        />
+
+        {[
+          {
+            key: 'open',
+            label: 'Open',
+            color: 'info',
+            icon: 'solar:file-check-bold',
+            desc: 'Created & awaiting action. No work started. Freely edit details.',
+          },
+          {
+            key: 'inprogress',
+            label: 'In Progress',
+            color: 'warning',
+            icon: 'solar:clock-circle-bold',
+            desc: 'Active maintenance. Vehicle being serviced. Can still edit.',
+          },
+          {
+            key: 'completed',
+            label: 'Completed',
+            color: 'success',
+            icon: 'solar:check-circle-bold',
+            desc: 'Closed & finalized. Inventory adjusted. Costs locked.',
+          },
+        ].map((step) => {
+          const stepColor = theme.palette[step.color].main;
+          return (
+            <Box
+              key={step.key}
+              sx={{
+                width: '30%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                zIndex: 2,
+              }}
+            >
+              <Avatar
+                sx={{
+                  bgcolor: alpha(stepColor, 0.12),
+                  color: stepColor,
+                  width: 48,
+                  height: 48,
+                  border: `2px solid ${stepColor}`,
+                }}
+              >
+                <Iconify icon={step.icon} width={24} />
+              </Avatar>
+
+              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
+                {step.label}
+              </Typography>
+
+              <Typography
+                variant="caption"
+                sx={{
+                  mt: 1,
+                  color: 'text.secondary',
+                  fontSize: '11.5px',
+                  lineHeight: 1.5,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 4,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {step.desc}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
+    </Card>
+  );
+
+  const renderPriorityGuide = (
+    <Card sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 3 }}>
+        <Avatar
+          sx={{
+            bgcolor: alpha(theme.palette.secondary.main, 0.16),
+            color: 'secondary.main',
+            width: 40,
+            height: 40,
+          }}
+        >
+          <Iconify icon="solar:flag-bold" width={24} />
+        </Avatar>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+            Priority Levels
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Set the urgency of maintenance tasks using these options:
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
+        {[
+          {
+            value: 'scheduled',
+            color: 'info',
+            label: 'Scheduled',
+            description: 'Planned maintenance (preventive servicing, tyre rotation) scheduled in advance.',
+          },
+          {
+            value: 'non-scheduled',
+            color: 'default',
+            label: 'Non Scheduled',
+            description: 'Unplanned repairs for minor issues and inspections arising from wear and tear.',
+          },
+          {
+            value: 'emergency',
+            color: 'error',
+            label: 'Emergency',
+            description: 'Critical, time-sensitive repairs (breakdowns, brake/engine failures) needing immediate attention.',
+          },
+        ].map((item) => (
+          <Box key={item.value} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+            <Box sx={{ width: 120, flexShrink: 0, pt: 0.2 }}>
+              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'capitalize', py: 1.5 }}>
+                {item.label}
+              </Label>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
+              {item.description}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    </Card>
+  );
+
   const renderFAQs = (
     <Card sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
@@ -569,27 +614,87 @@ export default function WorkOrderLearn({ open, onClose }) {
     </Card>
   );
 
+  const TABS = [
+    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
+    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
+    { value: 'priorities', label: 'Priorities', icon: <Iconify icon="solar:flag-bold" width={16} /> },
+    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+  ];
+
   return (
     <Drawer
       open={open}
       onClose={onClose}
-      anchor="bottom"
+      anchor="right"
       PaperProps={{
         sx: {
-          maxHeight: '85vh',
-          borderRadius: '16px 16px 0 0',
+          width: { xs: '100%', sm: 460 },
           boxShadow: theme.shadows[24],
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
         },
       }}
     >
-      <Scrollbar sx={{ maxHeight: 'calc(85vh - 80px)' }}>
-        <Box sx={{ p: 3 }}>
-          {renderOverview}
-          {renderStatusGuide}
-          {renderPriorityGuide}
-          {renderFAQs}
+      {/* Header */}
+      <Box
+        sx={{
+          py: 2,
+          px: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            Learn: Work Orders
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            Quick reference guide & instructions
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} size="small">
+          <Iconify icon="mingcute:close-line" width={20} />
+        </IconButton>
+      </Box>
 
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+      {/* Tabs */}
+      <Tabs
+        value={currentTab}
+        onChange={handleChangeTab}
+        sx={{
+          px: 2,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          bgcolor: theme.palette.background.neutral,
+          '& .MuiTab-root': {
+            py: 1.5,
+            minHeight: 'auto',
+          },
+        }}
+      >
+        {TABS.map((tab) => (
+          <Tab
+            key={tab.value}
+            value={tab.value}
+            label={tab.label}
+            icon={tab.icon}
+            iconPosition="start"
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          />
+        ))}
+      </Tabs>
+
+      {/* Scrollable Content */}
+      <Scrollbar sx={{ flexGrow: 1, height: 'calc(100% - 130px)' }}>
+        <Box sx={{ p: 3 }}>
+          {currentTab === 'overview' && renderOverview}
+          {currentTab === 'statuses' && renderStatusGuide}
+          {currentTab === 'priorities' && renderPriorityGuide}
+          {currentTab === 'faqs' && renderFAQs}
+
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="contained"
               color="inherit"

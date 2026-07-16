@@ -79,6 +79,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'status',
     label: 'Status',
+    tooltip: 'Track lifecycle: Open (created), In Progress (servicing), and Completed (closed & finalized)',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.status,
@@ -95,6 +96,7 @@ export const TABLE_COLUMNS = [
   {
     id: 'priority',
     label: 'Priority',
+    tooltip: 'Set urgency: Scheduled (planned), Non Scheduled (routine), and Emergency (immediate)',
     defaultVisible: false,
     disabled: false,
     getter: (row) => row.priority,
