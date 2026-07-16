@@ -151,10 +151,13 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   // Close dialog removed
 
-  // Function to check if editing is allowed based on status
+  // Function to check if editing is allowed based on status and financial documents
   const isEditingAllowed = () => {
     const restrictedStatuses = [SUBTRIP_STATUS.BILLED];
-    return !restrictedStatuses.includes(subtrip.subtripStatus);
+    if (restrictedStatuses.includes(subtrip.subtripStatus)) return false;
+    if (subtrip.invoiceId || subtrip.driverSalaryId || subtrip.transporterPaymentReceiptId)
+      return false;
+    return true;
   };
 
   const { data: events = [] } = useSubtripEvents(subtrip._id);

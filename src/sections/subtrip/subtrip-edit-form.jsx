@@ -313,6 +313,28 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
   const { vehicleType, isOwn } = currentSubtrip?.vehicleId || {};
 
+  // Build list of financial documents that block editing.
+  // currentSubtrip already has these populated (invoiceNo / paymentId) from the API.
+  const blockingDocuments = useMemo(() => {
+    const docs = [];
+    if (currentSubtrip?.transporterPaymentReceiptId) {
+      const id = currentSubtrip.transporterPaymentReceiptId.paymentId
+        ?? currentSubtrip.transporterPaymentReceiptId;
+      docs.push(`Transporter Payment [${id}]`);
+    }
+    if (currentSubtrip?.invoiceId) {
+      const id = currentSubtrip.invoiceId.invoiceNo ?? currentSubtrip.invoiceId;
+      docs.push(`Invoice [${id}]`);
+    }
+    if (currentSubtrip?.driverSalaryId) {
+      const id = currentSubtrip.driverSalaryId.paymentId ?? currentSubtrip.driverSalaryId;
+      docs.push(`Driver Salary [${id}]`);
+    }
+    return docs;
+  }, [currentSubtrip]);
+
+  const isFinanciallyLocked = blockingDocuments.length > 0;
+
   const commissionRateInput = watch('commissionDetails.commissionRate');
   const loadingWeightInput = watch('loadingWeight');
   const freightModel = values?.freightDetails?.freightModel || 'per_ton';
@@ -1017,6 +1039,21 @@ export default function SubtripEditForm({ currentSubtrip }) {
           </Grid>
 
           <Grid item xs={12} md={8} sx={{ my: 2 }}>
+            {isFinanciallyLocked && (
+              <Alert
+                severity="warning"
+                sx={{ mb: 2 }}
+              >
+                <strong>Editing is not allowed.</strong> The following financial documents have
+                already been generated:
+                <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                  {blockingDocuments.map((doc) => (
+                    <li key={doc}>{doc}</li>
+                  ))}
+                </Box>
+              </Alert>
+            )}
+
             {renderFields()}
 
             <Box sx={{ pt: 2, pb: 5, px: 3, display: 'flex', gap: 2 }}>
@@ -1032,7 +1069,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                 type="submit"
                 color="primary"
                 loading={isSubmitting}
-                disabled={Object.keys(dirtyFields).length === 0}
+                disabled={isFinanciallyLocked || Object.keys(dirtyFields).length === 0}
               >
                 Save
               </LoadingButton>

@@ -30,6 +30,10 @@ export default function SubtripTableRow({
   const status = row?.subtripStatus;
   const isOwn = row?.vehicleId?.isOwn;
 
+  // Lock edit & delete if any financial document has been generated for this subtrip
+  const isFinanciallyLocked = !!(row?.invoiceId || row?.driverSalaryId || row?.transporterPaymentReceiptId);
+  const financialLockReason = 'Disabled: financial documents have been generated for this subtrip';
+
   const customActions = useMemo(() => {
     const actions = [];
 
@@ -99,7 +103,11 @@ export default function SubtripTableRow({
         onSelectRow={onSelectRow}
         onViewRow={handleView}
         onEditRow={handleEdit}
+        editDisabled={isFinanciallyLocked}
+        editDisabledReason={isFinanciallyLocked ? financialLockReason : ''}
         onDeleteRow={handleDelete}
+        deleteDisabled={isFinanciallyLocked}
+        deleteDisabledReason={isFinanciallyLocked ? financialLockReason : ''}
         customActions={customActions}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}

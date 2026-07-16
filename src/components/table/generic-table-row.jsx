@@ -2,6 +2,7 @@ import React from 'react';
 
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Checkbox from '@mui/material/Checkbox';
@@ -25,7 +26,11 @@ export function GenericTableRow({
   onSelectRow,
   onViewRow,
   onEditRow,
+  editDisabled = false,
+  editDisabledReason = '',
   onDeleteRow,
+  deleteDisabled = false,
+  deleteDisabledReason = '',
   customActions = [],
   visibleColumns = {},
   disabledColumns = {},
@@ -107,15 +112,26 @@ export function GenericTableRow({
             )}
 
             {onEditRow && (
-              <MenuItem
-                onClick={() => {
-                  onEditRow(row);
-                  popover.onClose();
-                }}
+              <Tooltip
+                title={editDisabled ? editDisabledReason : ''}
+                placement="left"
+                disableHoverListener={!editDisabled}
               >
-                <Iconify icon="solar:pen-bold" />
-                Edit
-              </MenuItem>
+                <span>
+                  <MenuItem
+                    disabled={editDisabled}
+                    onClick={() => {
+                      if (!editDisabled) {
+                        onEditRow(row);
+                        popover.onClose();
+                      }
+                    }}
+                  >
+                    <Iconify icon="solar:pen-bold" />
+                    Edit
+                  </MenuItem>
+                </span>
+              </Tooltip>
             )}
 
             {customActions.length > 0 && <Divider sx={{ borderStyle: 'dashed' }} />}
@@ -137,16 +153,27 @@ export function GenericTableRow({
             {onDeleteRow && <Divider sx={{ borderStyle: 'dashed' }} />}
 
             {onDeleteRow && (
-              <MenuItem
-                onClick={() => {
-                  confirm.onTrue();
-                  popover.onClose();
-                }}
-                sx={{ color: 'error.main' }}
+              <Tooltip
+                title={deleteDisabled ? deleteDisabledReason : ''}
+                placement="left"
+                disableHoverListener={!deleteDisabled}
               >
-                <Iconify icon="solar:trash-bin-trash-bold" />
-                Delete
-              </MenuItem>
+                <span>
+                  <MenuItem
+                    disabled={deleteDisabled}
+                    onClick={() => {
+                      if (!deleteDisabled) {
+                        confirm.onTrue();
+                        popover.onClose();
+                      }
+                    }}
+                    sx={{ color: deleteDisabled ? 'text.disabled' : 'error.main' }}
+                  >
+                    <Iconify icon="solar:trash-bin-trash-bold" />
+                    Delete
+                  </MenuItem>
+                </span>
+              </Tooltip>
             )}
           </MenuList>
         </CustomPopover>
