@@ -224,7 +224,7 @@ const PO_STATUS_COLOR = {
 
 const WO_STATUS_COLOR = {
   open: 'error',
-  pending: 'warning',
+  inprogress: 'warning',
   completed: 'success',
 };
 
@@ -260,10 +260,10 @@ export default function MaintenanceDashboardView() {
   ];
 
   // WO donut
-  const woLabels = ['Open', 'Pending', 'Completed'];
+  const woLabels = ['Open', 'In Progress', 'Completed'];
   const woData = [
     workOrders.statusBreakdown.open,
-    workOrders.statusBreakdown.pending,
+    workOrders.statusBreakdown.inprogress,
     workOrders.statusBreakdown.completed,
   ];
   const woColors = [
