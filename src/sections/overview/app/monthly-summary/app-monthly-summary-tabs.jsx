@@ -10,6 +10,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { CONFIG } from 'src/config-global';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 
 import { SvgColor } from 'src/components/svg-color';
 import { CustomTabs } from 'src/components/custom-tabs';
@@ -22,7 +23,8 @@ import { AppDestinationInsightsTable } from './app-destination-insights-table';
 
 export function AppMonthlySummaryTabs() {
   const theme = useTheme();
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const [tab, setTab] = useState('customer');
   const [selectedMonth, setSelectedMonth] = useState(dayjs());

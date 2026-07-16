@@ -15,6 +15,7 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 import { useCreateLoan, useUpdateLoan } from 'src/query/use-loan';
 
 // components
@@ -76,15 +77,15 @@ export default function LoanForm({ currentLoan }) {
 
   const { borrowerType } = watch();
 
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
 
   const availableBorrowerTypes = useMemo(
     () =>
       BORROWER_TYPES.filter((type) => {
-        if (!managesMarketVehicles && type.key === 'Transporter') return false;
+        if (vehicleMode === VEHICLE_MODES.OWN_ONLY && type.key === 'Transporter') return false;
         return true;
       }),
-    [managesMarketVehicles]
+    [vehicleMode]
   );
 
   // Dialog controls

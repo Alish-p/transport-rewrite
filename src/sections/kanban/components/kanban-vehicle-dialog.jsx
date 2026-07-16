@@ -22,6 +22,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useDebounce } from 'src/hooks/use-debounce';
 import { useSystemFeatures } from 'src/hooks/use-system-features';
 
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 import { useCreateVehicle, useInfiniteVehicles } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
@@ -99,7 +100,8 @@ function useVehicleSearch(
 
 // Form for creating a vehicle quickly
 const QuickCreateForm = ({ onSubmit, onCancel, isSubmitting, searchQuery, error }) => {
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
   const vehicleTypes = useVehicleTypes();
 
   const methods = useForm({
@@ -228,7 +230,8 @@ export function KanbanVehicleDialog({
   const hasActiveFilters = onlyOwn || onlyMarket || onlyActive;
 
   const createVehicle = useCreateVehicle();
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const { vehicles, total, isLoading, isFetchingNext, loadMoreRef } = useVehicleSearch(
     search,

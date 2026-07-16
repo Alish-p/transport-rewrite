@@ -10,6 +10,7 @@ import { useSystemFeatures } from 'src/hooks/use-system-features';
 import { _appFeatured } from 'src/_mock';
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 import { SeoIllustration } from 'src/assets/illustrations';
 
 import { SvgColor } from 'src/components/svg-color';
@@ -95,7 +96,8 @@ export function OverviewAppView({
   loading = {},
 }) {
   const { user, tenant } = useAuthContext();
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const {
     invoices = 0,

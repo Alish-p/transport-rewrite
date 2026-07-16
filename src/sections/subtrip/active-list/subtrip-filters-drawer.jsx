@@ -18,6 +18,8 @@ import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -48,7 +50,8 @@ export default function SubtripFiltersDrawer({
 }) {
   const materialPopover = usePopover();
   const materialOptions = useMaterialOptions();
-  const { marketVehicles: hasMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const hasMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const startRange = useBoolean();
   const endRange = useBoolean();

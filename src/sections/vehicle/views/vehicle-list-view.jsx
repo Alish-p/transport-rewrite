@@ -36,6 +36,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 import { ICONS } from 'src/assets/data/icons';
 import VehicleListPdf from 'src/pdfs/vehicle-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 import { useDeleteVehicle, useUpdateVehicle, usePaginatedVehicles } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
@@ -95,12 +96,13 @@ export function VehicleListView() {
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const tableColumns = useMemo(() => {
-    if (managesMarketVehicles) return TABLE_COLUMNS;
+    if (vehicleMode !== VEHICLE_MODES.OWN_ONLY) return TABLE_COLUMNS;
     return TABLE_COLUMNS.filter((c) => c.id !== 'transporter' && c.id !== 'isOwn');
-  }, [managesMarketVehicles]);
+  }, [vehicleMode]);
 
   const {
     visibleColumns,

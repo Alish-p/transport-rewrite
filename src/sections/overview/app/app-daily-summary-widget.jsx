@@ -25,6 +25,7 @@ import { fDate, fTime } from 'src/utils/format-time';
 import { fNumber, fCurrency, fShortenNumber } from 'src/utils/format-number';
 
 import { useDailySummary } from 'src/query/use-dashboard';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -45,7 +46,8 @@ export function AppDailySummaryWidget({ sx, ...other }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const tabs = useTabs('created');
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const dateParam = useMemo(() => selectedDate?.format('YYYY-MM-DD'), [selectedDate]);
 

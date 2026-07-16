@@ -30,6 +30,7 @@ import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import { DashboardContent } from 'src/layouts/dashboard';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 import { useDeleteLoan, usePaginatedLoans } from 'src/query/use-loan';
 
 import { Label } from 'src/components/label';
@@ -84,7 +85,7 @@ export function LoansListView() {
     onResetPage: table.onResetPage,
   });
 
-  const { marketVehicles: managesMarketVehicles } = useSystemFeatures();
+  const { vehicleMode } = useSystemFeatures();
 
   const {
     visibleColumns,
@@ -284,7 +285,7 @@ export function LoansListView() {
             onToggleAllColumns={toggleAllColumnsVisibility}
             onResetColumns={resetColumns}
             canResetColumns={canResetColumns}
-            managesMarketVehicles={managesMarketVehicles}
+            managesMarketVehicles={vehicleMode !== VEHICLE_MODES.OWN_ONLY}
           />
 
           {canReset && (

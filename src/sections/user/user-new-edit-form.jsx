@@ -31,6 +31,8 @@ import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { fData } from 'src/utils/format-number';
 
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -117,12 +119,12 @@ export function UserNewEditForm({ currentUser }) {
   const values = watch();
 
   const tenant = useTenantContext();
-  const { marketVehicles, pumps } = useSystemFeatures();
+  const { vehicleMode, pumps } = useSystemFeatures();
 
   const filteredPermissions = useMemo(
     () =>
       PERMISSIONS.filter((perm) => {
-        if (!marketVehicles && (perm.name === 'transporter' || perm.name === 'transporterPayment'))
+        if (vehicleMode === VEHICLE_MODES.OWN_ONLY && (perm.name === 'transporter' || perm.name === 'transporterPayment'))
           return false;
         if (!pumps && perm.name === 'pump') return false;
         if (!tenant?.integrations?.tyre?.enabled && perm.group === 'Tyre Management') return false;
@@ -133,7 +135,7 @@ export function UserNewEditForm({ currentUser }) {
           return false;
         return true;
       }),
-    [marketVehicles, pumps, tenant]
+    [vehicleMode, pumps, tenant]
   );
 
   const groupedPermissions = filteredPermissions.reduce((acc, permission) => {

@@ -28,11 +28,13 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useSystemFeatures } from 'src/hooks/use-system-features';
 
 import { fDate } from 'src/utils/format-time';
 
 import { useGps } from 'src/query/use-gps';
 import { useTenant } from 'src/query/use-tenant';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 import { useCreateVehicle, useUpdateVehicle, useVehicleLookup } from 'src/query/use-vehicle';
 
 import { Label } from 'src/components/label';
@@ -101,7 +103,8 @@ export default function VehicleForm({ currentVehicle }) {
   const { data: tenant } = useTenant();
   const integrationEnabled = !!tenant?.integrations?.vehicleApi?.enabled;
   const gpsEnabled = !!tenant?.integrations?.vehicleGPS?.enabled;
-  const managesMarketVehicles = tenant?.config?.marketVehicles !== false;
+  const { vehicleMode } = useSystemFeatures();
+  const managesMarketVehicles = vehicleMode !== VEHICLE_MODES.OWN_ONLY;
 
   const { data: gpsData, isLoading: isLoadingGps } = useGps(currentVehicle?.vehicleNo || '', {
     enabled: gpsEnabled && !!currentVehicle?.vehicleNo,

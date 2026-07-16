@@ -53,11 +53,7 @@ export const TenantSchema = zod
       .optional(),
     config: zod
       .object({
-        vehicle: zod
-          .object({
-            marketVehicles: zod.boolean().optional(),
-          })
-          .optional(),
+        vehicle: zod.object({}).optional(),
         pump: zod
           .object({
             enabled: zod.boolean().optional(),
@@ -243,9 +239,7 @@ export default function TenantForm({ currentTenant }) {
         accNo: currentTenant?.bankDetails?.accNo || '',
       },
       config: {
-        vehicle: {
-          marketVehicles: currentTenant?.config?.vehicle?.marketVehicles ?? true,
-        },
+        vehicle: {},
         pump: {
           enabled: currentTenant?.config?.pump?.enabled ?? true,
         },

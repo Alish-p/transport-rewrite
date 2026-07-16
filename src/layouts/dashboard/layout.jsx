@@ -10,6 +10,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { allLangs } from 'src/locales';
 import { _notifications } from 'src/_mock';
 import { varAlpha, stylesMode } from 'src/theme/styles';
+import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
 
 import { bulletColor } from 'src/components/nav-section';
 import { useSettingsContext } from 'src/components/settings';
@@ -314,8 +315,22 @@ function useNavColorVars(theme, settings) {
 const FEATURE_CHECKERS = {
   maintenanceAndInventory: (tenant) => !!tenant?.integrations?.maintenanceAndInventory?.enabled,
   tyre: (tenant) => !!tenant?.integrations?.tyre?.enabled,
-  marketVehicle: (tenant) => tenant?.config?.marketVehicles !== false,
-  noMarketVehicle: (tenant) => tenant?.config?.marketVehicles === false,
+  marketVehicle: (tenant) => {
+    const mode = tenant?.config?.vehicle?.vehicleMode ?? VEHICLE_MODES.BOTH;
+    return mode === VEHICLE_MODES.MARKET_ONLY || mode === VEHICLE_MODES.BOTH;
+  },
+  noMarketVehicle: (tenant) => {
+    const mode = tenant?.config?.vehicle?.vehicleMode ?? VEHICLE_MODES.BOTH;
+    return mode === VEHICLE_MODES.OWN_ONLY;
+  },
+  ownVehicle: (tenant) => {
+    const mode = tenant?.config?.vehicle?.vehicleMode ?? VEHICLE_MODES.BOTH;
+    return mode === VEHICLE_MODES.OWN_ONLY || mode === VEHICLE_MODES.BOTH;
+  },
+  noOwnVehicle: (tenant) => {
+    const mode = tenant?.config?.vehicle?.vehicleMode ?? VEHICLE_MODES.BOTH;
+    return mode === VEHICLE_MODES.MARKET_ONLY;
+  },
   pumps: (tenant) => tenant?.config?.pumps !== false,
   noPumps: (tenant) => tenant?.config?.pumps === false,
 };
