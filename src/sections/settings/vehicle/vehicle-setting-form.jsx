@@ -8,11 +8,11 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
+import { alpha } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
 import ButtonBase from '@mui/material/ButtonBase';
-import { alpha } from '@mui/material/styles';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useUpdateTenant } from 'src/query/use-tenant';
 import { VEHICLE_MODES } from 'src/constants/vehicle-mode';
@@ -196,7 +196,7 @@ export default function VehicleSettingForm({ currentTenant }) {
                                 isSelected
                                   ? alpha(theme.palette.primary.main, 0.12)
                                   : alpha(theme.palette.grey[500], 0.08),
-                              color: (theme) => (isSelected ? 'primary.main' : 'text.secondary'),
+                              color: isSelected ? 'primary.main' : 'text.secondary',
                               transition: (theme) =>
                                 theme.transitions.create(['all'], {
                                   duration: theme.transitions.duration.shorter,
