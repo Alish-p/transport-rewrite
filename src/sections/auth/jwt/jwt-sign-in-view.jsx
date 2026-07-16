@@ -1,8 +1,4 @@
-/* eslint-disable prefer-destructuring */
-import { z as zod } from 'zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
@@ -10,147 +6,87 @@ import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
-import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { Form, Field } from 'src/components/hook-form';
 import { Iconify, SocialIcon } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
-import { signInWithPassword } from 'src/auth/context/jwt';
+
+import { parseErrorMessage } from './utils/parse-error-message';
+import { PasswordLoginForm } from './flows/password-login-form';
+import { WhatsAppLoginForm } from './flows/whats-app-login-form';
 
 // ----------------------------------------------------------------------
 
-export const SignInSchema = zod.object({
-  email: zod.string().min(1, { message: 'Email or Mobile Number is required!' }),
-  password: zod
-    .string()
-    .min(1, { message: 'Password is required!' })
-    .min(6, { message: 'Password must be at least 6 characters!' }),
+const LOGIN_METHODS = /** @type {const} */ ({
+  PASSWORD: 'password',
+  WHATSAPP: 'whatsapp',
 });
 
 // ----------------------------------------------------------------------
 
 export function JwtSignInView() {
   const router = useRouter();
-
   const { checkUserSession } = useAuthContext();
 
+  const [loginMethod, setLoginMethod] = useState(LOGIN_METHODS.PASSWORD);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const password = useBoolean();
+  const isWhatsApp = loginMethod === LOGIN_METHODS.WHATSAPP;
 
-  const methods = useForm({
-    resolver: zodResolver(SignInSchema),
-  });
+  const switchTo = (method) => {
+    setLoginMethod(method);
+    setErrorMsg('');
+  };
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
-
-  const onSubmit = handleSubmit(async (data) => {
+  const handleLoginSuccess = async () => {
     try {
-      await signInWithPassword({ email: data.email, password: data.password });
       await checkUserSession?.();
-
       router.refresh();
     } catch (error) {
-      console.error(error);
-      let message = 'An error occurred';
-      if (error instanceof Error) {
-        message = error.message;
-      } else if (typeof error === 'string') {
-        message = error;
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        message = error.message;
-      }
-      setErrorMsg(message);
+      setErrorMsg(parseErrorMessage(error));
     }
-  });
+  };
 
-  const renderHead = (
-    <Stack spacing={1.5} sx={{ mb: 5 }}>
-      <Typography variant="h5">Login to your account</Typography>
-
-      <Stack direction="row" spacing={0.5}>
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {`Don't have an account?`}
-        </Typography>
-
-        <Link component={RouterLink} href={paths.auth.jwt.signUp} variant="subtitle2">
-          Get started
-        </Link>
-      </Stack>
-    </Stack>
-  );
-
-  const renderForm = (
-    <Stack spacing={3}>
-      <Field.Text name="email" label="Email or Mobile Number" InputLabelProps={{ shrink: true }} />
-
-      <Stack spacing={1.5}>
-        <Link
-          component={RouterLink}
-          href={paths.authDemo.split.resetPassword}
-          variant="body2"
-          color="inherit"
-          sx={{ alignSelf: 'flex-end' }}
-        >
-          Forgot password?
-        </Link>
-
-        <Field.Text
-          name="password"
-          label="Password"
-          placeholder="6+ characters"
-          type={password.value ? 'text' : 'password'}
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Stack>
-
-      <LoadingButton
-        fullWidth
-        color="inherit"
-        size="large"
-        type="submit"
-        variant="contained"
-        loading={isSubmitting}
-        loadingIndicator="Login..."
-      >
-        Login
-      </LoadingButton>
-    </Stack>
-  );
+  const handleError = (error) => {
+    console.error(error);
+    setErrorMsg(parseErrorMessage(error));
+  };
 
   return (
     <>
-      {renderHead}
+      {/* Header */}
+      <Stack spacing={1.5} sx={{ mb: 5 }}>
+        <Typography variant="h5">
+          {isWhatsApp ? 'Login with WhatsApp OTP' : 'Login to your account'}
+        </Typography>
 
+        <Stack direction="row" spacing={0.5}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {`Don't have an account?`}
+          </Typography>
+          <Link component={RouterLink} href={paths.auth.jwt.signUp} variant="subtitle2">
+            Get started
+          </Link>
+        </Stack>
+      </Stack>
+
+      {/* Error banner */}
       {!!errorMsg && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {errorMsg}
         </Alert>
       )}
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
-      </Form>
+      {/* Active login flow */}
+      {isWhatsApp ? (
+        <WhatsAppLoginForm onSuccess={handleLoginSuccess} onError={handleError} />
+      ) : (
+        <PasswordLoginForm onSuccess={handleLoginSuccess} onError={handleError} />
+      )}
 
       <Divider
         sx={{
@@ -163,8 +99,21 @@ export function JwtSignInView() {
         OR
       </Divider>
 
-      <Stack direction="row" justifyContent="center" spacing={1}>
-        <IconButton>
+      {/* Alternative login method switcher */}
+      <Stack direction="row" justifyContent="center" spacing={1.5}>
+        <IconButton
+          onClick={() => switchTo(isWhatsApp ? LOGIN_METHODS.PASSWORD : LOGIN_METHODS.WHATSAPP)}
+          title={isWhatsApp ? 'Login with Password' : 'Login with WhatsApp OTP'}
+          sx={{ border: (theme) => `1px solid ${theme.palette.divider}` }}
+        >
+          {isWhatsApp ? (
+            <Iconify icon="mdi:key-variant" width={22} sx={{ color: 'text.secondary' }} />
+          ) : (
+            <Iconify icon="logos:whatsapp-icon" width={22} />
+          )}
+        </IconButton>
+
+        <IconButton sx={{ border: (theme) => `1px solid ${theme.palette.divider}` }}>
           <SocialIcon icon="google" width={22} />
         </IconButton>
       </Stack>

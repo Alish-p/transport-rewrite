@@ -62,3 +62,34 @@ export const signOut = async () => {
     throw error;
   }
 };
+
+/** **************************************
+ * Request WhatsApp OTP
+ * ************************************** */
+export const requestWhatsAppOTP = async ({ mobile }) => {
+  try {
+    const res = await axios.post(endpoints.auth.whatsappOtp, { mobile });
+    return res.data;
+  } catch (error) {
+    console.error('Error requesting WhatsApp OTP:', error);
+    throw error;
+  }
+};
+
+/** **************************************
+ * Verify WhatsApp OTP
+ * ************************************** */
+export const verifyWhatsAppOTP = async ({ mobile, code }) => {
+  try {
+    const res = await axios.post(endpoints.auth.whatsappVerify, { mobile, code });
+    const { accessToken } = res.data;
+    if (!accessToken) {
+      throw new Error('Access token not found in response');
+    }
+    setSession(accessToken);
+    return res.data;
+  } catch (error) {
+    console.error('Error verifying WhatsApp OTP:', error);
+    throw error;
+  }
+};

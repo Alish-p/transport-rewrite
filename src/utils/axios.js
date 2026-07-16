@@ -25,5 +25,7 @@ export const endpoints = {
     signUp: '/api/account/sign-up',
     forgotPassword: '/api/account/forgot-password',
     resetPassword: '/api/account/reset-password',
+    whatsappOtp: '/api/account/whatsapp-otp',
+    whatsappVerify: '/api/account/whatsapp-verify',
   },
 };
