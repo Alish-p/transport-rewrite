@@ -26,6 +26,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+import { downloadTransporterAdvancesXml } from 'src/utils/export-transporter-advance-xml';
 
 import { useVehicle } from 'src/query/use-vehicle';
 import { useSubtrip } from 'src/query/use-subtrip';
@@ -49,6 +50,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { useTenantContext } from 'src/auth/tenant';
+
 import { TABLE_COLUMNS } from '../transporter-advance-table-config';
 import ExpenseAnalytic from '../../expense/expense-list/expense-analytic';
 import TransporterAdvanceTableToolbar from './transporter-advance-table-toolbar';
@@ -71,6 +74,7 @@ const defaultFilters = {
 };
 
 export default function TransporterAdvanceListView() {
+  const tenant = useTenantContext();
   const theme = useTheme();
   const table = useTable({ syncToUrl: true });
   const navigate = useNavigate();
@@ -356,6 +360,48 @@ export default function TransporterAdvanceListView() {
             }
             action={
               <Stack direction="row">
+                <Tooltip title="Download XML">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const supportedRows = selectedRows.filter((r) =>
+                        ['Diesel', 'Trip Advance'].some(
+                          (type) => type.toLowerCase() === (r.advanceType || '').toLowerCase()
+                        )
+                      );
+                      if (supportedRows.length === 0) {
+                        toast.error('No supported advances (Diesel, Trip Advance) selected for XML export.');
+                        return;
+                      }
+
+                      const missingTransporter = supportedRows.some(
+                        (r) => !r.vehicleId?.transporter?.transportName
+                      );
+                      if (missingTransporter) {
+                        toast.error('Some selected advances are missing the Transporter Name. Please configure transporters before exporting.');
+                        return;
+                      }
+
+                      if (supportedRows.length < selectedRows.length) {
+                        toast.warning(
+                          `Exporting ${supportedRows.length} of ${selectedRows.length} selected advances (only Diesel and Trip Advance are supported).`
+                        );
+                      }
+                      const fileName =
+                        supportedRows.length === 1
+                          ? `${supportedRows[0].advanceType || 'advance'}-${supportedRows[0]._id.slice(-6)}.xml`
+                          : `transporter-advances-${supportedRows.length}.xml`;
+                      downloadTransporterAdvancesXml(supportedRows, fileName, tenant);
+                    }}
+                    disabled={selectAllMode}
+                  >
+                    <Iconify icon="mdi:file-xml-box" />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
