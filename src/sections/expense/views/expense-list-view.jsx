@@ -30,6 +30,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 import axios from 'src/utils/axios';
 import { paramCase } from 'src/utils/change-case';
 import { fShortenNumber } from 'src/utils/format-number';
+import { downloadExpensesXml } from 'src/utils/export-expense-xml';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
@@ -432,6 +433,39 @@ export function ExpenseListView() {
             }
             action={
               <Stack direction="row">
+                <Tooltip title="Download XML">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      const selectedRows = tableData.filter((r) =>
+                        table.selected.includes(r._id)
+                      );
+                      const supportedRows = selectedRows.filter((r) =>
+                        ['Diesel', 'Trip Advance', 'Bhatta'].some(
+                          (type) => type.toLowerCase() === (r.expenseType || '').toLowerCase()
+                        )
+                      );
+                      if (supportedRows.length === 0) {
+                        toast.error('No supported expenses (Diesel, Trip Advance, Bhatta) selected for XML export.');
+                        return;
+                      }
+                      if (supportedRows.length < selectedRows.length) {
+                        toast.warning(
+                          `Exporting ${supportedRows.length} of ${selectedRows.length} selected expenses (only Diesel, Trip Advance, and Bhatta are supported).`
+                        );
+                      }
+                      const fileName =
+                        supportedRows.length === 1
+                          ? `${supportedRows[0].expenseType || 'expense'}-${supportedRows[0]._id.slice(-6)}.xml`
+                          : `expenses-${supportedRows.length}.xml`;
+                      downloadExpensesXml(supportedRows, fileName, tenant);
+                    }}
+                    disabled={selectAllMode}
+                  >
+                    <Iconify icon="mdi:file-xml-box" />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Download Excel">
                   <IconButton
                     color="primary"
