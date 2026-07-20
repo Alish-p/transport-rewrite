@@ -27,6 +27,7 @@ import { useColumnVisibility } from 'src/hooks/use-column-visibility';
 
 import axios from 'src/utils/axios';
 import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
+import { downloadTransporterPaymentsXml } from 'src/utils/export-transporter-payment-xml';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import TransporterPaymentListPdf from 'src/pdfs/transporter-payment-list-pdf';
@@ -399,6 +400,57 @@ export function TransporterPaymentListView() {
                       )}
                     </PDFDownloadLink>
                   </span>
+                </Tooltip>
+
+                <Tooltip title="Export Tally XML">
+                  <IconButton
+                    color="primary"
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          const response = await axios.get('/api/transporter-payments', {
+                            params: {
+                              transporterId: filters.transporterId || undefined,
+                              subtripId: filters.subtripId || undefined,
+                              vehicleId: filters.vehicleId || undefined,
+                              paymentId: filters.paymentId || undefined,
+                              status: filters.status !== 'all' ? filters.status : undefined,
+                              hasTds: filters.hasTds || undefined,
+                              hasGst: filters.hasGst || undefined,
+                              issueFromDate: filters.issueFromDate || undefined,
+                              issueToDate: filters.issueToDate || undefined,
+                              order: table.order,
+                              orderBy: table.orderBy,
+                              rowsPerPage: totalCount,
+                              page: 1,
+                            },
+                          });
+                          downloadTransporterPaymentsXml(
+                            response.data?.receipts || [],
+                            'transporter-payments-tally.xml',
+                            tenant
+                          );
+                        } catch (error) {
+                          console.error('Tally XML export failed:', error);
+                        } finally {
+                          setIsDownloading(false);
+                        }
+                      } else {
+                        const selectedRows = tableData.filter((r) =>
+                          table.selected.includes(r._id)
+                        );
+                        downloadTransporterPaymentsXml(
+                          selectedRows,
+                          'transporter-payments-tally.xml',
+                          tenant
+                        );
+                      }
+                    }}
+                    disabled={isDownloading}
+                  >
+                    <Iconify icon="mdi:xml" />
+                  </IconButton>
                 </Tooltip>
               </Stack>
             }
