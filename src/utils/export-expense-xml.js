@@ -53,14 +53,14 @@ export function buildExpensesXml(expensesInput, tenant) {
       const type = (expense.expenseType || '').toLowerCase();
       const date = expense.date || new Date();
       const yyyymmdd = escapeXml(formatDateYYYYMMDD(date));
-      
+
       const guid = getGuidFromId(expense._id);
       const voucherNo = escapeXml(String(expense._id).slice(-6).toUpperCase());
       const amount = Number(expense.amount || 0);
-      
+
       const subtripNo = expense.subtripId?.subtripNo || '';
       const reference = escapeXml(subtripNo);
-      
+
       const vehicleNo = expense.vehicleId?.vehicleNo || expense.vehicleNo || '';
       const remarks = expense.remarks ? ` ${expense.remarks}` : '';
 
@@ -150,8 +150,8 @@ export function buildExpensesXml(expensesInput, tenant) {
       </ALLLEDGERENTRIES.LIST>
      </VOUCHER>
     </TALLYMESSAGE>`;
-      } 
-      
+      }
+
       if (type === 'trip advance') {
         let narrationText = 'Payment Towards Loading & Unloading Charges';
         if (vehicleNo) narrationText += ` for ${vehicleNo}`;
@@ -239,7 +239,7 @@ export function buildExpensesXml(expensesInput, tenant) {
 
         return `
     <TALLYMESSAGE xmlns:UDF="TallyUDF">
-     <VOUCHER REMOTEID="${guid}" VCHKEY="${guid}:00000030" VCHTYPE="Journal" ACTION="Create" OBJVIEW="Accounting Voucher View">
+     <VOUCHER REMOTEID="${guid}" VCHKEY="${guid}:00000030" VCHTYPE="Payment" ACTION="Create" OBJVIEW="Accounting Voucher View">
       <OLDAUDITENTRYIDS.LIST TYPE="Number">
        <OLDAUDITENTRYIDS>-1</OLDAUDITENTRYIDS>
       </OLDAUDITENTRYIDS.LIST>
