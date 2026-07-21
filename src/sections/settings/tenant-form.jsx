@@ -456,7 +456,15 @@ export default function TenantForm({ currentTenant }) {
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="address.line1" label="Address" />
         <Field.Text name="address.city" label="City" />
-        <Field.Text name="address.state" label="State" />
+        <Field.Select name="address.state" label="State">
+          <MenuItem value="">None</MenuItem>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          {STATES.map((state) => (
+            <MenuItem key={state.value} value={state.value}>
+              {state.label}
+            </MenuItem>
+          ))}
+        </Field.Select>
         <Field.Text name="address.pincode" label="Pincode" />
         <Field.Text name="contactDetails.email" label="Email" />
         <Field.Text name="contactDetails.phone" label="Phone" />
