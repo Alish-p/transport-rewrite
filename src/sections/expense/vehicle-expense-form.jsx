@@ -19,24 +19,30 @@ import { useCreateExpense } from '../../query/use-expense';
 import { usePaymentMethods, useVehicleExpenseTypes } from './expense-config';
 import { KanbanVehicleDialog } from '../kanban/components/kanban-vehicle-dialog';
 
-export const ExpenseSchema = zod.object({
-  vehicleId: zod
-    .object({
-      label: zod.string(),
-      value: zod.string(),
-    })
-    .nullable()
-    .optional(),
-  date: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
-  expenseType: zod.string().min(1, { message: 'Expense Type is required' }),
+export const ExpenseSchema = zod
+  .object({
+    vehicleId: zod
+      .object({
+        label: zod.string(),
+        value: zod.string(),
+      })
+      .nullable()
+      .optional(),
+    date: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
+    expenseType: zod.string().min(1, { message: 'Expense Type is required' }),
 
-  amount: zod
-    .number({ required_error: 'Amount is required' })
-    .min(0, { message: 'Amount must be at least 0' }),
-  slipNo: zod.string().min(1, { message: 'Slip No is required' }),
-  remarks: zod.string().optional(),
-  paidThrough: zod.string().min(1, { message: 'Paid Through is required' }),
-});
+    amount: zod
+      .number({ required_error: 'Amount is required' })
+      .min(0, { message: 'Amount must be at least 0' }),
+    slipNo: zod.string().min(1, { message: 'Slip No is required' }),
+    remarks: zod.string().optional(),
+    paidThrough: zod.string().min(1, { message: 'Paid Through is required' }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.date && dayjs(data.date).isAfter(dayjs(), 'day')) {
+      ctx.addIssue({ path: ['date'], message: 'Expense date cannot be in the future' });
+    }
+  });
 // ------------------------------------------------------------------------
 
 export default function VehicleExpenseForm({ currentExpense }) {

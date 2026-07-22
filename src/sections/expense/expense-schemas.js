@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 
 import { schemaHelper } from 'src/components/hook-form';
@@ -18,6 +19,9 @@ export const SubtripExpenseSchema = zod
     performanceSalary: zod.number().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.date && dayjs(data.date).isAfter(dayjs(), 'day')) {
+      ctx.addIssue({ path: ['date'], message: 'Expense date cannot be in the future' });
+    }
     if (data.expenseType === 'Diesel') {
       if (!data.dieselLtr || data.dieselLtr <= 0) {
         ctx.addIssue({ path: ['dieselLtr'], message: 'Diesel Liters must be a positive Number' });
@@ -27,3 +31,4 @@ export const SubtripExpenseSchema = zod
       }
     }
   });
+

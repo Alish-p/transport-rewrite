@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { z as zod } from 'zod';
 // form
 import { useForm } from 'react-hook-form';
@@ -31,16 +32,22 @@ import { LOAN_REASONS, BORROWER_TYPES } from './loans-config';
 
 // ----------------------------------------------------------------------
 
-export const LoansSchema = zod.object({
-  borrowerId: zod.string().min(1),
-  borrowerType: zod.string().min(1),
-  loanReason: zod.any().optional(),
-  principalAmount: zod.number().min(1, { message: 'Amount is required' }),
-  remarks: zod.string().optional(),
-  disbursementDate: schemaHelper
-    .date({ message: { required_error: 'Issue date is required!' } })
-    .optional(),
-});
+export const LoansSchema = zod
+  .object({
+    borrowerId: zod.string().min(1),
+    borrowerType: zod.string().min(1),
+    loanReason: zod.any().optional(),
+    principalAmount: zod.number().min(1, { message: 'Amount is required' }),
+    remarks: zod.string().optional(),
+    disbursementDate: schemaHelper
+      .date({ message: { required_error: 'Issue date is required!' } })
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.disbursementDate && dayjs(data.disbursementDate).isAfter(dayjs(), 'day')) {
+      ctx.addIssue({ path: ['disbursementDate'], message: 'Issue date cannot be in the future' });
+    }
+  });
 
 // ----------------------------------------------------------------------
 
@@ -212,7 +219,7 @@ export default function LoanForm({ currentLoan }) {
           }}
         />
 
-        <Field.DatePicker name="disbursementDate" label="Issue Date" />
+        <Field.DatePicker name="disbursementDate" label="Issue Date" maxDate={dayjs()} />
 
         <Field.Text name="remarks" label="Remarks" multiline rows={4} />
       </Stack>
