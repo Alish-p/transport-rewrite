@@ -248,7 +248,7 @@ export function buildExpensesXml(expensesInput, tenant) {
       <GUID>${guid}</GUID>
       <GSTREGISTRATIONTYPE>Regular</GSTREGISTRATIONTYPE>
       <NARRATION>${narration}</NARRATION>
-      <VOUCHERTYPENAME>Journal</VOUCHERTYPENAME>
+      <VOUCHERTYPENAME>Payment</VOUCHERTYPENAME>
       <GSTREGISTRATION TAXTYPE="GST" TAXREGISTRATION="${escapeXml(companyGstin)}">${escapeXml(companyStateName)} Registration</GSTREGISTRATION>
       <CMPGSTIN>${escapeXml(companyGstin)}</CMPGSTIN>
       <PARTYLEDGERNAME>HDFC BANK LTD A/C NO.50200064812820</PARTYLEDGERNAME>
@@ -262,7 +262,7 @@ export function buildExpensesXml(expensesInput, tenant) {
       <FBTPAYMENTTYPE>Default</FBTPAYMENTTYPE>
       <PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW>
       <VCHSTATUSTAXADJUSTMENT>Default</VCHSTATUSTAXADJUSTMENT>
-      <VCHSTATUSVOUCHERTYPE>Journal</VCHSTATUSVOUCHERTYPE>
+      <VCHSTATUSVOUCHERTYPE>Payment</VCHSTATUSVOUCHERTYPE>
       <VCHSTATUSTAXUNIT>${escapeXml(companyStateName)} Registration</VCHSTATUSTAXUNIT>
       <VCHGSTCLASS>&#4; Not Applicable</VCHGSTCLASS>
       <VCHENTRYMODE>As Voucher</VCHENTRYMODE>
