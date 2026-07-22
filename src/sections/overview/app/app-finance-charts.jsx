@@ -106,8 +106,8 @@ export function FinancialMonthlyChart({ title, ...other }) {
         type="line"
         series={chartSeries}
         options={chartOptions}
-        height="100%"
-        sx={{ py: 2.5, pl: 1, pr: 2.5, flexGrow: 1 }}
+        height={320}
+        sx={{ py: 2.5, pl: 1, pr: 2.5 }}
       />
     </Card>
   );
