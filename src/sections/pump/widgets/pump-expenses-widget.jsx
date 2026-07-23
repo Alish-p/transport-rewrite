@@ -22,7 +22,7 @@ import { usePaginatedAdvances } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import {
   useTable,
   TableNoData,
@@ -98,6 +98,11 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses & Advances',
 
   const handleChangeEndDate = (newValue) => {
     rangePicker.onChangeEndDate(newValue);
+    table.onResetPage();
+  };
+
+  const handleApplyRange = (newStart, newEnd) => {
+    rangePicker.onApplyRange(newStart, newEnd);
     table.onResetPage();
   };
 
@@ -212,12 +217,14 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses & Advances',
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={rangePicker.open}
         onClose={rangePicker.onClose}
         startDate={rangePicker.startDate}
         endDate={rangePicker.endDate}
         onChangeStartDate={handleChangeStartDate}
         onChangeEndDate={handleChangeEndDate}
+        onApplyRange={handleApplyRange}
       />
     </Card>
   );

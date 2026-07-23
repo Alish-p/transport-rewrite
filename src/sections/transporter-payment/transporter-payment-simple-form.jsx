@@ -41,6 +41,7 @@ import { useCreateTransporterPayment } from 'src/query/use-transporter-payment';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import {
   getWeightUnit,
@@ -54,7 +55,6 @@ import { TableSkeleton } from '../../components/table';
 import LoanDeductionCard from '../loans/loan-deduction-card';
 import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanTransporterDialog } from '../kanban/components/kanban-transporter-dialog';
-import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
 import {
   calculateTransporterPayment,
   calculateTransporterPaymentSummary,
@@ -376,12 +376,17 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
 
         <CustomDateRangePicker
           variant="calendar"
+          presets={DATE_RANGE_PRESETS}
           open={dateDialog.value}
           onClose={dateDialog.onFalse}
           startDate={billingPeriod?.start}
           endDate={billingPeriod?.end}
           onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
           onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
+          onApplyRange={(start, end) => {
+            setValue('billingPeriod.start', start);
+            setValue('billingPeriod.end', end);
+          }}
         />
 
         <LoanDeductionCard

@@ -16,7 +16,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { TABLE_COLUMNS } from './purchase-order-table-config';
 import PurchaseOrderFiltersDrawer from './purchase-order-filters-drawer';
@@ -27,6 +27,7 @@ import { KanbanContactsDialog } from '../kanban/components/kanban-contacts-dialo
 export default function PurchaseOrderTableToolbar({
   filters,
   onFilters,
+  onApplyDateRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -210,12 +211,14 @@ export default function PurchaseOrderTableToolbar({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={dateRange.value}
         onClose={dateRange.onFalse}
         startDate={filters.fromDate}
         endDate={filters.toDate}
         onChangeStartDate={(date) => onFilters('fromDate', date)}
         onChangeEndDate={(date) => onFilters('toDate', date)}
+        onApplyRange={onApplyDateRange}
       />
 
       <KanbanContactsDialog

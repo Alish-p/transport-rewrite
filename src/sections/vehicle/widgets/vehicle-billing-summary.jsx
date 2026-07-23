@@ -33,7 +33,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableNoData, TableSkeleton } from 'src/components/table';
-import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 const TABLE_HEAD = [
   { id: 'index', label: '#' },
@@ -160,11 +160,13 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
             </Button>
             <CustomDateRangePicker
               variant="calendar"
+              presets={DATE_RANGE_PRESETS}
               open={rangePicker.open}
               startDate={rangePicker.startDate}
               endDate={rangePicker.endDate}
               onChangeStartDate={rangePicker.onChangeStartDate}
               onChangeEndDate={rangePicker.onChangeEndDate}
+              onApplyRange={rangePicker.onApplyRange}
               onClose={rangePicker.onClose}
               error={rangePicker.error}
             />

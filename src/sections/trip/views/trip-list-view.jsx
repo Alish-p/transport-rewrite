@@ -85,7 +85,7 @@ export function TripListView() {
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -230,6 +230,7 @@ export function TripListView() {
         <TripTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          onApplyDateRange={(start, end) => setFilters({ fromDate: start, toDate: end })}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}

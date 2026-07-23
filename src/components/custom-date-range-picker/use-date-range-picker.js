@@ -40,11 +40,23 @@ export function useDateRangePicker(start, end) {
     setEndDate(null);
   }, []);
 
+  /**
+   * Atomically applies both dates in a single batch.
+   * Use this instead of calling onChangeStartDate + onChangeEndDate separately
+   * when you need to set both at once (e.g. preset clicks), to avoid the stale
+   * error-closure bug in onChangeEndDate.
+   */
+  const onApplyRange = useCallback((newStart, newEnd) => {
+    setStartDate(newStart);
+    setEndDate(newEnd);
+  }, []);
+
   return {
     startDate,
     endDate,
     onChangeStartDate,
     onChangeEndDate,
+    onApplyRange,
     //
     open,
     onOpen,

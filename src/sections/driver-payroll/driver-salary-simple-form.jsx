@@ -43,7 +43,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { TableSkeleton } from 'src/components/table';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -359,12 +359,17 @@ export default function DriverSalarySimpleForm() {
 
         <CustomDateRangePicker
           variant="calendar"
+          presets={DATE_RANGE_PRESETS}
           open={dateDialog.value}
           onClose={dateDialog.onFalse}
           startDate={billingPeriod?.start}
           endDate={billingPeriod?.end}
           onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
           onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
+          onApplyRange={(start, end) => {
+            setValue('billingPeriod.start', start);
+            setValue('billingPeriod.end', end);
+          }}
         />
 
         <LoanDeductionCard

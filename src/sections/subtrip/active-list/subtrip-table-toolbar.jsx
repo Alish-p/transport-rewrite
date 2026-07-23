@@ -17,7 +17,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
@@ -31,6 +31,8 @@ import SubtripFiltersDrawer from './subtrip-filters-drawer';
 export default function SubtripTableToolbar({
   filters,
   onFilters,
+  onApplyDateRange,
+  onApplyEndRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -204,6 +206,8 @@ export default function SubtripTableToolbar({
         onClose={filtersDrawer.onFalse}
         filters={filters}
         onFilters={onFilters}
+        onApplyDateRange={onApplyDateRange}
+        onApplyEndRange={onApplyEndRange}
         transporterDialog={transporterDialog}
         customerDialog={customerDialog}
         vehicleDialog={vehicleDialog}
@@ -246,12 +250,14 @@ export default function SubtripTableToolbar({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={startRange.value}
         onClose={startRange.onFalse}
         startDate={filters.fromDate}
         endDate={filters.toDate}
         onChangeStartDate={(date) => onFilters('fromDate', date)}
         onChangeEndDate={(date) => onFilters('toDate', date)}
+        onApplyRange={onApplyDateRange}
       />
     </>
   );

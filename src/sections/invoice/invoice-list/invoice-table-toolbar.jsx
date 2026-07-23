@@ -19,7 +19,7 @@ import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 // @mui
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { KanbanSubtripDialog } from 'src/sections/kanban/components/kanban-subtrip-dialog';
@@ -32,6 +32,7 @@ import { TABLE_COLUMNS } from '../invoice-table-config';
 export default function InvoiceTableToolbar({
   filters,
   onFilters,
+  onApplyDateRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -188,12 +189,14 @@ export default function InvoiceTableToolbar({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={dateDialog.value}
         onClose={dateDialog.onFalse}
         startDate={filters.fromDate}
         endDate={filters.endDate}
         onChangeStartDate={handleChangeStartDate}
         onChangeEndDate={handleChangeEndDate}
+        onApplyRange={onApplyDateRange}
       />
     </>
   );

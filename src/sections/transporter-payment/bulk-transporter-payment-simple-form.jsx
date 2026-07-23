@@ -36,7 +36,7 @@ import { Iconify } from 'src/components/iconify';
 import { TableSkeleton } from 'src/components/table';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { useTenantContext } from 'src/auth/tenant';
 
@@ -438,12 +438,14 @@ export default function BulkTransporterPaymentSimpleForm() {
           />
           <CustomDateRangePicker
             variant="calendar"
+            presets={DATE_RANGE_PRESETS}
             open={dateRangeDialog.value}
             onClose={dateRangeDialog.onFalse}
             startDate={dateRange.start}
             endDate={dateRange.end}
             onChangeStartDate={(d) => setDateRange({ ...dateRange, start: d })}
             onChangeEndDate={(d) => setDateRange({ ...dateRange, end: d })}
+            onApplyRange={(start, end) => setDateRange({ start, end })}
           />
         </Stack>
       </Card>

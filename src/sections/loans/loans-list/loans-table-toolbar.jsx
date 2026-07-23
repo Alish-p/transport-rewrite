@@ -18,7 +18,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanDriverDialog } from 'src/sections/kanban/components/kanban-driver-dialog';
 import { KanbanTransporterDialog } from 'src/sections/kanban/components/kanban-transporter-dialog';
@@ -31,6 +31,7 @@ import { TABLE_COLUMNS } from '../loans-table-config';
 export default function LoansTableToolbar({
   filters,
   onFilters,
+  onApplyDateRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -206,12 +207,14 @@ export default function LoansTableToolbar({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={dateDialog.value}
         onClose={dateDialog.onFalse}
         startDate={filters.fromDate}
         endDate={filters.endDate}
         onChangeStartDate={handleChangeStartDate}
         onChangeEndDate={handleChangeEndDate}
+        onApplyRange={onApplyDateRange}
       />
 
       <KanbanDriverDialog

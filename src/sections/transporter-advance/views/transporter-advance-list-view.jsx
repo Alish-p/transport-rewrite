@@ -80,7 +80,7 @@ export default function TransporterAdvanceListView() {
   const navigate = useNavigate();
   const deleteAdvance = useDeleteTransporterAdvance();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -282,6 +282,7 @@ export default function TransporterAdvanceListView() {
         <TransporterAdvanceTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          onApplyDateRange={(start, end) => setFilters({ fromDate: start, endDate: end })}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}

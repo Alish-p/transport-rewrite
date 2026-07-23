@@ -81,7 +81,7 @@ export function LoansListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const confirm = useBoolean();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -279,6 +279,7 @@ export function LoansListView() {
           <LoanTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            onApplyDateRange={(start, end) => setFilters({ fromDate: start, endDate: end })}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}

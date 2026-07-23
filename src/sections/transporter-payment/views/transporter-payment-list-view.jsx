@@ -81,7 +81,7 @@ export function TransporterPaymentListView() {
   const learn = useBoolean();
   const deleteTransporterPayment = useDeleteTransporterPayment();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
 
   const {
     visibleColumns,
@@ -244,6 +244,7 @@ export function TransporterPaymentListView() {
         <TransporterPaymentTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          onApplyDateRange={(start, end) => setFilters({ issueFromDate: start, issueToDate: end })}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}

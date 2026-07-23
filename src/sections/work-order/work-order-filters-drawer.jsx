@@ -17,7 +17,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import {
   WORK_ORDER_ISSUE_OPTIONS,
@@ -30,6 +30,8 @@ export default function WorkOrderFiltersDrawer({
   onClose,
   filters,
   onFilters,
+  onApplyStartDateRange,
+  onApplyEndDateRange,
   // Dialogs provided by parent
   createdByDialog,
   closedByDialog,
@@ -218,22 +220,26 @@ export default function WorkOrderFiltersDrawer({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={startDateRange.value}
         onClose={startDateRange.onFalse}
         startDate={filters.startDateStart}
         endDate={filters.startDateEnd}
         onChangeStartDate={(date) => onFilters('startDateStart', date)}
         onChangeEndDate={(date) => onFilters('startDateEnd', date)}
+        onApplyRange={onApplyStartDateRange}
       />
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={endDateRange.value}
         onClose={endDateRange.onFalse}
         startDate={filters.endDateStart}
         endDate={filters.endDateEnd}
         onChangeStartDate={(date) => onFilters('endDateStart', date)}
         onChangeEndDate={(date) => onFilters('endDateEnd', date)}
+        onApplyRange={onApplyEndDateRange}
       />
     </>
   );

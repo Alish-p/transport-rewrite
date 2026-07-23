@@ -28,6 +28,8 @@ import { WORK_ORDER_PRIORITY_OPTIONS, WORK_ORDER_CATEGORY_OPTIONS } from './work
 export default function WorkOrderTableToolbar({
   filters,
   onFilters,
+  onApplyStartDateRange,
+  onApplyEndDateRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -252,6 +254,8 @@ export default function WorkOrderTableToolbar({
         onClose={filtersDrawer.onFalse}
         filters={filters}
         onFilters={onFilters}
+        onApplyStartDateRange={onApplyStartDateRange}
+        onApplyEndDateRange={onApplyEndDateRange}
         createdByDialog={createdByDialog}
         closedByDialog={closedByDialog}
         issueAssigneeDialog={issueAssigneeDialog}

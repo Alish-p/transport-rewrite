@@ -15,7 +15,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { TABLE_COLUMNS } from './trip-table-config';
 import TripFiltersDrawer from './trip-filters-drawer';
@@ -30,6 +30,7 @@ import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog'
 export default function TripTableToolbar({
   filters,
   onFilters,
+  onApplyDateRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -249,12 +250,14 @@ export default function TripTableToolbar({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={dateDialog.value}
         onClose={dateDialog.onFalse}
         startDate={filters.fromDate}
         endDate={filters.toDate}
         onChangeStartDate={handleFilterFromDate}
         onChangeEndDate={handleFilterEndDate}
+        onApplyRange={onApplyDateRange}
       />
     </>
   );

@@ -76,7 +76,7 @@ export function VehicleDocumentListView() {
   });
   const [view, setView] = useState('list');
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -232,6 +232,8 @@ export function VehicleDocumentListView() {
           <VehicleDocumentTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            onApplyIssueDateRange={(start, end) => setFilters({ issueFrom: start, issueTo: end })}
+            onApplyExpiryDateRange={(start, end) => setFilters({ expiryFrom: start, expiryTo: end })}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}

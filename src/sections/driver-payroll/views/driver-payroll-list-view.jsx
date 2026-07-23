@@ -82,7 +82,7 @@ export function DriverPayrollListView() {
 
   const deleteDriverPayroll = useDeleteDriverPayroll();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -268,6 +268,8 @@ export function DriverPayrollListView() {
         <DriverPayrollTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          onApplyDateRange={(start, end) => setFilters({ fromDate: start, endDate: end })}
+          onApplyBillingDateRange={(start, end) => setFilters({ billingFromDate: start, billingToDate: end })}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={toggleColumnVisibility}

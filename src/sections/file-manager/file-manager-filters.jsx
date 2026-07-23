@@ -15,7 +15,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { FileThumbnail } from 'src/components/file-thumbnail';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 // ----------------------------------------------------------------------
 
@@ -188,10 +188,15 @@ export function FileManagerFilters({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         startDate={filters.state.startDate}
         endDate={filters.state.endDate}
         onChangeStartDate={handleFilterStartDate}
         onChangeEndDate={handleFilterEndDate}
+        onApplyRange={(start, end) => {
+          onResetPage();
+          filters.setState({ startDate: start, endDate: end });
+        }}
         open={openDateRange}
         onClose={onCloseDateRange}
         selected={!!filters.state.startDate && !!filters.state.endDate}

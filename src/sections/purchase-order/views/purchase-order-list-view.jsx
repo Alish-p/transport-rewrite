@@ -77,7 +77,7 @@ export function PurchaseOrderListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -300,6 +300,7 @@ export function PurchaseOrderListView() {
         <PurchaseOrderTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          onApplyDateRange={(start, end) => setFilters({ fromDate: start, toDate: end })}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
           onToggleColumn={handleToggleColumn}

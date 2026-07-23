@@ -94,7 +94,7 @@ export function SubtripListView() {
   const deleteSubtrip = useDeleteSubtrip();
   const learn = useBoolean();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -420,6 +420,8 @@ export function SubtripListView() {
         <SubtripTableToolbar
           filters={filters}
           onFilters={handleFilterChange}
+          onApplyDateRange={(start, end) => setFilters({ fromDate: start, toDate: end })}
+          onApplyEndRange={(start, end) => setFilters({ subtripEndFromDate: start, subtripEndToDate: end })}
           tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}

@@ -24,7 +24,7 @@ import PartInventoryActivityListPdf from 'src/pdfs/part-inventory-activity-list-
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 import {
   useTable,
   TableNoData,
@@ -64,7 +64,7 @@ export function PartInventoryActivityTab({ partId }) {
     defaultRowsPerPage: 10,
   });
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -295,11 +295,13 @@ export function PartInventoryActivityTab({ partId }) {
 
         <CustomDateRangePicker
           open={dateDialog.value}
+          presets={DATE_RANGE_PRESETS}
           onClose={dateDialog.onFalse}
           startDate={filters.fromDate}
           endDate={filters.toDate}
           onChangeStartDate={handleChangeStartDate}
           onChangeEndDate={handleChangeEndDate}
+          onApplyRange={(start, end) => setFilters({ fromDate: start, toDate: end })}
         />
 
         <KanbanContactsDialog

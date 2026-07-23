@@ -85,7 +85,7 @@ export function InvoiceListView() {
   const table = useTable({ defaultOrderBy: 'issueDate', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
-  const { filters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
   });
 
@@ -373,6 +373,7 @@ export function InvoiceListView() {
           <InvoiceTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            onApplyDateRange={(start, end) => setFilters({ fromDate: start, endDate: end })}
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}

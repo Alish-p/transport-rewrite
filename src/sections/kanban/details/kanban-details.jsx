@@ -28,7 +28,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
-import { useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { DEPARTMENTS } from '../config';
 import { KanbanDetailsToolbar } from './kanban-details-toolbar';
@@ -423,10 +423,12 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         <CustomDateRangePicker
           variant="calendar"
           title="Choose due date"
+          presets={DATE_RANGE_PRESETS}
           startDate={rangePicker.startDate}
           endDate={rangePicker.endDate}
           onChangeStartDate={rangePicker.onChangeStartDate}
           onChangeEndDate={rangePicker.onChangeEndDate}
+          onApplyRange={rangePicker.onApplyRange}
           open={rangePicker.open}
           onClose={rangePicker.onClose}
           selected={rangePicker.selected}

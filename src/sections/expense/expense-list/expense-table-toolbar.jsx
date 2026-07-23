@@ -23,7 +23,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanPumpDialog } from 'src/sections/kanban/components/kanban-pump-dialog';
 import { KanbanTripDialog } from 'src/sections/kanban/components/kanban-trip-dialog';
@@ -38,6 +38,7 @@ import { SUBTRIP_STATUS } from '../../subtrip/constants';
 export default function ExpenseTableToolbar({
   filters,
   onFilters,
+  onApplyDateRange,
   subtripExpenseTypes,
   vehicleExpenseTypes,
   visibleColumns,
@@ -190,12 +191,14 @@ export default function ExpenseTableToolbar({
         />
         <CustomDateRangePicker
           variant="calendar"
+          presets={DATE_RANGE_PRESETS}
           open={dateDialog.value}
           onClose={dateDialog.onFalse}
           startDate={filters.fromDate}
           endDate={filters.endDate}
           onChangeStartDate={handleFilterFromDate}
           onChangeEndDate={handleFilterEndDate}
+          onApplyRange={onApplyDateRange}
         />
 
         <DialogSelectButton

@@ -26,7 +26,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { FREIGHT_MODEL_OPTIONS } from '../constants';
 
@@ -37,6 +37,8 @@ export default function SubtripFiltersDrawer({
   onClose,
   filters,
   onFilters,
+  onApplyDateRange,
+  onApplyEndRange,
   //
   transporterDialog,
   customerDialog,
@@ -436,22 +438,26 @@ export default function SubtripFiltersDrawer({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={startRange.value}
         onClose={startRange.onFalse}
         startDate={filters.fromDate}
         endDate={filters.toDate}
         onChangeStartDate={(date) => onFilters('fromDate', date)}
         onChangeEndDate={(date) => onFilters('toDate', date)}
+        onApplyRange={onApplyDateRange}
       />
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={endRange.value}
         onClose={endRange.onFalse}
         startDate={filters.subtripEndFromDate}
         endDate={filters.subtripEndToDate}
         onChangeStartDate={(date) => onFilters('subtripEndFromDate', date)}
         onChangeEndDate={(date) => onFilters('subtripEndToDate', date)}
+        onApplyRange={onApplyEndRange}
       />
     </>
   );

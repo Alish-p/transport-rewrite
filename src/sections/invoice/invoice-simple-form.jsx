@@ -40,6 +40,7 @@ import { useClosedTripsByCustomerAndDate } from 'src/query/use-subtrip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import {
   fFreightRate,
@@ -53,7 +54,6 @@ import { useTenantContext } from 'src/auth/tenant';
 import { TableSkeleton } from '../../components/table';
 import { Form, Field, schemaHelper } from '../../components/hook-form';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
-import { CustomDateRangePicker } from '../../components/custom-date-range-picker/custom-date-range-picker';
 import {
   calculateTaxBreakup,
   calculateInvoiceSummary,
@@ -345,12 +345,17 @@ export default function SimplerNewInvoiceForm() {
 
         <CustomDateRangePicker
           variant="calendar"
+          presets={DATE_RANGE_PRESETS}
           open={dateDialog.value}
           onClose={dateDialog.onFalse}
           startDate={billingPeriod?.start}
           endDate={billingPeriod?.end}
           onChangeStartDate={(date) => setValue('billingPeriod.start', date)}
           onChangeEndDate={(date) => setValue('billingPeriod.end', date)}
+          onApplyRange={(start, end) => {
+            setValue('billingPeriod.start', start);
+            setValue('billingPeriod.end', end);
+          }}
         />
 
         <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>

@@ -341,6 +341,7 @@ export function ExpenseListView() {
         <ExpenseTableToolbar
           filters={filters}
           onFilters={handleFilters}
+          onApplyDateRange={(start, end) => setFilters({ fromDate: start, endDate: end })}
           tableData={tableData}
           subtripExpenseTypes={subtripExpenseTypes}
           vehicleExpenseTypes={vehicleExpenseTypes}

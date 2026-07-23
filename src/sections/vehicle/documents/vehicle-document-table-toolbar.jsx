@@ -23,7 +23,7 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
-import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { DATE_RANGE_PRESETS, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 import { KanbanVehicleDialog } from 'src/sections/kanban/components/kanban-vehicle-dialog';
 
@@ -33,6 +33,8 @@ import { TABLE_COLUMNS } from './vehicle-document-table-config';
 export default function VehicleDocumentTableToolbar({
   filters,
   onFilters,
+  onApplyIssueDateRange,
+  onApplyExpiryDateRange,
   visibleColumns,
   disabledColumns = {},
   onToggleColumn,
@@ -252,22 +254,26 @@ export default function VehicleDocumentTableToolbar({
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={issueDateDialog.value}
         onClose={issueDateDialog.onFalse}
         startDate={filters.issueFrom}
         endDate={filters.issueTo}
         onChangeStartDate={handleChangeIssueFromDate}
         onChangeEndDate={handleChangeIssueToDate}
+        onApplyRange={onApplyIssueDateRange}
       />
 
       <CustomDateRangePicker
         variant="calendar"
+        presets={DATE_RANGE_PRESETS}
         open={expiryDateDialog.value}
         onClose={expiryDateDialog.onFalse}
         startDate={filters.expiryFrom}
         endDate={filters.expiryTo}
         onChangeStartDate={handleChangeExpiryFromDate}
         onChangeEndDate={handleChangeExpiryToDate}
+        onApplyRange={onApplyExpiryDateRange}
       />
     </>
   );

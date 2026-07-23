@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
+import { useState, useCallback } from 'react';
 
+import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -24,21 +26,47 @@ export function CustomDateRangePicker({
   onChangeEndDate,
   variant = 'input',
   onChangeStartDate,
+  onApplyRange,
   title = 'Select date range',
+  presets,
 }) {
   const mdUp = useResponsive('up', 'md');
+
+  const [activePreset, setActivePreset] = useState(null);
+
+  const handlePresetClick = useCallback(
+    (preset) => {
+      const [start, end] = preset.getValue();
+      // Use the atomic setter to avoid the stale error-closure bug
+      // that causes only one date to apply when calling the two handlers separately.
+      if (onApplyRange) {
+        onApplyRange(
+          dayjs(start).startOf('day'),
+          dayjs(end).endOf('day')
+        );
+      } else {
+        onChangeStartDate(dayjs(start).startOf('day'));
+        onChangeEndDate(dayjs(end).endOf('day'));
+      }
+      setActivePreset(preset.label);
+    },
+    [onApplyRange, onChangeStartDate, onChangeEndDate]
+  );
 
   const handleStartChange = (date) => {
     const newDate = date ? dayjs(date).startOf('day') : null;
     onChangeStartDate(newDate);
+    setActivePreset(null);
   };
 
   const handleEndChange = (date) => {
     const newDate = date ? dayjs(date).endOf('day') : null;
     onChangeEndDate(newDate);
+    setActivePreset(null);
   };
 
   const isCalendarView = variant === 'calendar';
+  const hasPresets = Array.isArray(presets) && presets.length > 0;
 
   return (
     <Dialog
@@ -48,7 +76,34 @@ export function CustomDateRangePicker({
       onClose={onClose}
       PaperProps={{ sx: { ...(isCalendarView && { maxWidth: 720 }) } }}
     >
-      <DialogTitle sx={{ pb: 2 }}>{title}</DialogTitle>
+      <DialogTitle sx={{ pb: hasPresets ? 1 : 2 }}>{title}</DialogTitle>
+
+      {hasPresets && (
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            px: 3,
+            pb: 2,
+            flexWrap: 'nowrap',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          {presets.map((preset) => (
+            <Chip
+              key={preset.label}
+              label={preset.label}
+              size="small"
+              onClick={() => handlePresetClick(preset)}
+              variant={activePreset === preset.label ? 'filled' : 'outlined'}
+              color={activePreset === preset.label ? 'primary' : 'default'}
+              sx={{ flexShrink: 0, cursor: 'pointer' }}
+            />
+          ))}
+        </Stack>
+      )}
 
       <DialogContent sx={{ ...(isCalendarView && mdUp && { overflow: 'unset' }) }}>
         <Stack
