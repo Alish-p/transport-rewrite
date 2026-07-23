@@ -37,8 +37,7 @@ export default function PartInventoryActivityTableFiltersResult({
   };
 
   const handleRemoveDateRange = () => {
-    onFilters('fromDate', null);
-    onFilters('toDate', null);
+    onFilters({ fromDate: null, toDate: null });
   };
 
   const hasDateRange = filters.fromDate && filters.toDate;

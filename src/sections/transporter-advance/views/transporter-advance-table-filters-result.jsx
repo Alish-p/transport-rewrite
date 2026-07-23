@@ -36,8 +36,7 @@ export default function TransporterAdvanceTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters({ fromDate: null, endDate: null });
   };
 
   const handleRemoveAdvanceType = (typeToRemove) => {

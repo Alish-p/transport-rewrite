@@ -58,13 +58,11 @@ export default function SubtripTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('toDate', null);
+    onFilters({ fromDate: null, toDate: null });
   };
 
   const handleRemoveEndDate = () => {
-    onFilters('subtripEndFromDate', null);
-    onFilters('subtripEndToDate', null);
+    onFilters({ subtripEndFromDate: null, subtripEndToDate: null });
   };
 
   const handleRemoveDriver = () => {

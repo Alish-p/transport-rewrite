@@ -33,13 +33,11 @@ export default function DriverPayrollTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters({ fromDate: null, endDate: null });
   };
 
   const handleRemoveBillingDate = () => {
-    onFilters('billingFromDate', null);
-    onFilters('billingToDate', null);
+    onFilters({ billingFromDate: null, billingToDate: null });
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);

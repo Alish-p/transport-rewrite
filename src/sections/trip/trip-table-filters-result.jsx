@@ -43,8 +43,7 @@ export default function TripTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('toDate', null);
+    onFilters({ fromDate: null, toDate: null });
   };
 
   const handleRemoveTripSheetReady = () => {

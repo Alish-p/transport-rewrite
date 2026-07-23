@@ -40,8 +40,7 @@ export default function DriverTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters({ fromDate: null, endDate: null });
   };
 
   const getCustomerName = (id) => {

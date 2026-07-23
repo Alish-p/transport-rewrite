@@ -12,7 +12,6 @@ export function useFilters(initialFilters, options = {}) {
 
   const {
     state: filters,
-    setField,
     setState,
     onResetState,
     canReset,
@@ -66,45 +65,6 @@ export function useFilters(initialFilters, options = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      if (onResetPage) onResetPage();
-      setField(name, value);
-
-      setSearchParams(
-        (prev) => {
-          const params = new URLSearchParams(prev);
-          const serialized = serializeForQuery(name, value);
-          if (serialized == null || isEqual(value, initialFilters[name])) {
-            params.delete(name);
-          } else {
-            params.set(name, serialized);
-          }
-          // Reset page when filters change
-          params.delete('page');
-          return params;
-        },
-        { replace: true }
-      );
-    },
-    [onResetPage, setField, setSearchParams, serializeForQuery, initialFilters]
-  );
-
-  const handleResetFilters = useCallback(() => {
-    onResetState();
-    if (onResetPage) onResetPage();
-
-    setSearchParams(
-      (prev) => {
-        const params = new URLSearchParams(prev);
-        Object.keys(initialFilters).forEach((key) => params.delete(key));
-        params.delete('page');
-        return params;
-      },
-      { replace: true }
-    );
-  }, [onResetState, onResetPage, setSearchParams, initialFilters]);
-
   const setFilters = useCallback(
     (update) => {
       if (onResetPage) onResetPage();
@@ -128,6 +88,32 @@ export function useFilters(initialFilters, options = {}) {
     },
     [onResetPage, setState, setSearchParams, serializeForQuery, initialFilters]
   );
+
+  const handleFilters = useCallback(
+    (name, value) => {
+      if (typeof name === 'object' && name !== null) {
+        setFilters(name);
+        return;
+      }
+      setFilters({ [name]: value });
+    },
+    [setFilters]
+  );
+
+  const handleResetFilters = useCallback(() => {
+    onResetState();
+    if (onResetPage) onResetPage();
+
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        Object.keys(initialFilters).forEach((key) => params.delete(key));
+        params.delete('page');
+        return params;
+      },
+      { replace: true }
+    );
+  }, [onResetState, onResetPage, setSearchParams, initialFilters]);
 
   return {
     filters,

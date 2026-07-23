@@ -31,8 +31,7 @@ export default function PurchaseOrderTableFiltersResult({
   };
 
   const handleRemoveDateRange = () => {
-    onFilters('fromDate', null);
-    onFilters('toDate', null);
+    onFilters({ fromDate: null, toDate: null });
   };
 
   const handleRemovePart = () => {

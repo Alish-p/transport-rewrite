@@ -56,8 +56,7 @@ export default function ExpenseTableFiltersResult({
   // Route filter removed
 
   const handleRemoveDate = () => {
-    onFilters('fromDate', null);
-    onFilters('endDate', null);
+    onFilters({ fromDate: null, endDate: null });
   };
 
   const shortLabel = fDateRangeShortLabel(filters.fromDate, filters.endDate);

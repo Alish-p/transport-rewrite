@@ -43,8 +43,7 @@ export default function TransporterPayrollTableFiltersResult({
   };
 
   const handleRemoveDate = () => {
-    onFilters('issueFromDate', null);
-    onFilters('issueToDate', null);
+    onFilters({ issueFromDate: null, issueToDate: null });
   };
 
   const shortLabel = fDateRangeShortLabel(filters.issueFromDate, filters.issueToDate);
