@@ -1,6 +1,10 @@
+import React, { useState, useCallback } from 'react';
+
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
 import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
+import Tabs from '@mui/material/Tabs';
 import Table from '@mui/material/Table';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -10,11 +14,13 @@ import Accordion from '@mui/material/Accordion';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
@@ -22,44 +28,188 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 export default function VehicleLearn({ open, onClose }) {
   const theme = useTheme();
+  const [currentTab, setCurrentTab] = useState('overview');
+
+  const handleChangeTab = useCallback((event, newValue) => {
+    setCurrentTab(newValue);
+  }, []);
+
+  const faqData = [
+    {
+      icon: 'solar:pause-circle-bold',
+      iconColor: theme.palette.warning.main,
+      question: 'What happens when I mark a vehicle as Inactive?',
+      answer: (
+        <>
+          An inactive vehicle is <b>hidden from all creation forms</b> — you cannot create new Jobs,
+          Trips, Expenses, Work Orders, or mount new Tyres on it. Historical data (past trips,
+          expenses, reports) remains fully accessible for viewing and filtering in list views. Think
+          of it as &quot;retired but not deleted&quot;.
+        </>
+      ),
+    },
+    {
+      icon: 'solar:restart-bold',
+      iconColor: theme.palette.info.main,
+      question: 'What about tyres already mounted on an inactive vehicle?',
+      answer: (
+        <>
+          Existing tyres stay mounted — they are <b>not</b> automatically unmounted. No new tyres
+          can be assigned, but current assignments are preserved. To reuse those tyres, reactivate
+          the vehicle first, unmount the tyres, then deactivate again.
+        </>
+      ),
+    },
+    {
+      icon: 'solar:delivery-bold',
+      iconColor: theme.palette.success.main,
+      question: 'What is the difference between Own and Market vehicles?',
+      answer: (
+        <>
+          <b>Own</b> vehicles belong to your company — trips create driver advances, fuel tracking,
+          vehicle expenses, and salary entries. <b>Market</b> vehicles belong to an external
+          transporter — trips create transporter payments instead. Expenses, work orders, and tyre
+          management are available only for own vehicles.
+        </>
+      ),
+    },
+    {
+      icon: 'solar:refresh-circle-bold',
+      iconColor: theme.palette.primary.main,
+      question: 'Can I reactivate an inactive vehicle?',
+      answer: (
+        <>
+          Yes. Go to the vehicle&apos;s detail page and toggle the Active status back on. Once
+          reactivated, the vehicle will immediately appear in all creation dropdowns.
+        </>
+      ),
+    },
+    {
+      icon: 'solar:trash-bin-trash-bold',
+      iconColor: theme.palette.error.main,
+      question: 'Should I delete or deactivate a vehicle?',
+      answer: (
+        <>
+          <b>Always prefer deactivating</b> over deleting. Deactivating keeps all historical records
+          (trips, P&L, expenses) intact and searchable. Deleting permanently removes the vehicle and
+          may orphan linked trip records.
+        </>
+      ),
+    },
+  ];
 
   const renderOverview = (
-    <Card
-      sx={{
-        p: 3,
-        mb: 2,
-        background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.08)} 0%, ${alpha(theme.palette.info.main, 0.02)} 100%)`,
-        border: `1px solid ${alpha(theme.palette.info.main, 0.12)}`,
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
-        <Avatar
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Card
+        sx={{
+          p: 3,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.08)} 0%, ${alpha(
+            theme.palette.info.main,
+            0.02
+          )} 100%)`,
+          border: `1px solid ${alpha(theme.palette.info.main, 0.12)}`,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+          <Avatar
+            sx={{
+              bgcolor: alpha(theme.palette.info.main, 0.16),
+              color: 'info.main',
+              width: 40,
+              height: 40,
+            }}
+          >
+            <Iconify icon="solar:delivery-bold" width={24} />
+          </Avatar>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+              What is a Vehicle?
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+              A Vehicle represents a truck, tractor, or trailer in your fleet. Vehicles are linked to
+              trips, jobs, fuel, maintenance work orders, and tyre layout assignments.
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
+
+      <Card
+        sx={{
+          p: 3,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(
+            theme.palette.primary.main,
+            0.02
+          )} 100%)`,
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+          <Avatar
+            sx={{
+              bgcolor: alpha(theme.palette.primary.main, 0.16),
+              color: 'primary.main',
+              width: 40,
+              height: 40,
+            }}
+          >
+            <Iconify icon="solar:shield-check-bold" width={24} />
+          </Avatar>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+              Fleet Ownership Models
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+              Vehicles are classified as either <b>Own</b> (internal fleet) or <b>Market</b>{' '}
+              (third-party hired trucks), determining how expenses and trip settlements are tracked.
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
+
+      <Card sx={{ p: 3 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+          Key Vehicle Properties
+        </Typography>
+        <Box
           sx={{
-            bgcolor: alpha(theme.palette.info.main, 0.16),
-            color: 'info.main',
-            width: 40,
-            height: 40,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 2,
           }}
         >
-          <Iconify icon="solar:question-circle-bold" width={24} />
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-            What is a Vehicle?
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-            A Vehicle represents a truck or transport unit in your fleet. Vehicles are linked to
-            trips, jobs, expenses, work orders, and tyre assignments. They can be either
-            company-owned (&quot;Own&quot;) or belong to an external transporter
-            (&quot;Market&quot;).
-          </Typography>
+          {[
+            { icon: 'solar:delivery-bold', text: 'Vehicle Registration No' },
+            { icon: 'solar:box-bold', text: 'Vehicle Category / Type' },
+            { icon: 'solar:user-bold', text: 'Ownership (Own / Market)' },
+            { icon: 'solar:settings-bold', text: 'Tyre Count & Layout' },
+            { icon: 'solar:speedometer-bold', text: 'Odometer Mileage' },
+            { icon: 'solar:document-text-bold', text: 'Chassis & Engine No' },
+            { icon: 'solar:wrench-bold', text: 'Work Order History' },
+            { icon: 'solar:check-circle-bold', text: 'Active / Inactive Status' },
+          ].map((item, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Avatar
+                sx={{
+                  bgcolor: alpha(theme.palette.grey[500], 0.08),
+                  color: 'text.secondary',
+                  width: 32,
+                  height: 32,
+                }}
+              >
+                <Iconify icon={item.icon} width={18} />
+              </Avatar>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                {item.text}
+              </Typography>
+            </Box>
+          ))}
         </Box>
-      </Box>
-    </Card>
+      </Card>
+    </Box>
   );
 
-  const renderRequiredFields = (
-    <Card sx={{ p: 3, mb: 2 }}>
+  const renderFieldsGuide = (
+    <Card sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
         <Avatar
           sx={{
@@ -101,12 +251,7 @@ export default function VehicleLearn({ open, onClose }) {
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Iconify icon="mdi:truck" width={18} color={theme.palette.text.secondary} />
-                Vehicle No
-              </Box>
-            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Vehicle No</TableCell>
             <TableCell align="center">
               <Chip label="Required" color="error" size="small" sx={{ fontWeight: 600 }} />
             </TableCell>
@@ -115,81 +260,94 @@ export default function VehicleLearn({ open, onClose }) {
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Iconify icon="mdi:shape" width={18} color={theme.palette.text.secondary} />
-                Vehicle Type
-              </Box>
-            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Vehicle Type</TableCell>
             <TableCell align="center">
               <Chip label="Required" color="error" size="small" sx={{ fontWeight: 600 }} />
             </TableCell>
             <TableCell sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Category of vehicle (e.g. Trailer, Tanker, Tipper)
+              Category (e.g. Trailer, Tanker, Tipper)
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Iconify
-                  icon="mdi:circle-outline"
-                  width={18}
-                  color={theme.palette.text.secondary}
-                />
-                No of Tyres
-              </Box>
-            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>No of Tyres</TableCell>
             <TableCell align="center">
               <Chip label="Required" color="error" size="small" sx={{ fontWeight: 600 }} />
             </TableCell>
             <TableCell sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Total tyre count — used for tyre layout mapping
+              Total tyre count for axle layout mapping
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Iconify icon="mdi:account-tie" width={18} color={theme.palette.text.secondary} />
-                Own / Market
-              </Box>
-            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Own / Market</TableCell>
             <TableCell align="center">
               <Chip label="Required" color="error" size="small" sx={{ fontWeight: 600 }} />
             </TableCell>
             <TableCell sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Own = company vehicle. Market = external transporter&apos;s vehicle
+              Own = internal fleet. Market = third-party vehicle
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Iconify icon="mdi:engine" width={18} color={theme.palette.text.secondary} />
-                Chasis / Engine No
-              </Box>
-            </TableCell>
+            <TableCell sx={{ fontWeight: 600 }}>Chassis / Engine</TableCell>
             <TableCell align="center">
               <Chip label="Optional" size="small" variant="outlined" />
             </TableCell>
             <TableCell sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Identification numbers for the vehicle
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Iconify icon="mdi:speedometer" width={18} color={theme.palette.text.secondary} />
-                Tyre Layout
-              </Box>
-            </TableCell>
-            <TableCell align="center">
-              <Chip label="Optional" size="small" variant="outlined" />
-            </TableCell>
-            <TableCell sx={{ color: 'text.secondary', fontSize: '13px' }}>
-              Axle layout for tyre position mapping (used in tyre management)
+              Vehicle serial identification numbers
             </TableCell>
           </TableRow>
         </TableBody>
       </Table>
+    </Card>
+  );
+
+  const renderOwnershipGuide = (
+    <Card sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 3 }}>
+        <Avatar
+          sx={{
+            bgcolor: alpha(theme.palette.secondary.main, 0.16),
+            color: 'secondary.main',
+            width: 40,
+            height: 40,
+          }}
+        >
+          <Iconify icon="solar:user-bold" width={24} />
+        </Avatar>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+            Own vs Market Vehicles
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Comparison of vehicle ownership types in Tranzit:
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
+        {[
+          {
+            color: 'info',
+            label: 'Own Vehicles',
+            description: 'Operated directly by your fleet. Tracks driver advances, fuel receipts, maintenance work orders, tyre mounting, and actual trip expenses.',
+          },
+          {
+            color: 'primary',
+            label: 'Market Vehicles',
+            description: 'Outsourced from external transporters. Billed via Transporter Payment Receipts. Maintenance, tyre tracking, and driver salary tools are bypassed.',
+          },
+        ].map((item) => (
+          <Box key={item.label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+            <Box sx={{ width: 130, flexShrink: 0, pt: 0.2 }}>
+              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+                {item.label}
+              </Label>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
+              {item.description}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
     </Card>
   );
 
@@ -198,8 +356,8 @@ export default function VehicleLearn({ open, onClose }) {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
         <Avatar
           sx={{
-            bgcolor: alpha(theme.palette.warning.main, 0.16),
-            color: 'warning.main',
+            bgcolor: alpha(theme.palette.primary.main, 0.16),
+            color: 'primary.main',
             width: 40,
             height: 40,
           }}
@@ -211,230 +369,120 @@ export default function VehicleLearn({ open, onClose }) {
         </Typography>
       </Box>
 
-      {/* FAQ 1 — Inactive */}
-      <Accordion
-        variant="outlined"
-        sx={{
-          mb: 1,
-          '&:before': { display: 'none' },
-          borderRadius: 1.5,
-          overflow: 'hidden',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+      {faqData.map((faq, index) => (
+        <Accordion
+          key={index}
+          variant="outlined"
           sx={{
-            bgcolor: alpha(theme.palette.grey[500], 0.04),
-            '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
+            mb: 1,
+            '&:before': { display: 'none' },
+            borderRadius: 1.5,
+            overflow: 'hidden',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Iconify icon="solar:pause-circle-bold" width={20} color={theme.palette.warning.main} />
-            <Typography variant="subtitle2">
-              What happens when I mark a vehicle as Inactive?
+          <AccordionSummary
+            expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
+            sx={{
+              bgcolor: alpha(theme.palette.grey[500], 0.04),
+              '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Iconify icon={faq.icon} width={20} color={faq.iconColor} />
+              <Typography variant="subtitle2">{faq.question}</Typography>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 2 }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+              {faq.answer}
             </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-            An inactive vehicle is <strong>hidden from all creation forms</strong> — you cannot
-            create new Jobs, Trips, Expenses, Work Orders, or mount new Tyres on it. However, the
-            vehicle and all its historical data (past trips, expenses, reports) remain fully
-            accessible for viewing and filtering in list views. Think of it as &quot;retired but not
-            deleted&quot;.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* FAQ 2 — Existing tyres */}
-      <Accordion
-        variant="outlined"
-        sx={{
-          mb: 1,
-          '&:before': { display: 'none' },
-          borderRadius: 1.5,
-          overflow: 'hidden',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          sx={{
-            bgcolor: alpha(theme.palette.grey[500], 0.04),
-            '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Iconify icon="mdi:circle-outline" width={20} color={theme.palette.info.main} />
-            <Typography variant="subtitle2">
-              What about tyres already mounted on an inactive vehicle?
-            </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-            Existing tyres stay mounted — they are <strong>not</strong> automatically unmounted. No
-            new tyres can be assigned, but the current assignment is preserved for data accuracy. To
-            reuse those tyres, reactivate the vehicle first, unmount the tyres, then deactivate
-            again.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* FAQ 3 — Own vs Market */}
-      <Accordion
-        variant="outlined"
-        sx={{
-          mb: 1,
-          '&:before': { display: 'none' },
-          borderRadius: 1.5,
-          overflow: 'hidden',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          sx={{
-            bgcolor: alpha(theme.palette.grey[500], 0.04),
-            '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Iconify icon="mdi:swap-horizontal" width={20} color={theme.palette.success.main} />
-            <Typography variant="subtitle2">
-              What is the difference between Own and Market vehicles?
-            </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-            <strong>Own</strong> vehicles belong to your company — trips create driver advances,
-            diesel tracking, expenses, and salary entries. <strong>Market</strong> vehicles belong
-            to an external transporter — trips create transporter payments instead. Expenses, work
-            orders, and tyre management are available only for own vehicles.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* FAQ 4 — Reactivating */}
-      <Accordion
-        variant="outlined"
-        sx={{
-          mb: 1,
-          '&:before': { display: 'none' },
-          borderRadius: 1.5,
-          overflow: 'hidden',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          sx={{
-            bgcolor: alpha(theme.palette.grey[500], 0.04),
-            '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Iconify icon="solar:restart-bold" width={20} color={theme.palette.primary.main} />
-            <Typography variant="subtitle2">Can I reactivate an inactive vehicle?</Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-            Yes. Go to the vehicle&apos;s detail page and toggle the Active status back on. Once
-            reactivated, the vehicle will immediately appear in all creation forms again.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* FAQ 5 — Delete vs Inactive */}
-      <Accordion
-        variant="outlined"
-        sx={{
-          mb: 1,
-          '&:before': { display: 'none' },
-          borderRadius: 1.5,
-          overflow: 'hidden',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          sx={{
-            bgcolor: alpha(theme.palette.grey[500], 0.04),
-            '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Iconify
-              icon="solar:trash-bin-trash-bold"
-              width={20}
-              color={theme.palette.error.main}
-            />
-            <Typography variant="subtitle2">Should I delete or deactivate a vehicle?</Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-            <strong>Always prefer deactivating</strong> over deleting. Deactivating keeps all
-            historical records (trips, P&amp;L, expenses) intact and searchable. Deleting
-            permanently removes the vehicle and may orphan linked records. Only delete vehicles that
-            were created by mistake and have no associated data.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* FAQ 6 — Filtering in list views */}
-      <Accordion
-        variant="outlined"
-        sx={{
-          mb: 1,
-          '&:before': { display: 'none' },
-          borderRadius: 1.5,
-          overflow: 'hidden',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          sx={{
-            bgcolor: alpha(theme.palette.grey[500], 0.04),
-            '&:hover': { bgcolor: alpha(theme.palette.grey[500], 0.08) },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Iconify icon="solar:filter-bold" width={20} color={theme.palette.text.secondary} />
-            <Typography variant="subtitle2">
-              Can I still filter by inactive vehicles in reports?
-            </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 2 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-            Yes. Inactive vehicles still appear in list view filter dropdowns (trips, expenses, work
-            orders, etc.) so you can view and export their historical data. They are only hidden
-            from creation forms where you select a vehicle to create a new record.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </Card>
   );
+
+  const TABS = [
+    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
+    { value: 'fields', label: 'Key Fields', icon: <Iconify icon="solar:checklist-bold" width={16} /> },
+    { value: 'ownership', label: 'Ownership', icon: <Iconify icon="solar:user-bold" width={16} /> },
+    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+  ];
 
   return (
     <Drawer
       open={open}
       onClose={onClose}
-      anchor="bottom"
+      anchor="right"
       PaperProps={{
         sx: {
-          maxHeight: '85vh',
-          borderRadius: '16px 16px 0 0',
+          width: { xs: '100%', sm: 460 },
           boxShadow: theme.shadows[24],
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
         },
       }}
     >
-      <Scrollbar sx={{ maxHeight: 'calc(85vh - 80px)' }}>
-        <Box sx={{ p: 3 }}>
-          {renderOverview}
-          {renderRequiredFields}
-          {renderFAQs}
+      {/* Header */}
+      <Box
+        sx={{
+          py: 2,
+          px: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            Learn: Vehicles
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            Quick reference guide & instructions
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} size="small">
+          <Iconify icon="mingcute:close-line" width={20} />
+        </IconButton>
+      </Box>
 
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+      {/* Tabs */}
+      <Tabs
+        value={currentTab}
+        onChange={handleChangeTab}
+        sx={{
+          px: 2,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          bgcolor: theme.palette.background.neutral,
+          '& .MuiTab-root': {
+            py: 1.5,
+            minHeight: 'auto',
+          },
+        }}
+      >
+        {TABS.map((tab) => (
+          <Tab
+            key={tab.value}
+            value={tab.value}
+            label={tab.label}
+            icon={tab.icon}
+            iconPosition="start"
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          />
+        ))}
+      </Tabs>
+
+      {/* Scrollable Content */}
+      <Scrollbar sx={{ flexGrow: 1, height: 'calc(100% - 130px)' }}>
+        <Box sx={{ p: 3 }}>
+          {currentTab === 'overview' && renderOverview}
+          {currentTab === 'fields' && renderFieldsGuide}
+          {currentTab === 'ownership' && renderOwnershipGuide}
+          {currentTab === 'faqs' && renderFAQs}
+
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="contained"
               color="inherit"
