@@ -427,6 +427,36 @@ export const TABLE_COLUMNS = [
     align: 'center',
   },
   {
+    id: 'commissionAmount',
+    label: 'Commission Amount',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => {
+      if (row?.vehicleId?.isOwn === true) return 'N.A.';
+      const amount = row?.commissionDetails?.commissionAmount;
+      if (typeof amount === 'number') {
+        return fCurrency(amount);
+      }
+      return '-';
+    },
+    align: 'center',
+    showTotal: true,
+    render: (row) => {
+      if (row?.vehicleId?.isOwn === true) {
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            N.A.
+          </Typography>
+        );
+      }
+      const amount = row?.commissionDetails?.commissionAmount;
+      if (typeof amount === 'number') {
+        return fCurrency(amount);
+      }
+      return '-';
+    },
+  },
+  {
     id: 'expenses',
     label: 'Expenses',
     defaultVisible: true,
