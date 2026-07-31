@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {
@@ -27,7 +27,7 @@ import { usePayInvoice } from 'src/query/use-invoice';
 export default function InvoicePaymentDialog({ open, onClose, invoice }) {
   const total = invoice?.netTotal || 0;
   const paid = invoice?.totalReceived || 0;
-  const remaining = Math.max(0, total - paid);
+  const remaining = Number(Math.max(0, total - paid).toFixed(2));
 
   const payInvoice = usePayInvoice();
 
@@ -36,7 +36,15 @@ export default function InvoicePaymentDialog({ open, onClose, invoice }) {
   const [receivedDate, setReceivedDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
 
-  const afterPayment = useMemo(() => Math.max(0, remaining - amount), [remaining, amount]);
+  useEffect(() => {
+    if (open) {
+      setAmount(remaining);
+      setReferenceNumber('');
+      setReceivedDate(dayjs());
+    }
+  }, [open, remaining]);
+
+  const afterPayment = useMemo(() => Number(Math.max(0, remaining - amount).toFixed(2)), [remaining, amount]);
 
   const isAmountInvalid = amount <= 0 || amount > remaining;
 
