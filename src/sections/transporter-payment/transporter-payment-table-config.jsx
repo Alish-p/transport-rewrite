@@ -166,6 +166,21 @@ export const TABLE_COLUMNS = [
     ),
   },
   {
+    id: 'paidDate',
+    label: 'Paid Date',
+    defaultVisible: true,
+    disabled: false,
+    sortable: true,
+    align: 'center',
+    getter: (row) => (row.paidDate ? fDate(row.paidDate) : '-'),
+    render: (row) => (
+      <ListItemText
+        primary={row.paidDate ? fDate(new Date(row.paidDate)) : '-'}
+        secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
+      />
+    ),
+  },
+  {
     id: 'dieselTotal',
     label: 'Diesel',
     defaultVisible: false,

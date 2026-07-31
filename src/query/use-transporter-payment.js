@@ -33,8 +33,10 @@ const createBulkTransporterPayment = async (list) => {
   return data;
 };
 
-const updateTransporterPaymentStatus = async (id, status) => {
-  const { data } = await axios.put(`${ENDPOINT}/${id}`, { status });
+const updateTransporterPaymentStatus = async (id, status, paidDate) => {
+  const payload = { status };
+  if (paidDate !== undefined) payload.paidDate = paidDate;
+  const { data } = await axios.put(`${ENDPOINT}/${id}`, payload);
   return data;
 };
 
@@ -105,7 +107,7 @@ export function useCreateBulkTransporterPayment() {
 export function useUpdateTransporterPaymentStatus() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: ({ id, status }) => updateTransporterPaymentStatus(id, status),
+    mutationFn: ({ id, status, paidDate }) => updateTransporterPaymentStatus(id, status, paidDate),
     onSuccess: (updatedTransporterPayment) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData(

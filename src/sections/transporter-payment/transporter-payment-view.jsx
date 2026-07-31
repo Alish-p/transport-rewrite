@@ -88,12 +88,13 @@ function RenderAddress({ title, details }) {
   );
 }
 
-function RenderDateInfo({ issueDate, billingPeriod }) {
+function RenderDateInfo({ issueDate, paidDate, billingPeriod }) {
   return (
     <>
       <RenderAddress title="Issue Date" details={issueDate && fDate(issueDate)} />
+      {paidDate && <RenderAddress title="Paid Date" details={fDate(paidDate)} />}
       <RenderAddress
-        title="Biling Period"
+        title="Billing Period"
         details={billingPeriod && fDateRangeShortLabel(billingPeriod.start, billingPeriod.end)}
       />
     </>
@@ -282,7 +283,7 @@ function RenderFooter() {
 }
 
 export default function TransporterPaymentPreview({ transporterPayment }) {
-  const { transporterId: transporter, issueDate, billingPeriod } = transporterPayment || {};
+  const { transporterId: transporter, issueDate, paidDate, billingPeriod } = transporterPayment || {};
   const tenant = useTenantContext();
   return (
     <Card sx={{ pt: 5, px: 5 }}>
@@ -326,7 +327,7 @@ export default function TransporterPaymentPreview({ transporterPayment }) {
             )
           }
         />
-        <RenderDateInfo issueDate={issueDate} billingPeriod={billingPeriod} />
+        <RenderDateInfo issueDate={issueDate} paidDate={paidDate} billingPeriod={billingPeriod} />
       </Box>
       <RenderTable transporterPayment={transporterPayment} />
       <Divider sx={{ mt: 5, borderStyle: 'dashed' }} />
