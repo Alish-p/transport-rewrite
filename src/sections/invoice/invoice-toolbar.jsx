@@ -48,9 +48,7 @@ export default function InvoiceToolbar({ invoice, currentStatus }) {
 
   const cancelInvoice = useCancelInvoice();
   const [cancellationRemarks, setCancellationRemarks] = useState('');
-  const remainingAmount = Number(
-    Math.max(0, (invoice?.netTotal || 0) - (invoice?.totalReceived || 0)).toFixed(2)
-  );
+  const remainingAmount = Math.max(0, (invoice?.netTotal || 0) - (invoice?.totalReceived || 0));
 
   const handleCloseCancelDialog = useCallback(() => {
     confirmCancel.onFalse();
