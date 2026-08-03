@@ -247,4 +247,23 @@ export const TABLE_COLUMNS = [
       />
     ),
   },
+  {
+    id: 'remainingAmount',
+    label: 'Remaining Amount',
+    defaultVisible: false,
+    sortable: true,
+    disabled: false,
+    align: 'right',
+    getter: (row) => fNumber((row.netTotal || 0) - (row.totalReceived || 0)),
+    showTotal: true,
+    render: (row) => {
+      const remainingAmount = (row.netTotal || 0) - (row.totalReceived || 0);
+      return (
+        <ListItemText
+          primary={fCurrency(remainingAmount)}
+          primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+        />
+      );
+    },
+  },
 ];
