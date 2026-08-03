@@ -14,6 +14,7 @@ import {
   Stack,
   Table,
   Button,
+  Dialog,
   Divider,
   Tooltip,
   Checkbox,
@@ -23,6 +24,9 @@ import {
   TableHead,
   IconButton,
   Typography,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   TableContainer,
 } from '@mui/material';
 
@@ -84,6 +88,11 @@ const InvoiceSchema = zod.object({
       },
       { message: 'End date must be after or equal to start date', path: ['end'] }
     ),
+  issueDate: schemaHelper
+    .date({ required_error: 'Issue date is required' })
+    .refine((date) => !dayjs(date).isAfter(dayjs(), 'day'), {
+      message: 'Issue date cannot be in the future',
+    }),
   subtrips: zod.array(zod.any()).min(1, 'Select at least one job'),
   additionalItems: zod
     .array(
@@ -100,6 +109,7 @@ const InvoiceSchema = zod.object({
 export default function SimplerNewInvoiceForm() {
   const customerDialog = useBoolean();
   const dateDialog = useBoolean();
+  const issueDateDialog = useBoolean();
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const tenant = useTenantContext();
 
@@ -108,6 +118,7 @@ export default function SimplerNewInvoiceForm() {
     defaultValues: {
       customerId: '',
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
+      issueDate: dayjs(),
       subtrips: [],
       additionalItems: [],
     },
@@ -133,7 +144,7 @@ export default function SimplerNewInvoiceForm() {
     remove: removeItem,
   } = useFieldArray({ name: 'additionalItems', control });
 
-  const { customerId, billingPeriod, subtrips, additionalItems } = watch();
+  const { customerId, billingPeriod, issueDate, subtrips, additionalItems } = watch();
 
   const {
     data: fetchedSubtrips,
@@ -174,6 +185,7 @@ export default function SimplerNewInvoiceForm() {
     reset({
       customerId: '',
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
+      issueDate: dayjs(),
       subtrips: [],
       additionalItems: [],
     });
@@ -186,6 +198,7 @@ export default function SimplerNewInvoiceForm() {
     const {
       customerId: custId,
       billingPeriod: period,
+      issueDate: selectedIssueDate,
       subtrips: subtripData,
       additionalItems: addItems,
     } = data;
@@ -194,6 +207,7 @@ export default function SimplerNewInvoiceForm() {
       const invoice = await createInvoice({
         customerId: custId,
         billingPeriod: period,
+        issueDate: selectedIssueDate,
         subtripIds: selected.map((st) => st._id),
         additionalCharges: addItems.map((it) => ({
           label: it.label,
@@ -327,8 +341,17 @@ export default function SimplerNewInvoiceForm() {
               <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
                 Issue Date:
               </Typography>
+              <IconButton onClick={issueDateDialog.onTrue}>
+                <Iconify icon="solar:pen-bold" color="green" />
+              </IconButton>
             </Stack>
-            <Typography variant="body2">{fDate(new Date())}</Typography>
+            {issueDate ? (
+              <Typography variant="body2">{fDate(issueDate)}</Typography>
+            ) : (
+              <Typography typography="caption" sx={{ color: 'error.main' }}>
+                Select issue date
+              </Typography>
+            )}
           </Stack>
         </Stack>
 
@@ -357,6 +380,28 @@ export default function SimplerNewInvoiceForm() {
             setValue('billingPeriod.end', end);
           }}
         />
+
+        <Dialog open={issueDateDialog.value} onClose={issueDateDialog.onFalse} maxWidth="xs" fullWidth>
+          <DialogTitle sx={{ pb: 2 }}>Select Issue Date</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ pt: 1 }}>
+              <Field.DatePicker
+                name="issueDate"
+                label="Issue Date"
+                disableFuture
+                slotProps={{ textField: { fullWidth: true } }}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" color="inherit" onClick={issueDateDialog.onFalse}>
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={issueDateDialog.onFalse}>
+              Apply
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <TableContainer sx={{ overflowX: 'auto', mt: 4 }}>
           <Table sx={{ minWidth: 960 }}>
