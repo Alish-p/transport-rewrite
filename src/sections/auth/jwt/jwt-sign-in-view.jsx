@@ -117,6 +117,23 @@ export function JwtSignInView() {
           <SocialIcon icon="google" width={22} />
         </IconButton>
       </Stack>
+
+      {/* Transporter Portal Link */}
+      {import.meta.env.VITE_PORTAL_URL && (
+        <Stack direction="row" justifyContent="center" spacing={0.5} sx={{ mt: 3 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Are you a transporter?
+          </Typography>
+          <Link
+            href={import.meta.env.VITE_PORTAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="subtitle2"
+          >
+            Login here →
+          </Link>
+        </Stack>
+      )}
     </>
   );
 }
