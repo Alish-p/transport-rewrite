@@ -42,7 +42,7 @@ export const MEASUREMENT_UNIT_GROUPS = [
   },
   {
     label: 'Length',
-    options: ['Meter', 'Centimeter'],
+    options: ['Meter', 'Centimeter', 'Feet'],
   },
 ];
 
@@ -55,6 +55,7 @@ export const ALLOWED_MEASUREMENT_UNITS = [
   'Millilitre',
   'Meter',
   'Centimeter',
+  'Feet',
 ];
 
 export const ACTIVITY_TYPES = [
