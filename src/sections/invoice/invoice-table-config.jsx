@@ -127,6 +127,26 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'cancellationRemarks',
+    label: 'Cancellation Remarks',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.cancellationRemarks || '-',
+    render: (row) => {
+      const { cancellationRemarks } = row;
+      if (!cancellationRemarks) return '-';
+      return (
+        <Tooltip title={cancellationRemarks}>
+          <ListItemText
+            primary={wrapText(cancellationRemarks, 25)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
+  },
+  {
     id: 'issueDate',
     label: 'Issue Date',
     defaultVisible: true,
