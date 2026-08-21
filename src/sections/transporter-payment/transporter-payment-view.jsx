@@ -47,8 +47,15 @@ const StyledTableCell = styled(TableCell)(() => ({
 }));
 
 function RenderHeader({ transporterPayment }) {
-  const { paymentId, status } = transporterPayment || {};
+  const { paymentId, status, cancellationRemarks } = transporterPayment || {};
   const tenant = useTenantContext();
+
+  const statusLabel = (
+    <Label variant="soft" color={getTransporterPaymentStatusColor(status)}>
+      {status || 'Draft'}
+    </Label>
+  );
+
   return (
     <Box
       rowGap={3}
@@ -68,9 +75,11 @@ function RenderHeader({ transporterPayment }) {
         }}
       />
       <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-        <Label variant="soft" color={getTransporterPaymentStatusColor(status)}>
-          {status || 'Draft'}
-        </Label>
+        {status === 'cancelled' && cancellationRemarks ? (
+          <Tooltip title={cancellationRemarks}>{statusLabel}</Tooltip>
+        ) : (
+          statusLabel
+        )}
         <Typography variant="h6">{paymentId || 'TPR - XXX'}</Typography>
       </Stack>
     </Box>

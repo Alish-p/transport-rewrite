@@ -144,11 +144,40 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.status,
-    render: (row) => (
-      <Label variant="soft" color={getTransporterPaymentStatusColor(row.status)}>
-        {row.status}
-      </Label>
-    ),
+    render: (row) => {
+      const { status, cancellationRemarks } = row;
+      const statusLabel = (
+        <Label variant="soft" color={getTransporterPaymentStatusColor(status)}>
+          {status}
+        </Label>
+      );
+
+      if (status === 'cancelled' && cancellationRemarks) {
+        return <Tooltip title={cancellationRemarks}>{statusLabel}</Tooltip>;
+      }
+
+      return statusLabel;
+    },
+  },
+  {
+    id: 'cancellationRemarks',
+    label: 'Cancellation Remarks',
+    defaultVisible: false,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row.cancellationRemarks || '-',
+    render: (row) => {
+      const { cancellationRemarks } = row;
+      if (!cancellationRemarks) return '-';
+      return (
+        <Tooltip title={cancellationRemarks}>
+          <ListItemText
+            primary={wrapText(cancellationRemarks, 25)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
   },
   {
     id: 'issueDate',

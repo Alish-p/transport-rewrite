@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
@@ -39,6 +40,7 @@ import {
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
@@ -153,6 +155,34 @@ export function TransporterPaymentListView() {
 
   const notFound = !isLoading && !tableData.length;
 
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [cancellationRemarks, setCancellationRemarks] = useState('');
+
+  const handleCloseCancelDialog = () => {
+    setCancelTarget(null);
+    setCancellationRemarks('');
+  };
+
+  const handleConfirmCancelTransporterPayment = async () => {
+    if (!cancelTarget) return;
+    try {
+      await deleteTransporterPayment({
+        id: cancelTarget._id,
+        cancellationRemarks: cancellationRemarks.trim() || undefined,
+      });
+      setTableData((prev) =>
+        prev.map((row) =>
+          row._id === cancelTarget._id
+            ? { ...row, status: 'cancelled', cancellationRemarks: cancellationRemarks.trim() || undefined }
+            : row
+        )
+      );
+      handleCloseCancelDialog();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleEditRow = (id) => {
     navigate(paths.dashboard.transporterPayment.edit(id));
   };
@@ -162,17 +192,6 @@ export function TransporterPaymentListView() {
       router.push(paths.dashboard.transporterPayment.details(id));
     },
     [router]
-  );
-
-  const handleDeleteRow = useCallback(
-    (id) => {
-      deleteTransporterPayment(id, {
-        onSuccess: () => {
-          setTableData((prev) => prev.filter((row) => row._id !== id));
-        },
-      });
-    },
-    [deleteTransporterPayment]
   );
 
   return (
@@ -490,7 +509,10 @@ export function TransporterPaymentListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onDeleteRow={() => {
+                          setCancelTarget(row);
+                          setCancellationRemarks('');
+                        }}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
                         columnOrder={columnOrder}
@@ -512,6 +534,35 @@ export function TransporterPaymentListView() {
           onChangeDense={table.onChangeDense}
         />
       </Card>
+
+      {/* Cancel transporter payment dialogue (single row from list) */}
+      <ConfirmDialog
+        open={Boolean(cancelTarget)}
+        onClose={handleCloseCancelDialog}
+        title="Cancel Transporter Payment"
+        content={
+          <>
+            Are you sure you want to cancel transporter payment{' '}
+            <strong>{cancelTarget?.paymentId || cancelTarget?._id}</strong>?
+            <br />
+            <br />
+            <TextField
+              autoFocus
+              fullWidth
+              multiline
+              minRows={2}
+              label="Cancellation remarks"
+              value={cancellationRemarks}
+              onChange={(event) => setCancellationRemarks(event.target.value)}
+            />
+          </>
+        }
+        action={
+          <Button variant="contained" color="error" onClick={handleConfirmCancelTransporterPayment}>
+            Cancel Transporter Payment
+          </Button>
+        }
+      />
     </DashboardContent>
   );
 }

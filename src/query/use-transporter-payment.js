@@ -40,8 +40,11 @@ const updateTransporterPaymentStatus = async (id, status, paidDate) => {
   return data;
 };
 
-const deleteTransporterPayment = async (id) => {
-  const { data } = await axios.delete(`${ENDPOINT}/${id}`);
+const deleteTransporterPayment = async (id, cancellationRemarks) => {
+  const targetId = typeof id === 'object' ? id?.id : id;
+  const remarks = typeof id === 'object' ? id?.cancellationRemarks : cancellationRemarks;
+  const config = remarks ? { data: { cancellationRemarks: remarks } } : {};
+  const { data } = await axios.delete(`${ENDPOINT}/${targetId}`, config);
   return data;
 };
 
@@ -107,7 +110,12 @@ export function useCreateBulkTransporterPayment() {
 export function useUpdateTransporterPaymentStatus() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: ({ id, status, paidDate }) => updateTransporterPaymentStatus(id, status, paidDate),
+    mutationFn: ({ id, status, paidDate, cancellationRemarks }) => {
+      const payload = { status };
+      if (paidDate !== undefined) payload.paidDate = paidDate;
+      if (cancellationRemarks !== undefined) payload.cancellationRemarks = cancellationRemarks;
+      return updateTransporterPaymentStatus(id, status, paidDate);
+    },
     onSuccess: (updatedTransporterPayment) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData(
@@ -128,17 +136,21 @@ export function useUpdateTransporterPaymentStatus() {
 
 export function useDeleteTransporterPayment() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationFn: (id) => deleteTransporterPayment(id),
+  const { mutateAsync } = useMutation({
+    mutationFn: (param) => {
+      if (typeof param === 'object' && param !== null) {
+        return deleteTransporterPayment(param.id, param.cancellationRemarks);
+      }
+      return deleteTransporterPayment(param);
+    },
     onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('TransporterPayment deleted successfully!');
+      toast.success('Transporter payment cancelled successfully!');
     },
     onError: (error) => {
-      console.log({ error });
-      const errorMessage = error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }

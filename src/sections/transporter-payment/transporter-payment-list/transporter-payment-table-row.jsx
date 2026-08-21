@@ -15,7 +15,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useUpdateTransporterPaymentStatus } from 'src/query/use-transporter-payment';
 
 import { GenericTableRow } from 'src/components/table';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { TABLE_COLUMNS } from '../transporter-payment-table-config';
 
@@ -31,7 +30,6 @@ export default function TransporterPaymentTableRow({
   columnOrder,
 }) {
   const markPaidConfirm = useBoolean();
-  const cancelConfirm = useBoolean();
   const updateStatus = useUpdateTransporterPaymentStatus();
   const [paidDate, setPaidDate] = useState(dayjs());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,7 +55,7 @@ export default function TransporterPaymentTableRow({
         label: 'Cancel',
         icon: 'mdi:close-circle',
         color: 'error.main',
-        onClick: () => cancelConfirm.onTrue(),
+        onClick: () => onDeleteRow(row),
       });
     }
 
@@ -131,27 +129,6 @@ export default function TransporterPaymentTableRow({
             </Button>
           </DialogActions>
         </Dialog>
-      )}
-
-      {onDeleteRow && row?.status !== 'cancelled' && (
-        <ConfirmDialog
-          open={cancelConfirm.value}
-          onClose={cancelConfirm.onFalse}
-          title="Cancel Transporter Payment"
-          content={`Are you sure you want to cancel the transporter payment "${row.paymentId}"?`}
-          action={
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => {
-                onDeleteRow();
-                cancelConfirm.onFalse();
-              }}
-            >
-              Cancel
-            </Button>
-          }
-        />
       )}
     </>
   );
