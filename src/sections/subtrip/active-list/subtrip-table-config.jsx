@@ -610,4 +610,24 @@ export const TABLE_COLUMNS = [
       );
     },
   },
+  {
+    id: 'errorRemarks',
+    label: 'Error Remarks',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => row?.errorRemarks || '-',
+    align: 'center',
+    render: (row) => {
+      const value = row?.errorRemarks;
+      if (!value) return '-';
+      return (
+        <Tooltip title={value} arrow>
+          <ListItemText
+            primary={wrapText(value, 25)}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+          />
+        </Tooltip>
+      );
+    },
+  },
 ];
