@@ -56,6 +56,10 @@ export default function PurchaseOrderTableFiltersResult({
     onFilters('purchaseOrderNo', '');
   };
 
+  const handleRemoveVendorInvoiceNo = () => {
+    onFilters('vendorInvoiceNo', '');
+  };
+
   const { data: locationsResponse } = usePaginatedPartLocations(
     { page: 1, rowsPerPage: 1000 },
     { staleTime: 1000 * 60 * 10 }
@@ -95,6 +99,16 @@ export default function PurchaseOrderTableFiltersResult({
               size="small"
               label={filters.purchaseOrderNo}
               onDelete={handleRemovePurchaseOrderNo}
+            />
+          </Block>
+        )}
+
+        {filters.vendorInvoiceNo && (
+          <Block label="Vendor Invoice No :">
+            <Chip
+              size="small"
+              label={filters.vendorInvoiceNo}
+              onDelete={handleRemoveVendorInvoiceNo}
             />
           </Block>
         )}

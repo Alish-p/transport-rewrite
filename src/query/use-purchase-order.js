@@ -49,6 +49,13 @@ const closePurchaseOrderApi = async (id, payload) => {
   return data;
 };
 
+const checkInvoiceReferencesApi = async (invoiceNo, excludePoId) => {
+  const { data } = await axios.get(`${ENDPOINT}/check-invoice`, {
+    params: { invoiceNo, excludePoId },
+  });
+  return data;
+};
+
 // Queries
 export function usePaginatedPurchaseOrders(params, options = {}) {
   return useQuery({
@@ -65,6 +72,16 @@ export function usePurchaseOrder(id, options = {}) {
     queryKey: [QUERY_KEY, id],
     queryFn: () => getPurchaseOrder(id),
     enabled: !!id,
+    ...options,
+  });
+}
+
+export function useCheckInvoiceReferences(invoiceNo, excludePoId, options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'check-invoice', invoiceNo, excludePoId],
+    queryFn: () => checkInvoiceReferencesApi(invoiceNo, excludePoId),
+    enabled: Boolean(invoiceNo && typeof invoiceNo === 'string' && invoiceNo.trim().length > 0),
+    staleTime: 1000 * 30,
     ...options,
   });
 }

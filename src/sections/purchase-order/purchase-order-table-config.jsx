@@ -252,6 +252,82 @@ export const TABLE_COLUMNS = [
     render: (row) => fCurrency(row.shipping || 0),
   },
   {
+    id: 'vendorInvoiceNo',
+    label: 'Vendor Invoice No.',
+    defaultVisible: false,
+    sortable: false,
+    disabled: false,
+    getter: (row) => {
+      const invoices = [
+        ...new Set(
+          (row.receipts || [])
+            .map((r) => r.vendorInvoiceNo)
+            .filter(Boolean)
+        ),
+      ];
+      return invoices.length > 0 ? invoices.join(', ') : '-';
+    },
+    render: (row) => {
+      const invoices = [
+        ...new Set(
+          (row.receipts || [])
+            .map((r) => r.vendorInvoiceNo)
+            .filter(Boolean)
+        ),
+      ];
+      if (invoices.length === 0) {
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            -
+          </Typography>
+        );
+      }
+      const label = invoices.join(', ');
+      return (
+        <Tooltip title={label} disableInteractive>
+          <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
+            {label}
+          </Typography>
+        </Tooltip>
+      );
+    },
+  },
+  {
+    id: 'vendorInvoiceDate',
+    label: 'Invoice Date',
+    defaultVisible: false,
+    sortable: false,
+    disabled: false,
+    getter: (row) => {
+      const dates = (row.receipts || [])
+        .map((r) => (r.vendorInvoiceDate ? fDate(r.vendorInvoiceDate) : null))
+        .filter(Boolean);
+      const uniqueDates = [...new Set(dates)];
+      return uniqueDates.length > 0 ? uniqueDates.join(', ') : '-';
+    },
+    render: (row) => {
+      const dates = (row.receipts || [])
+        .map((r) => (r.vendorInvoiceDate ? fDate(r.vendorInvoiceDate) : null))
+        .filter(Boolean);
+      const uniqueDates = [...new Set(dates)];
+      if (uniqueDates.length === 0) {
+        return (
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            -
+          </Typography>
+        );
+      }
+      const label = uniqueDates.join(', ');
+      return (
+        <Tooltip title={label} disableInteractive>
+          <Typography variant="body2" noWrap sx={{ maxWidth: 160 }}>
+            {label}
+          </Typography>
+        </Tooltip>
+      );
+    },
+  },
+  {
     id: 'description',
     label: 'Description',
     defaultVisible: false,

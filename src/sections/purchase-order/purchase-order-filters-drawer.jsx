@@ -128,7 +128,22 @@ export default function PurchaseOrderFiltersDrawer({
             iconName={APP_ICONS.calendar}
           />
 
-          {/* 5. Part Location */}
+          {/* 5. Vendor Invoice No. */}
+          <TextField
+            fullWidth
+            value={filters.vendorInvoiceNo || ''}
+            onChange={(event) => onFilters('vendorInvoiceNo', event.target.value)}
+            placeholder="Vendor Invoice No."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          {/* 6. Part Location */}
           <TextField
             select
             fullWidth
@@ -144,7 +159,7 @@ export default function PurchaseOrderFiltersDrawer({
             ))}
           </TextField>
 
-          {/* 6. Created By */}
+          {/* 7. Created By */}
           <DialogSelectButton
             onClick={createdByDialog.onTrue}
             selected={selectedCreatedBy?.name}
@@ -152,7 +167,7 @@ export default function PurchaseOrderFiltersDrawer({
             iconName={APP_ICONS.user}
           />
 
-          {/* 7. Approved By */}
+          {/* 8. Approved By */}
           <DialogSelectButton
             onClick={approvedByDialog.onTrue}
             selected={selectedApprovedBy?.name}

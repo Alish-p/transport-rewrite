@@ -60,6 +60,7 @@ const defaultFilters = {
   createdBy: '',
   approvedBy: '',
   purchaseOrderNo: '',
+  vendorInvoiceNo: '',
 };
 
 const STATUS_TABS = [
@@ -109,6 +110,7 @@ export function PurchaseOrderListView() {
     createdBy: filters.createdBy || undefined,
     approvedBy: filters.approvedBy || undefined,
     purchaseOrderNo: filters.purchaseOrderNo || undefined,
+    vendorInvoiceNo: filters.vendorInvoiceNo || undefined,
     page: table.page + 1,
     rowsPerPage: table.rowsPerPage,
     order: table.order,
@@ -398,6 +400,7 @@ export function PurchaseOrderListView() {
                                 createdBy: filters.createdBy || undefined,
                                 approvedBy: filters.approvedBy || undefined,
                                 purchaseOrderNo: filters.purchaseOrderNo || undefined,
+                                vendorInvoiceNo: filters.vendorInvoiceNo || undefined,
                                 columns: orderedIds.join(','),
                                 order: table.order,
                                 orderBy: table.orderBy,

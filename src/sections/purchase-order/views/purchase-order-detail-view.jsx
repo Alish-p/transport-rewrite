@@ -1,11 +1,13 @@
+import dayjs from 'dayjs';
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
+import { LoadingButton } from '@mui/lab';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,13 +18,16 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TextField from '@mui/material/TextField';
+import AlertTitle from '@mui/material/AlertTitle';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useDebounce } from 'src/hooks/use-debounce';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
@@ -34,6 +39,7 @@ import {
   useRejectPurchaseOrder,
   useApprovePurchaseOrder,
   useReceivePurchaseOrder,
+  useCheckInvoiceReferences,
 } from 'src/query/use-purchase-order';
 
 import { Label } from 'src/components/label';
@@ -106,15 +112,30 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   const closeDialog = useBoolean();
   const grnDrawer = useBoolean();
 
+  const isApproving = useBoolean();
+  const isRejecting = useBoolean();
+  const isReceiving = useBoolean();
+  const isClosing = useBoolean();
+
   const [rejectReason, setRejectReason] = useState('');
   const [receiveLines, setReceiveLines] = useState([]);
   const [receiveNotes, setReceiveNotes] = useState('');
+  const [vendorInvoiceNo, setVendorInvoiceNo] = useState('');
+  const [vendorInvoiceDate, setVendorInvoiceDate] = useState(null);
   const [closeReason, setCloseReason] = useState('');
 
+  const debouncedInvoiceNo = useDebounce(vendorInvoiceNo, 400);
+  const { data: invoiceCheckData } = useCheckInvoiceReferences(
+    debouncedInvoiceNo,
+    _id,
+    { enabled: Boolean(debouncedInvoiceNo && debouncedInvoiceNo.trim().length > 0) }
+  );
+
   const handleCloseRejectDialog = useCallback(() => {
+    if (isRejecting.value) return;
     rejectDialog.onFalse();
     setRejectReason('');
-  }, [rejectDialog]);
+  }, [rejectDialog, isRejecting.value]);
 
 
 
@@ -215,6 +236,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         })
       );
       setReceiveNotes('');
+      setVendorInvoiceNo('');
+      setVendorInvoiceDate(null);
     }
   }, [receiveDialog.value, lines]);
 
@@ -280,32 +303,42 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   }, []);
 
   const handleApprove = useCallback(async () => {
+    if (isApproving.value) return;
     try {
+      isApproving.onTrue();
       await approvePo(_id);
       approveDialog.onFalse();
     } catch (error) {
       console.error(error);
+    } finally {
+      isApproving.onFalse();
     }
-  }, [approvePo, _id, approveDialog]);
+  }, [approvePo, _id, approveDialog, isApproving]);
 
   const handleReject = useCallback(async () => {
+    if (isRejecting.value) return;
     try {
+      isRejecting.onTrue();
       await rejectPo({ id: _id, reason: rejectReason || '' });
       handleCloseRejectDialog();
     } catch (error) {
       console.error(error);
+    } finally {
+      isRejecting.onFalse();
     }
-  }, [rejectPo, _id, rejectReason, handleCloseRejectDialog]);
+  }, [rejectPo, _id, rejectReason, handleCloseRejectDialog, isRejecting]);
 
 
 
   const handleReceiveAll = useCallback(async () => {
+    if (isReceiving.value) return;
     try {
       const selectedLines = receiveLines.filter((line) => line.checked && line.receiveQty > 0);
       if (!selectedLines.length) {
         receiveDialog.onFalse();
         return;
       }
+      isReceiving.onTrue();
 
       const payload = {
         lines: selectedLines.map((line) => ({
@@ -316,6 +349,10 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
             ? { tyreDetails: line.tyreDetails.slice(0, line.receiveQty) }
             : {}),
         })),
+        vendorInvoiceNo: vendorInvoiceNo && vendorInvoiceNo.trim() ? vendorInvoiceNo.trim() : undefined,
+        vendorInvoiceDate: vendorInvoiceDate
+          ? (dayjs.isDayjs(vendorInvoiceDate) ? vendorInvoiceDate.toDate() : new Date(vendorInvoiceDate))
+          : undefined,
         notes: receiveNotes || undefined,
       };
 
@@ -323,20 +360,23 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
       receiveDialog.onFalse();
     } catch (error) {
       console.error(error);
+    } finally {
+      isReceiving.onFalse();
     }
-  }, [receivePo, _id, receiveLines, receiveNotes, receiveDialog]);
+  }, [receivePo, _id, receiveLines, receiveNotes, vendorInvoiceNo, vendorInvoiceDate, receiveDialog, isReceiving]);
 
   const handleClosePo = useCallback(async () => {
-    console.log('handleClosePo triggered! _id:', _id, 'closeReason:', closeReason);
+    if (isClosing.value) return;
     try {
-      console.log('Calling closePo mutation...');
-      const result = await closePo({ id: _id, closeReason: closeReason || '' });
-      console.log('Mutation success:', result);
+      isClosing.onTrue();
+      await closePo({ id: _id, closeReason: closeReason || '' });
       closeDialog.onFalse();
     } catch (error) {
       console.error('Mutation error:', error);
+    } finally {
+      isClosing.onFalse();
     }
-  }, [closePo, _id, closeReason, closeDialog]);
+  }, [closePo, _id, closeReason, closeDialog, isClosing]);
 
   return (
     <DashboardContent>
@@ -694,19 +734,24 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
 
       <ConfirmDialog
         open={approveDialog.value}
-        onClose={approveDialog.onFalse}
+        onClose={isApproving.value ? undefined : approveDialog.onFalse}
         title="Approve purchase order"
         content="Are you sure you want to approve this purchase order?"
         action={
-          <Button variant="contained" color="primary" onClick={handleApprove}>
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            onClick={handleApprove}
+            loading={isApproving.value}
+          >
             Approve
-          </Button>
+          </LoadingButton>
         }
       />
 
       <ConfirmDialog
         open={rejectDialog.value}
-        onClose={handleCloseRejectDialog}
+        onClose={isRejecting.value ? undefined : handleCloseRejectDialog}
         title="Reject purchase order"
         content={
           <>
@@ -721,13 +766,19 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               label="Reason (optional)"
               value={rejectReason}
               onChange={(event) => setRejectReason(event.target.value)}
+              disabled={isRejecting.value}
             />
           </>
         }
         action={
-          <Button variant="contained" color="error" onClick={handleReject}>
+          <LoadingButton
+            variant="contained"
+            color="error"
+            onClick={handleReject}
+            loading={isRejecting.value}
+          >
             Reject
-          </Button>
+          </LoadingButton>
         }
       />
 
@@ -742,6 +793,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         content={
           <>
             <Typography sx={{ mb: 2 }}>Check the box to receive parts into inventory.</Typography>
+
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -972,6 +1024,47 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               </TableBody>
             </Table>
 
+            <Stack spacing={1.5} sx={{ mt: 3, mb: 2 }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField
+                  fullWidth
+                  label="Vendor Invoice No. (optional)"
+                  placeholder="e.g. INV-2024-001"
+                  value={vendorInvoiceNo}
+                  onChange={(e) => setVendorInvoiceNo(e.target.value)}
+                  helperText="Invoice number printed on vendor provided invoice"
+                />
+                <DatePicker
+                  label="Invoice Date (optional)"
+                  value={vendorInvoiceDate}
+                  onChange={(newValue) => setVendorInvoiceDate(newValue)}
+                  maxDate={dayjs()}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      helperText: 'Date printed on vendor invoice',
+                    },
+                  }}
+                />
+              </Stack>
+
+              {Boolean(debouncedInvoiceNo && invoiceCheckData?.references?.length > 0) && (
+                <Alert severity="info" sx={{ mt: 0.5 }}>
+                  <AlertTitle sx={{ typography: 'subtitle2', mb: 0.5 }}>
+                    Invoice number &ldquo;{debouncedInvoiceNo}&rdquo; was previously recorded in:
+                  </AlertTitle>
+                  <Stack spacing={0.5}>
+                    {invoiceCheckData.references.map((ref, idx) => (
+                      <Typography key={idx} variant="caption" sx={{ display: 'block' }}>
+                        • <strong>{ref.purchaseOrderNo}</strong> (Vendor: {ref.vendorName} — GRN #{ref.grnNumber}
+                        {ref.receivedAt ? `, received on ${fDate(ref.receivedAt)}` : ''})
+                      </Typography>
+                    ))}
+                  </Stack>
+                </Alert>
+              )}
+            </Stack>
+
             <TextField
               fullWidth
               multiline
@@ -979,20 +1072,25 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               label="Receiving Notes (optional)"
               value={receiveNotes}
               onChange={(event) => setReceiveNotes(event.target.value)}
-              sx={{ mt: 3 }}
+              disabled={isReceiving.value}
             />
           </>
         }
         action={
-          <Button variant="contained" color="primary" onClick={handleReceiveAll}>
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            onClick={handleReceiveAll}
+            loading={isReceiving.value}
+          >
             Confirm Receive
-          </Button>
+          </LoadingButton>
         }
       />
 
       <ConfirmDialog
         open={closeDialog.value}
-        onClose={closeDialog.onFalse}
+        onClose={isClosing.value ? undefined : closeDialog.onFalse}
         title="Close purchase order"
         content={
           <>
@@ -1008,20 +1106,19 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
               label="Close Reason (optional)"
               value={closeReason}
               onChange={(event) => setCloseReason(event.target.value)}
+              disabled={isClosing.value}
             />
           </>
         }
         action={
-          <Button
+          <LoadingButton
             variant="contained"
             color="primary"
-            onClick={() => {
-              console.log('Button clicked!');
-              handleClosePo();
-            }}
+            onClick={handleClosePo}
+            loading={isClosing.value}
           >
             Close PO
-          </Button>
+          </LoadingButton>
         }
       />
 
@@ -1082,6 +1179,32 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                     >
                       Received by: {grn.receivedBy.name}
                     </Typography>
+                  )}
+
+                  {(grn.vendorInvoiceNo || grn.vendorInvoiceDate) && (
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      sx={{
+                        mb: 1.5,
+                        p: 1,
+                        bgcolor: 'background.neutral',
+                        borderRadius: 1,
+                        border: (theme) => `1px dashed ${theme.palette.divider}`,
+                      }}
+                    >
+                      {grn.vendorInvoiceNo && (
+                        <Typography variant="caption">
+                          <strong>Invoice No:</strong> {grn.vendorInvoiceNo}
+                        </Typography>
+                      )}
+                      {grn.vendorInvoiceDate && (
+                        <Typography variant="caption">
+                          <strong>Invoice Date:</strong> {fDate(grn.vendorInvoiceDate)}
+                        </Typography>
+                      )}
+                    </Stack>
                   )}
 
                   <Stack spacing={1} sx={{ mt: 2 }}>
