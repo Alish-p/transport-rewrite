@@ -27,5 +27,6 @@ export const endpoints = {
     resetPassword: '/api/account/reset-password',
     whatsappOtp: '/api/account/whatsapp-otp',
     whatsappVerify: '/api/account/whatsapp-verify',
+    switchTenant: '/api/account/switch-tenant',
   },
 };
