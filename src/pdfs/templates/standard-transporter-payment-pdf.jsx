@@ -267,7 +267,7 @@ export default function StandardTransporterPaymentPdf({ transporterPayment, tena
             transporter?.panNo,
             transporter?.gstNo,
             transporter?.bankDetails?.name ? `Bank-${transporter?.bankDetails?.name}` : '',
-            transporter?.bankDetails?.branch ? `Bank-${transporter?.bankDetails?.branch}` : '',
+            transporter?.bankDetails?.branch ? `Branch-${transporter?.bankDetails?.branch}` : '',
             transporter?.bankDetails?.ifsc ? `IFSC-${transporter?.bankDetails?.ifsc}` : '',
             transporter?.bankDetails?.accNo ? `ACC-${transporter?.bankDetails?.accNo}` : '',
           ].filter(Boolean)}
