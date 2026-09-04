@@ -3,13 +3,14 @@ import React from 'react';
 import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
-import { fDate, fToNow } from 'src/utils/format-time';
+import { fDate, fToNow, fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
@@ -151,6 +152,26 @@ export const TABLE_COLUMNS = [
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
           secondaryTypographyProps={{ typography: 'caption', noWrap: true }}
         />
+      );
+    },
+  },
+  {
+    id: 'lastLoginAt',
+    label: 'Last Portal Login',
+    defaultVisible: false,
+    sortable: true,
+    disabled: false,
+    getter: (row) =>
+      row.lastLoginAt ? fDateTime(row.lastLoginAt) : 'Never',
+    render: (row) => {
+      const value = row.lastLoginAt;
+      if (!value) return 'Never';
+      return (
+        <Tooltip title={fDateTime(value)} arrow>
+          <Typography variant="body2" sx={{ cursor: 'pointer', display: 'inline-block' }}>
+            {`${fToNow(value)} ago`}
+          </Typography>
+        </Tooltip>
       );
     },
   },
