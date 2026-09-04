@@ -17,23 +17,26 @@ import { wrapText } from 'src/utils/change-case';
 
 import { Label } from 'src/components/label';
 
-function StockLevelIndicator({ quantity, threshold, unit }) {
+function StockLevelIndicator({ quantity = 0, threshold = 0, unit }) {
   const theme = useTheme();
 
-  const percentage = threshold > 0 ? Math.min((quantity / threshold) * 100, 100) : 100;
-  const isLow = quantity < threshold && quantity > 0;
-  const isOut = quantity === 0;
+  const q = quantity || 0;
+  const t = threshold || 0;
+
+  const percentage = q <= 0 ? 0 : t > 0 ? Math.min((q / t) * 100, 100) : 100;
+  const isOut = q <= 0;
+  const isLow = !isOut && t > 0 && q < t;
 
   let color = theme.palette.success.main;
   if (isOut) color = theme.palette.error.main;
   else if (isLow) color = theme.palette.warning.main;
 
   return (
-    <Tooltip title={`${quantity} ${unit} / Threshold: ${threshold} ${unit}`} arrow placement="top">
+    <Tooltip title={`${q} ${unit} / Threshold: ${t} ${unit}`} arrow placement="top">
       <Box sx={{ width: '100%', maxWidth: 140 }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-            {quantity}
+            {q}
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {unit}
@@ -134,13 +137,17 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => {
-      const isLowStock = row.totalQuantity < row.threshold;
-      const isOutOfStock = row.totalQuantity === 0;
+      const q = row.totalQuantity || 0;
+      const t = row.threshold || 0;
+      const isOutOfStock = q <= 0;
+      const isLowStock = !isOutOfStock && t > 0 && q < t;
       return isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock';
     },
     render: (row) => {
-      const isLowStock = row.totalQuantity < row.threshold;
-      const isOutOfStock = row.totalQuantity === 0;
+      const q = row.totalQuantity || 0;
+      const t = row.threshold || 0;
+      const isOutOfStock = q <= 0;
+      const isLowStock = !isOutOfStock && t > 0 && q < t;
       return (
         <Label variant="soft" color={isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'}>
           {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}

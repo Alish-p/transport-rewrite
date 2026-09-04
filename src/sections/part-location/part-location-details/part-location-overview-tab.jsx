@@ -63,6 +63,8 @@ export function PartLocationOverviewTab({ partLocation }) {
       status: statusFilter,
       page: table.page + 1,
       rowsPerPage: table.rowsPerPage,
+      order: table.order,
+      orderBy: table.orderBy,
     },
     {
       enabled: !!partLocation?._id,
@@ -75,7 +77,7 @@ export function PartLocationOverviewTab({ partLocation }) {
   const totalParts = data?.count || 0;
   const outOfStock = data?.outOfStockItems || 0;
   const lowStock = data?.lowStockItems || 0;
-  const inStock = totalParts - outOfStock - lowStock;
+  const inStock = data?.inStockItems ?? Math.max(0, totalParts - outOfStock - lowStock);
 
   const notFound = !filteredParts.length && !isLoading;
 
