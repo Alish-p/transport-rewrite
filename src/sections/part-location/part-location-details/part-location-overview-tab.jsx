@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -71,13 +71,58 @@ export function PartLocationOverviewTab({ partLocation }) {
     }
   );
 
-  const filteredParts = data?.parts || [];
-  const paginationTotal = data?.total || 0;
+  const [tabCounts, setTabCounts] = useState({
+    total: 0,
+    outOfStock: 0,
+    lowStock: 0,
+    inStock: 0,
+  });
 
-  const totalParts = data?.count || 0;
-  const outOfStock = data?.outOfStockItems || 0;
-  const lowStock = data?.lowStockItems || 0;
-  const inStock = data?.inStockItems ?? Math.max(0, totalParts - outOfStock - lowStock);
+  useEffect(() => {
+    if (data) {
+      const total = data.count || data.total || 0;
+      const outOfStock = data.outOfStockItems || 0;
+      const lowStock = data.lowStockItems || 0;
+      const inStock = data.inStockItems ?? Math.max(0, total - outOfStock - lowStock);
+
+      if (statusFilter === 'all' || data.inStockItems !== undefined || !tabCounts.total) {
+        setTabCounts({
+          total,
+          outOfStock,
+          lowStock,
+          inStock,
+        });
+      }
+    }
+  }, [data, statusFilter, tabCounts.total]);
+
+  const filteredParts = useMemo(() => {
+    const rawParts = data?.parts || [];
+    if (!statusFilter || statusFilter === 'all') return rawParts;
+
+    return rawParts.filter((row) => {
+      const q = row.totalQuantity || 0;
+      const t = row.threshold || 0;
+      const isOut = q <= 0;
+      const isLow = !isOut && t > 0 && q < t;
+      const isIn = !isOut && (t <= 0 || q >= t);
+
+      if (statusFilter === 'outOfStock') return isOut;
+      if (statusFilter === 'lowStock') return isLow;
+      if (statusFilter === 'inStock') return isIn;
+      return true;
+    });
+  }, [data?.parts, statusFilter]);
+
+  const paginationTotal =
+    statusFilter !== 'all' && data?.total && filteredParts.length < (data.parts?.length || 0)
+      ? filteredParts.length
+      : data?.total || 0;
+
+  const totalParts = tabCounts.total || data?.count || 0;
+  const outOfStock = tabCounts.outOfStock ?? data?.outOfStockItems ?? 0;
+  const lowStock = tabCounts.lowStock ?? data?.lowStockItems ?? 0;
+  const inStock = tabCounts.inStock ?? data?.inStockItems ?? Math.max(0, totalParts - outOfStock - lowStock);
 
   const notFound = !filteredParts.length && !isLoading;
 

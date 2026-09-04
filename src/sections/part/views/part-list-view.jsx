@@ -125,12 +125,30 @@ export function PartListView() {
   const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
+    let raw = [];
     if (data?.parts) {
-      setTableData(data.parts);
+      raw = data.parts;
     } else if (data?.results) {
-      setTableData(data.results);
+      raw = data.results;
     }
-  }, [data]);
+
+    if (filters.status && filters.status !== 'all') {
+      raw = raw.filter((row) => {
+        const q = row.totalQuantity || 0;
+        const t = row.threshold || 0;
+        const isOut = q <= 0;
+        const isLow = !isOut && t > 0 && q < t;
+        const isIn = !isOut && (t <= 0 || q >= t);
+
+        if (filters.status === 'outOfStock') return isOut;
+        if (filters.status === 'lowStock') return isLow;
+        if (filters.status === 'inStock') return isIn;
+        return true;
+      });
+    }
+
+    setTableData(raw);
+  }, [data, filters.status]);
 
   const totalCount = data?.total || tableData.length;
   const totalInventoryValue = data?.totalInventoryValue || 0;
