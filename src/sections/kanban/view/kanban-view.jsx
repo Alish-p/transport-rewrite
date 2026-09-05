@@ -53,12 +53,12 @@ const cssVars = {
 
 // ----------------------------------------------------------------------
 
-export function KanbanView({ tasks }) {
+export function KanbanView({ tasks = {} }) {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [openContacts, setOpenContacts] = useState(false);
-  const [localTasks, setLocalTasks] = useState(tasks);
+  const [localTasks, setLocalTasks] = useState(tasks || {});
   const reorderTasks = useReorderTasks();
   const { data: users = [] } = useUsers();
 
@@ -145,6 +145,7 @@ export function KanbanView({ tasks }) {
   );
 
   const findColumn = (id) => {
+    if (!id || !localTasks) return null;
     // if the id is column id, return the id
     if (id in localTasks) {
       return id;
@@ -152,13 +153,13 @@ export function KanbanView({ tasks }) {
 
     // if the id is task id, return the column id
     return Object.keys(localTasks).find((key) =>
-      localTasks[key].map((task) => task._id).includes(id)
+      (localTasks[key] || []).map((task) => task?._id).includes(id)
     );
   };
 
   // keep localTasks in sync with upstream tasks
   useEffect(() => {
-    setLocalTasks(tasks);
+    setLocalTasks(tasks || {});
   }, [tasks]);
 
   useEffect(() => {
@@ -187,10 +188,8 @@ export function KanbanView({ tasks }) {
     }
 
     const overColumn = findColumn(overId);
-
     const activeColumn = findColumn(active.id);
 
-    // if the over and active column
     if (!overColumn || !activeColumn) {
       return;
     }
@@ -198,15 +197,25 @@ export function KanbanView({ tasks }) {
     // if the active column is not the same as the over column, then move the task visually
     // this only updates localTasks for smooth drag feedback, no API call here
     if (activeColumn !== overColumn) {
-      const activeItems = localTasks[activeColumn].map((task) => task._id);
-      const overItems = localTasks[overColumn].map((task) => task._id);
-      const overIndex = overItems.indexOf(overId);
-      const activeIndex = activeItems.indexOf(active.id);
+      const activeItems = localTasks[activeColumn] || [];
+      const overItems = localTasks[overColumn] || [];
+
+      // Safely locate the active task
+      const activeTask =
+        activeItems.find((t) => t?._id === active.id) ||
+        (localTasks[startColumnId.current] || []).find((t) => t?._id === active.id);
+
+      if (!activeTask) {
+        return;
+      }
+
+      const overItemsIds = overItems.map((task) => task?._id);
+      const overIndex = overItemsIds.indexOf(overId);
 
       let newIndex;
 
-      if (overId in tasks) {
-        newIndex = overItems.length + 1;
+      if (overId in localTasks) {
+        newIndex = overItems.length;
       } else {
         const isBelowOverItem =
           over &&
@@ -214,19 +223,19 @@ export function KanbanView({ tasks }) {
           active.rect.current.translated.top > over.rect.top + over.rect.height;
 
         const modifier = isBelowOverItem ? 1 : 0;
-
-        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+        newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length;
       }
 
+      newIndex = Math.min(Math.max(0, newIndex), overItems.length);
       recentlyMovedToNewContainer.current = true;
 
       const updated = {
         ...localTasks,
-        [activeColumn]: localTasks[activeColumn].filter((task) => task._id !== active.id),
+        [activeColumn]: activeItems.filter((task) => task?._id !== active.id),
         [overColumn]: [
-          ...localTasks[overColumn].slice(0, newIndex),
-          localTasks[activeColumn][activeIndex],
-          ...localTasks[overColumn].slice(newIndex, localTasks[overColumn].length),
+          ...overItems.slice(0, newIndex),
+          activeTask,
+          ...overItems.slice(newIndex),
         ],
       };
 
@@ -238,71 +247,58 @@ export function KanbanView({ tasks }) {
    * onDragEnd
    */
   const onDragEnd = ({ active, over }) => {
-    const activeColumn = findColumn(active.id);
+    const sourceColId = startColumnId.current;
+    startColumnId.current = null;
+    recentlyMovedToNewContainer.current = false;
+    setActiveId(null);
 
-    if (!activeColumn) {
-      setActiveId(null);
+    if (!over || !sourceColId) {
       return;
     }
 
-    const overId = over?.id;
-
-    if (overId == null) {
-      setActiveId(null);
-      return;
-    }
-
+    const overId = over.id;
     const overColumn = findColumn(overId);
 
-    // Determine if we moved to a different column or reordered within same
-    if (activeColumn && overColumn) {
-      const activeItems = localTasks[activeColumn];
-      const overItems = localTasks[overColumn];
+    if (!overColumn) {
+      return;
+    }
 
-      const activeIndex = activeItems.findIndex((t) => t._id === active.id);
-      const overIndex = overItems.findIndex((t) => t._id === overId);
+    const destItems = [...(localTasks[overColumn] || [])];
+    const activeIndex = destItems.findIndex((t) => t?._id === active.id);
+    const overIndex = destItems.findIndex((t) => t?._id === overId);
 
-      let newLocalTasks = { ...localTasks };
+    let updatedTasks = { ...localTasks };
 
-      // Case 1: Reordering in same column
-      if (activeColumn === overColumn) {
-        if (activeIndex !== overIndex) {
-          const reorderedItems = arrayMove(activeItems, activeIndex, overIndex);
-          newLocalTasks = {
-            ...localTasks,
-            [activeColumn]: reorderedItems,
-          };
-          setLocalTasks(newLocalTasks);
-        }
-      } else {
-        // Case 2: Moved to different column (handled visually in dragOver, but we confirm here)
-        // If we trust localTasks state from dragOver, we just need to ensure we persist
+    if (sourceColId === overColumn) {
+      if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
+        const reordered = arrayMove(destItems, activeIndex, overIndex);
+        updatedTasks = {
+          ...localTasks,
+          [overColumn]: reordered,
+        };
+        setLocalTasks(updatedTasks);
       }
+    }
 
-      // Prepare updates for backend
-      // We need to send updates for BOTH source and dest columns if different
-      // Or just the one column if same.
-      // Easiest is to recalculate order for all tasks in the affected column(s)
-      const updates = [];
-      const columnsToUpdate =
-        activeColumn === overColumn ? [activeColumn] : [activeColumn, overColumn];
+    const columnsToUpdate =
+      sourceColId === overColumn ? [overColumn] : [sourceColId, overColumn];
 
-      columnsToUpdate.forEach((colId) => {
-        newLocalTasks[colId].forEach((task, index) => {
+    const updates = [];
+    columnsToUpdate.forEach((colId) => {
+      (updatedTasks[colId] || []).forEach((task, index) => {
+        if (task?._id) {
           updates.push({
             _id: task._id,
             status: colId,
-            order: index, // New order based on array position
+            order: index,
           });
-        });
+        }
       });
+    });
 
-      // Call API
+    if (updates.length > 0) {
       reorderTasks(updates);
     }
-
-    startColumnId.current = null;
-    setActiveId(null);
   };
 
   // Optimization: Memoize the filtered tasks per column
@@ -318,11 +314,15 @@ export function KanbanView({ tasks }) {
     COLUMNS.forEach((column) => {
       const rawTasks = localTasks[column.id] || [];
       result[column.id] = rawTasks.filter((task) => {
+        if (!task) return false;
+
         const priorityMatch = filters.priority === 'all' || task.priority === filters.priority;
         const assigneeMatch =
-          filters.assignee === 'all' || task.assignees.some(({ _id }) => _id === filters.assignee);
+          filters.assignee === 'all' ||
+          (task.assignees || []).some(({ _id, id }) => (_id || id) === filters.assignee);
         const departmentMatch =
           filters.department === 'all' || (task.departments || []).includes(filters.department);
+
         return priorityMatch && assigneeMatch && departmentMatch;
       });
     });
@@ -382,9 +382,10 @@ export function KanbanView({ tasks }) {
         </Stack>
       </Stack>
 
-      <KanbanDragOverlay columns={COLUMNS} tasks={localTasks} activeId={activeId} sx={cssVars} />
+      <KanbanDragOverlay columns={COLUMNS} tasks={localTasks || {}} activeId={activeId} sx={cssVars} />
     </DndContext>
   );
+
   const renderFilters = () => (
     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
       <FormControl size="small" sx={{ minWidth: 120 }}>
