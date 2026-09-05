@@ -22,7 +22,9 @@ export function KanbanDetailsCommentList({ activities }) {
       <Stack component="ul" spacing={3}>
         {activities.map((activity) => (
           <Stack component="li" key={activity?._id} direction="row" spacing={2}>
-            <Avatar src={activity?.avatarUrl} alt={activity?.user?.name} />
+            <Avatar src={activity?.avatarUrl} alt={activity?.user?.name}>
+              {activity?.user?.name?.trim().charAt(0).toUpperCase()}
+            </Avatar>
 
             <Stack spacing={activity?.messageType === 'image' ? 1 : 0.5} flexGrow={1}>
               <Stack direction="row" alignItems="center" justifyContent="space-between">

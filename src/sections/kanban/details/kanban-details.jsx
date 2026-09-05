@@ -240,8 +240,10 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       {/* Reporter */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <StyledLabel>Reporter</StyledLabel>
-        <Tooltip title={task.reporter.name}>
-          <Avatar alt={task.reporter.name} src={task.reporter.avatarUrl} />
+        <Tooltip title={task.reporter?.name}>
+          <Avatar alt={task.reporter?.name} src={task.reporter?.avatarUrl}>
+            {task.reporter?.name?.trim().charAt(0).toUpperCase()}
+          </Avatar>
         </Tooltip>
       </Box>
 
@@ -251,8 +253,10 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
         <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
           {selectedAssignees.map((user) => (
-            <Tooltip title={user.name}>
-              <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+            <Tooltip key={user.id || user._id} title={user.name}>
+              <Avatar alt={user.name} src={user.avatarUrl}>
+                {user?.name?.trim().charAt(0).toUpperCase()}
+              </Avatar>
             </Tooltip>
           ))}
 
@@ -284,7 +288,9 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {selectedDriver && (
             <Tooltip title={selectedDriver.driverName}>
-              <Avatar alt={selectedDriver.driverName} src={task.reporter.avatarUrl} />
+              <Avatar alt={selectedDriver.driverName} src={selectedDriver.avatarUrl}>
+                {selectedDriver?.driverName?.trim().charAt(0).toUpperCase()}
+              </Avatar>
             </Tooltip>
           )}
 

@@ -3,6 +3,7 @@ import { memo, useEffect, forwardRef } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
 import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/material/styles';
@@ -136,9 +137,21 @@ const ItemBase = forwardRef(({ task, stateProps, sx, ...other }, ref) => {
         <Box component="span">{task?.attachments?.length}</Box>
       </Stack>
 
-      <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
+      <AvatarGroup
+        sx={{
+          [`& .${avatarGroupClasses.avatar}`]: {
+            width: 24,
+            height: 24,
+            fontSize: 10,
+          },
+        }}
+      >
         {task?.assignees?.map((user) => (
-          <Avatar key={user._id} alt={user.name} src={user.avatarUrl} />
+          <Tooltip key={user._id || user.id} title={user.name}>
+            <Avatar alt={user.name} src={user.avatarUrl}>
+              {user?.name?.trim().charAt(0).toUpperCase()}
+            </Avatar>
+          </Tooltip>
         ))}
       </AvatarGroup>
     </Stack>

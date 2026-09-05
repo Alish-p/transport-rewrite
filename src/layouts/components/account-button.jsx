@@ -14,6 +14,7 @@ export function AccountButton({ photoURL, displayName, sx, ...other }) {
 
   const renderFallback = (
     <Avatar
+      alt={displayName}
       sx={{
         width: 40,
         height: 40,

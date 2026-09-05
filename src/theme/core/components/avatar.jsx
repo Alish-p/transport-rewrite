@@ -4,16 +4,25 @@ import { varAlpha } from '../../styles';
 
 const COLORS = ['primary', 'secondary', 'info', 'success', 'warning', 'error'];
 
-const colorByName = (name) => {
-  const charAt = name.charAt(0).toLowerCase();
+export const colorByName = (name) => {
+  if (!name || name === 'undefined' || name === 'null') return 'default';
+  const clean = `${name}`.trim().toLowerCase();
+  if (!clean) return 'default';
 
-  if (['a', 'c', 'f'].includes(charAt)) return 'primary';
-  if (['e', 'd', 'h'].includes(charAt)) return 'secondary';
-  if (['i', 'k', 'l'].includes(charAt)) return 'info';
-  if (['m', 'n', 'p'].includes(charAt)) return 'success';
-  if (['q', 's', 't'].includes(charAt)) return 'warning';
-  if (['v', 'x', 'y'].includes(charAt)) return 'error';
-  return 'default';
+  const char = clean.charAt(0);
+
+  if (['a', 'c', 'f', 'g'].includes(char)) return 'primary';
+  if (['d', 'e', 'h', 'b'].includes(char)) return 'secondary';
+  if (['i', 'k', 'l', 'j'].includes(char)) return 'info';
+  if (['m', 'n', 'p', 'o', 'u'].includes(char)) return 'success';
+  if (['q', 's', 't', 'r', 'w'].includes(char)) return 'warning';
+  if (['v', 'x', 'y', 'z'].includes(char)) return 'error';
+
+  let hash = 0;
+  for (let i = 0; i < clean.length; i += 1) {
+    hash = (clean.charCodeAt(i) + hash * 31) % 1000000;
+  }
+  return COLORS[Math.abs(hash) % COLORS.length];
 };
 
 // ----------------------------------------------------------------------
@@ -49,20 +58,36 @@ const MuiAvatar = {
   styleOverrides: {
     rounded: ({ theme }) => ({ borderRadius: theme.shape.borderRadius * 1.5 }),
     colorDefault: ({ ownerState, theme }) => {
-      const color = colorByName(`${ownerState.alt}`);
+      const name =
+        ownerState.alt ||
+        (typeof ownerState.children === 'string' ? ownerState.children : '');
+
+      const isSurplus =
+        typeof ownerState.children === 'string' && ownerState.children.trim().startsWith('+');
+
+      if (isSurplus) {
+        return {
+          color: theme.vars.palette.primary.dark,
+          backgroundColor: theme.vars.palette.primary.lighter,
+        };
+      }
+
+      const color = colorByName(`${name}`);
 
       return {
-        ...(!!ownerState.alt && {
-          ...(color !== 'default'
-            ? {
-                color: theme.vars.palette[color].contrastText,
-                backgroundColor: theme.vars.palette[color].main,
-              }
-            : {
-                color: theme.vars.palette.text.secondary,
-                backgroundColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.24),
-              }),
-        }),
+        ...(!!name &&
+          name !== 'undefined' &&
+          name !== 'null' && {
+            ...(color !== 'default'
+              ? {
+                  color: theme.vars.palette[color].contrastText,
+                  backgroundColor: theme.vars.palette[color].main,
+                }
+              : {
+                  color: theme.vars.palette.text.secondary,
+                  backgroundColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.24),
+                }),
+          }),
       };
     },
   },
@@ -101,8 +126,6 @@ const MuiAvatarGroup = {
       fontWeight: theme.typography.fontWeightSemiBold,
       '&:first-of-type': {
         fontSize: 12,
-        color: theme.vars.palette.primary.dark,
-        backgroundColor: theme.vars.palette.primary.lighter,
       },
     }),
   },
