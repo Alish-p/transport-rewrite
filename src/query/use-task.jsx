@@ -76,13 +76,15 @@ export function useCreateTask() {
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutate, mutateAsync } = useMutation({
     mutationFn: ({ column, task }) => updateTask(column, task),
-    onSuccess: (updatedTask) => {
+    onSuccess: (updatedTask, variables) => {
       queryClient.invalidateQueries([QUERY_KEY]);
       queryClient.setQueryData([QUERY_KEY, updatedTask._id], updatedTask);
 
-      toast.success('Task edited successfully!');
+      if (!variables?.quiet) {
+        toast.success('Task edited successfully!');
+      }
     },
     onError: (error) => {
       const errorMessage = error?.message || 'An error occurred';
@@ -90,7 +92,9 @@ export function useUpdateTask() {
     },
   });
 
-  return mutate;
+  const fn = mutateAsync;
+  fn.mutate = mutate;
+  return fn;
 }
 
 export function useUpdateTaskStatus() {

@@ -34,11 +34,12 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }) {
   }, [deleteTask, task]);
 
   const handleUpdateTask = useCallback(
-    async (taskData) => {
+    async (taskData, options) => {
       try {
-        updateTask({ column: columnId, task: taskData });
+        return await updateTask({ column: columnId, task: taskData, quiet: options?.quiet });
       } catch (error) {
         console.error(error);
+        throw error;
       }
     },
     [columnId, updateTask]

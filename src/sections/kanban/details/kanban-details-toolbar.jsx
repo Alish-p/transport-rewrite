@@ -6,6 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useResponsive } from 'src/hooks/use-responsive';
@@ -21,7 +22,14 @@ import { COLUMNS } from '../config';
 
 // ----------------------------------------------------------------------
 
-export function KanbanDetailsToolbar({ task, onDelete, onUpdate, onCloseDetails }) {
+export function KanbanDetailsToolbar({
+  task,
+  onDelete,
+  onUpdate,
+  onCloseDetails,
+  isSaving,
+  savedAt,
+}) {
   const updateTaskStatus = useUpdateTaskStatus();
   const smUp = useResponsive('up', 'sm');
 
@@ -31,6 +39,16 @@ export function KanbanDetailsToolbar({ task, onDelete, onUpdate, onCloseDetails 
 
   const [status, setStatus] = useState(task?.status);
   const [liked, setLiked] = useState(Boolean(task?.isLiked || task?.liked));
+  const [showSaved, setShowSaved] = useState(false);
+
+  useEffect(() => {
+    if (savedAt) {
+      setShowSaved(true);
+      const timer = setTimeout(() => setShowSaved(false), 2000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [savedAt]);
 
   useEffect(() => {
     setStatus(task?.status);
@@ -94,6 +112,28 @@ export function KanbanDetailsToolbar({ task, onDelete, onUpdate, onCloseDetails 
         >
           {statusLabel}
         </Button>
+
+        {isSaving ? (
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={0.5}
+            sx={{ ml: 1.5, typography: 'caption', color: 'text.secondary' }}
+          >
+            <CircularProgress size={12} color="inherit" thickness={5} />
+            <span>Saving...</span>
+          </Stack>
+        ) : showSaved ? (
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={0.5}
+            sx={{ ml: 1.5, typography: 'caption', color: 'success.main' }}
+          >
+            <Iconify icon="eva:checkmark-fill" width={14} />
+            <span>Saved</span>
+          </Stack>
+        ) : null}
 
         <Stack direction="row" justifyContent="flex-end" flexGrow={1}>
           <Tooltip title={liked ? 'Unlike' : 'Like'}>

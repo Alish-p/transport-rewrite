@@ -77,18 +77,6 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const [dueDate, setDueDate] = useState(() => getInitialDueDate(task?.due));
   const datePopover = usePopover();
 
-  const handleChangeDueDate = useCallback((newValue) => {
-    setDueDate(newValue);
-    setFormChanged(true);
-  }, []);
-
-  const handleClearDueDate = useCallback(() => {
-    setDueDate(null);
-    setFormChanged(true);
-    datePopover.onClose();
-  }, [datePopover]);
-
-  const [formChanged, setFormChanged] = useState(false);
   const [selectedDepartments, setSelectedDepartments] = useState(task?.departments || []);
 
   const [location, setLocation] = useState(task?.location || '');
@@ -102,6 +90,9 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const vehicleDialog = useBoolean();
 
   const [newSubtask, setNewSubtask] = useState('');
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState(null);
 
   const addSubtask = useAddSubtask();
   const toggleSubtask = useToggleSubtask();
@@ -117,63 +108,173 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setSelectedDriver(task?.driver || null);
     setSelectedVehicle(task?.vehicle || null);
     setDueDate(getInitialDueDate(task?.due));
-    setFormChanged(false);
   }, [getInitialDueDate, task]);
+
+  const saveTask = useCallback(
+    async (partialChanges = {}) => {
+      const payload = {
+        ...task,
+        name: taskName,
+        description: taskDescription,
+        priority,
+        departments: selectedDepartments,
+        due: dueDate ? [dueDate.toISOString()] : [],
+        location,
+        assignees: selectedAssignees,
+        driver: selectedDriver,
+        vehicle: selectedVehicle,
+        ...partialChanges,
+      };
+
+      setIsSaving(true);
+      try {
+        await onUpdateTask(payload, { quiet: true });
+        setSavedAt(Date.now());
+      } catch (error) {
+        console.error('Failed to auto-save task:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [
+      dueDate,
+      location,
+      onUpdateTask,
+      priority,
+      selectedAssignees,
+      selectedDepartments,
+      selectedDriver,
+      selectedVehicle,
+      task,
+      taskDescription,
+      taskName,
+    ]
+  );
+
+  const handleChangeDueDate = useCallback(
+    (newValue) => {
+      setDueDate(newValue);
+      saveTask({ due: newValue ? [newValue.toISOString()] : [] });
+    },
+    [saveTask]
+  );
+
+  const handleClearDueDate = useCallback(() => {
+    setDueDate(null);
+    datePopover.onClose();
+    saveTask({ due: [] });
+  }, [datePopover, saveTask]);
 
   const handleChangeTaskName = useCallback((event) => {
     setTaskName(event.target.value);
-    setFormChanged(true);
   }, []);
 
-  const handleUpdateTask = useCallback(
+  const handleBlurTaskName = useCallback(() => {
+    if (taskName.trim() && taskName !== task.name) {
+      saveTask({ name: taskName.trim() });
+    }
+  }, [saveTask, task.name, taskName]);
+
+  const handleKeyUpTaskName = useCallback(
     (event) => {
-      try {
-        if (event.key === 'Enter') {
-          if (taskName) {
-            onUpdateTask({ ...task, name: taskName });
-          }
-        }
-      } catch (error) {
-        console.error(error);
+      if (event.key === 'Enter') {
+        event.target.blur();
       }
     },
-    [onUpdateTask, task, taskName]
+    []
   );
 
   const handleChangeTaskDescription = useCallback((event) => {
     setTaskDescription(event.target.value);
-    setFormChanged(true);
   }, []);
 
-  const handleChangePriority = useCallback((newValue) => {
-    setPriority(newValue);
-    setFormChanged(true);
-  }, []);
+  const handleBlurTaskDescription = useCallback(() => {
+    if (taskDescription !== (task.description || '')) {
+      saveTask({ description: taskDescription });
+    }
+  }, [saveTask, task.description, taskDescription]);
 
-  const handleLabelChange = (event) => {
-    setSelectedDepartments(event.target.value);
-    setFormChanged(true);
-  };
+  const handleChangePriority = useCallback(
+    (newValue) => {
+      setPriority(newValue);
+      saveTask({ priority: newValue });
+    },
+    [saveTask]
+  );
+
+  const handleLabelChange = useCallback(
+    (event) => {
+      const newDepartments = event.target.value;
+      setSelectedDepartments(newDepartments);
+      saveTask({ departments: newDepartments });
+    },
+    [saveTask]
+  );
 
   const handleLocationChange = useCallback((event) => {
     setLocation(event.target.value);
-    setFormChanged(true);
   }, []);
 
-  const handleAssigneeChange = useCallback((newAssignees) => {
-    setSelectedAssignees(newAssignees);
-    setFormChanged(true);
+  const handleBlurLocation = useCallback(() => {
+    if (location !== (task.location || '')) {
+      saveTask({ location });
+    }
+  }, [location, saveTask, task.location]);
+
+  const handleKeyUpLocation = useCallback((event) => {
+    if (event.key === 'Enter') {
+      event.target.blur();
+    }
   }, []);
 
-  const handleDriverChange = useCallback((driver) => {
-    setSelectedDriver(driver);
-    setFormChanged(true);
-  }, []);
+  const handleAssigneeChange = useCallback(
+    (newAssignees) => {
+      setSelectedAssignees(newAssignees);
+      saveTask({ assignees: newAssignees });
+    },
+    [saveTask]
+  );
 
-  const handleVehicleChange = useCallback((vehicle) => {
-    setSelectedVehicle(vehicle);
-    setFormChanged(true);
-  }, []);
+  const handleDriverChange = useCallback(
+    (driver) => {
+      setSelectedDriver(driver);
+      saveTask({ driver });
+    },
+    [saveTask]
+  );
+
+  const handleVehicleChange = useCallback(
+    (vehicle) => {
+      setSelectedVehicle(vehicle);
+      saveTask({ vehicle });
+    },
+    [saveTask]
+  );
+
+  const handleClose = useCallback(() => {
+    const hasPendingName = taskName.trim() && taskName !== task.name;
+    const hasPendingDesc = taskDescription !== (task.description || '');
+    const hasPendingLoc = location !== (task.location || '');
+
+    if (hasPendingName || hasPendingDesc || hasPendingLoc) {
+      saveTask({
+        ...(hasPendingName && { name: taskName.trim() }),
+        ...(hasPendingDesc && { description: taskDescription }),
+        ...(hasPendingLoc && { location }),
+      });
+    }
+
+    onCloseDetails();
+  }, [
+    location,
+    onCloseDetails,
+    saveTask,
+    task.description,
+    task.location,
+    task.name,
+    taskDescription,
+    taskName,
+  ]);
 
   const handleAddSubtask = async () => {
     if (!newSubtask.trim()) return;
@@ -207,41 +308,14 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     }
   };
 
-  const handleSave = () => {
-    onUpdateTask({
-      ...task,
-      name: taskName,
-      description: taskDescription,
-      priority,
-      departments: selectedDepartments,
-      due: dueDate ? [dueDate.toISOString()] : [],
-      location,
-      assignees: selectedAssignees,
-      driver: selectedDriver,
-      vehicle: selectedVehicle,
-    });
-    setFormChanged(false);
-  };
-
-  const handleCancel = () => {
-    setTaskName(task.name);
-    setTaskDescription(task.description);
-    setPriority(task.priority);
-    setSelectedDepartments(task?.departments || []);
-    setLocation(task?.location || '');
-    setSelectedAssignees(task?.assignees || []);
-    setSelectedDriver(task?.driver || null);
-    setSelectedVehicle(task?.vehicle || null);
-    setDueDate(getInitialDueDate(task?.due));
-    setFormChanged(false);
-  };
-
   const renderToolbar = (
     <KanbanDetailsToolbar
       task={task}
       onDelete={onDeleteTask}
       onUpdate={onUpdateTask}
-      onCloseDetails={onCloseDetails}
+      onCloseDetails={handleClose}
+      isSaving={isSaving}
+      savedAt={savedAt}
     />
   );
 
@@ -269,7 +343,8 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         placeholder="Task name"
         value={taskName}
         onChange={handleChangeTaskName}
-        onKeyUp={handleUpdateTask}
+        onBlur={handleBlurTaskName}
+        onKeyUp={handleKeyUpTaskName}
         inputProps={{ id: `input-task-${taskName}` }}
       />
 
@@ -405,6 +480,8 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           size="small"
           value={location}
           onChange={handleLocationChange}
+          onBlur={handleBlurLocation}
+          onKeyUp={handleKeyUpLocation}
           placeholder="Enter location"
           sx={{ minWidth: 200 }}
         />
@@ -529,6 +606,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           minRows={4}
           value={taskDescription}
           onChange={handleChangeTaskDescription}
+          onBlur={handleBlurTaskDescription}
           InputProps={{ sx: { typography: 'body2' } }}
         />
       </Box>
@@ -537,26 +615,6 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       <Box sx={{ display: 'flex' }}>
         <StyledLabel>Attachments</StyledLabel>
         <KanbanDetailsAttachments attachments={task.attachments} />
-      </Box>
-
-      {/* Add Save/Cancel buttons at the bottom */}
-      <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={!formChanged}
-          startIcon={<Iconify icon="material-symbols:save" />}
-        >
-          Save
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={handleCancel}
-          disabled={!formChanged}
-          startIcon={<Iconify icon="material-symbols:cancel-outline" />}
-        >
-          Cancel
-        </Button>
       </Box>
     </Box>
   );
@@ -633,7 +691,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   return (
     <Drawer
       open={openDetails}
-      onClose={onCloseDetails}
+      onClose={handleClose}
       anchor="right"
       slotProps={{ backdrop: { invisible: true } }}
       PaperProps={{ sx: { width: { xs: 1, sm: 480 } } }}
