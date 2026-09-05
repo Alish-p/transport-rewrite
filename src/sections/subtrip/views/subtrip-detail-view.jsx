@@ -12,6 +12,7 @@ import { paths } from 'src/routes/paths';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fNumber, fCurrency } from 'src/utils/format-number';
+import { downloadFileFromUrl } from 'src/utils/download-file';
 import { generateStaticMapImage } from 'src/utils/generate-static-map';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
@@ -46,6 +47,7 @@ import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
 import { FinancialLinksWidget } from '../widgets/financial-links-widget';
 import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
+import { SubtripDocumentsWidget } from '../widgets/subtrip-documents-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // ----------------------------------------------------------------------
@@ -516,6 +518,15 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                     </PDFDownloadLink>
                   ),
                 },
+                ...(subtrip.docs || []).map((doc, index) => ({
+                  label: `Document ${index + 1}`,
+                  icon: 'solar:download-minimalistic-bold',
+                  onClick: () =>
+                    downloadFileFromUrl(
+                      doc,
+                      `${subtrip.subtripNo || 'subtrip'}_document_${index + 1}`
+                    ),
+                })),
               ].filter(Boolean),
             },
           ]}
@@ -728,6 +739,8 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             <SubtripTimeline events={events} />
 
             <EpodInfoCard subtrip={subtrip} />
+
+            <SubtripDocumentsWidget subtrip={subtrip} publicMode={publicMode} />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4} />
