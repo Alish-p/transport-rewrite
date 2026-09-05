@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
+import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -17,9 +18,12 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 
 import { useTabs } from 'src/hooks/use-tabs';
 import { useBoolean } from 'src/hooks/use-boolean';
+
+import { fDate } from 'src/utils/format-time';
 
 import { varAlpha } from 'src/theme/styles';
 import { useAddSubtask, useToggleSubtask, useDeleteSubtask } from 'src/query/use-task';
@@ -28,7 +32,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomTabs } from 'src/components/custom-tabs';
-import { DATE_RANGE_PRESETS, useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { DEPARTMENTS } from '../config';
 import { KanbanDetailsToolbar } from './kanban-details-toolbar';
@@ -64,7 +68,25 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
   const [taskDescription, setTaskDescription] = useState(task.description);
 
-  const rangePicker = useDateRangePicker(dayjs(task.due[0]), dayjs(task.due[1]));
+  const getInitialDueDate = useCallback((due) => {
+    if (!due) return null;
+    const raw = Array.isArray(due) ? due[0] : due;
+    return raw && dayjs(raw).isValid() ? dayjs(raw) : null;
+  }, []);
+
+  const [dueDate, setDueDate] = useState(() => getInitialDueDate(task?.due));
+  const datePopover = usePopover();
+
+  const handleChangeDueDate = useCallback((newValue) => {
+    setDueDate(newValue);
+    setFormChanged(true);
+  }, []);
+
+  const handleClearDueDate = useCallback(() => {
+    setDueDate(null);
+    setFormChanged(true);
+    datePopover.onClose();
+  }, [datePopover]);
 
   const [formChanged, setFormChanged] = useState(false);
   const [selectedDepartments, setSelectedDepartments] = useState(task?.departments || []);
@@ -84,6 +106,19 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const addSubtask = useAddSubtask();
   const toggleSubtask = useToggleSubtask();
   const deleteSubtask = useDeleteSubtask();
+
+  useEffect(() => {
+    setTaskName(task.name);
+    setTaskDescription(task.description);
+    setPriority(task.priority);
+    setSelectedDepartments(task?.departments || []);
+    setLocation(task?.location || '');
+    setSelectedAssignees(task?.assignees || []);
+    setSelectedDriver(task?.driver || null);
+    setSelectedVehicle(task?.vehicle || null);
+    setDueDate(getInitialDueDate(task?.due));
+    setFormChanged(false);
+  }, [getInitialDueDate, task]);
 
   const handleChangeTaskName = useCallback((event) => {
     setTaskName(event.target.value);
@@ -179,7 +214,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       description: taskDescription,
       priority,
       departments: selectedDepartments,
-      due: [rangePicker.startDate, rangePicker.endDate],
+      due: dueDate ? [dueDate.toISOString()] : [],
       location,
       assignees: selectedAssignees,
       driver: selectedDriver,
@@ -197,6 +232,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setSelectedAssignees(task?.assignees || []);
     setSelectedDriver(task?.driver || null);
     setSelectedVehicle(task?.vehicle || null);
+    setDueDate(getInitialDueDate(task?.due));
     setFormChanged(false);
   };
 
@@ -408,14 +444,30 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <StyledLabel> Due date </StyledLabel>
 
-        {rangePicker.selected ? (
-          <Button size="small" onClick={rangePicker.onOpen}>
-            {rangePicker.shortLabel}
-          </Button>
+        {dueDate ? (
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Button
+              size="small"
+              variant="soft"
+              onClick={datePopover.onOpen}
+              startIcon={<Iconify icon="solar:calendar-date-bold" />}
+            >
+              {fDate(dueDate)}
+            </Button>
+            <Tooltip title="Clear due date">
+              <IconButton
+                size="small"
+                onClick={handleClearDueDate}
+                sx={{ color: 'text.disabled' }}
+              >
+                <Iconify icon="mingcute:close-line" width={16} />
+              </IconButton>
+            </Tooltip>
+          </Stack>
         ) : (
           <Tooltip title="Add due date">
             <IconButton
-              onClick={rangePicker.onOpen}
+              onClick={datePopover.onOpen}
               sx={{
                 bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
                 border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
@@ -426,20 +478,39 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           </Tooltip>
         )}
 
-        <CustomDateRangePicker
-          variant="calendar"
-          title="Choose due date"
-          presets={DATE_RANGE_PRESETS}
-          startDate={rangePicker.startDate}
-          endDate={rangePicker.endDate}
-          onChangeStartDate={rangePicker.onChangeStartDate}
-          onChangeEndDate={rangePicker.onChangeEndDate}
-          onApplyRange={rangePicker.onApplyRange}
-          open={rangePicker.open}
-          onClose={rangePicker.onClose}
-          selected={rangePicker.selected}
-          error={rangePicker.error}
-        />
+        <CustomPopover
+          open={datePopover.open}
+          anchorEl={datePopover.anchorEl}
+          onClose={datePopover.onClose}
+          slotProps={{ arrow: { placement: 'top-left' } }}
+        >
+          <Box sx={{ p: 1 }}>
+            <DateCalendar
+              value={dueDate}
+              onChange={(newValue) => {
+                handleChangeDueDate(newValue);
+                datePopover.onClose();
+              }}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', px: 2, pb: 1 }}>
+              <Button
+                size="small"
+                color="error"
+                onClick={handleClearDueDate}
+                disabled={!dueDate}
+              >
+                Clear
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={datePopover.onClose}
+              >
+                Done
+              </Button>
+            </Box>
+          </Box>
+        </CustomPopover>
       </Box>
 
       {/* Priority */}

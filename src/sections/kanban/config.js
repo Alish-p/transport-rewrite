@@ -1,7 +1,7 @@
 export const COLUMNS = [
   {
     id: 'todo',
-    name: 'Todo',
+    name: 'To-Do',
     color: '#FF4842', // Red color
   },
   {

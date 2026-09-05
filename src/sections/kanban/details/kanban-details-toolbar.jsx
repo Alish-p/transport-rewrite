@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -12,6 +12,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 
 import { useUpdateTaskStatus } from 'src/query/use-task';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -20,7 +21,7 @@ import { COLUMNS } from '../config';
 
 // ----------------------------------------------------------------------
 
-export function KanbanDetailsToolbar({ task, onDelete, onCloseDetails }) {
+export function KanbanDetailsToolbar({ task, onDelete, onUpdate, onCloseDetails }) {
   const updateTaskStatus = useUpdateTaskStatus();
   const smUp = useResponsive('up', 'sm');
 
@@ -29,17 +30,41 @@ export function KanbanDetailsToolbar({ task, onDelete, onCloseDetails }) {
   const popover = usePopover();
 
   const [status, setStatus] = useState(task?.status);
+  const [liked, setLiked] = useState(Boolean(task?.isLiked || task?.liked));
+
+  useEffect(() => {
+    setStatus(task?.status);
+  }, [task?.status]);
+
+  useEffect(() => {
+    setLiked(Boolean(task?.isLiked || task?.liked));
+  }, [task?.isLiked, task?.liked]);
 
   const handleChangeStatus = useCallback(
     (newValue) => {
       popover.onClose();
       setStatus(newValue);
       const updatedTask = { ...task, status: newValue };
-      console.log(updatedTask);
       updateTaskStatus({ id: task._id, status: newValue });
+      onUpdate?.(updatedTask);
     },
-    [popover, task, updateTaskStatus]
+    [onUpdate, popover, task, updateTaskStatus]
   );
+
+  const handleToggleLike = useCallback(() => {
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    onUpdate?.({ ...task, isLiked: nextLiked });
+  }, [liked, onUpdate, task]);
+
+  const currentColumn = COLUMNS.find((col) => col.id === status);
+  const statusLabel = currentColumn?.name || (status === 'todo' ? 'To-Do' : status);
+
+  const getStatusColor = (colId) => {
+    if (colId === 'done') return 'success';
+    if (colId === 'in-progress') return 'warning';
+    return 'default';
+  };
 
   return (
     <>
@@ -62,16 +87,18 @@ export function KanbanDetailsToolbar({ task, onDelete, onCloseDetails }) {
         <Button
           size="small"
           variant="soft"
+          color={getStatusColor(status)}
           endIcon={<Iconify icon="eva:arrow-ios-downward-fill" width={16} sx={{ ml: -0.5 }} />}
           onClick={popover.onOpen}
+          sx={{ textTransform: 'none', fontWeight: 'fontWeightSemiBold' }}
         >
-          {status}
+          {statusLabel}
         </Button>
 
         <Stack direction="row" justifyContent="flex-end" flexGrow={1}>
-          <Tooltip title="Like">
-            <IconButton color="primary" onClick={() => {}}>
-              <Iconify icon="ic:round-thumb-up" />
+          <Tooltip title={liked ? 'Unlike' : 'Like'}>
+            <IconButton color={liked ? 'primary' : 'default'} onClick={handleToggleLike}>
+              <Iconify icon={liked ? 'ic:round-thumb-up' : 'ic:outline-thumb-up'} />
             </IconButton>
           </Tooltip>
 
@@ -91,7 +118,7 @@ export function KanbanDetailsToolbar({ task, onDelete, onCloseDetails }) {
         open={popover.open}
         anchorEl={popover.anchorEl}
         onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'top-right' } }}
+        slotProps={{ arrow: { placement: 'top-left' } }}
       >
         <MenuList>
           {COLUMNS.map((option) => (
@@ -102,7 +129,9 @@ export function KanbanDetailsToolbar({ task, onDelete, onCloseDetails }) {
                 handleChangeStatus(option.id);
               }}
             >
-              {option.name}
+              <Label variant="soft" color={getStatusColor(option.id)} sx={{ mr: 1 }}>
+                {option.name}
+              </Label>
             </MenuItem>
           ))}
         </MenuList>
