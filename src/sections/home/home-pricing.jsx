@@ -4,6 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 
 import { useTabs } from 'src/hooks/use-tabs';
 
@@ -97,6 +98,12 @@ export function HomePricing({ sx, ...other }) {
         </Box>
 
         <Container>{renderContentMobile}</Container>
+
+        <Container sx={{ mt: 5, textAlign: 'center' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            * Terms &amp; Conditions: Final price may vary based on the nature of business and volume.
+          </Typography>
+        </Container>
       </MotionViewport>
     </Stack>
   );

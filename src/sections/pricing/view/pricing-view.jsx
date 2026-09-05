@@ -30,6 +30,18 @@ export function PricingView() {
           <PricingCard key={card.subscription} card={card} />
         ))}
       </Box>
+
+      <Typography
+        variant="caption"
+        align="center"
+        sx={{
+          display: 'block',
+          mt: 5,
+          color: 'text.secondary',
+        }}
+      >
+        * Terms &amp; Conditions: Final price may vary based on the nature of business and volume.
+      </Typography>
     </Container>
   );
 }

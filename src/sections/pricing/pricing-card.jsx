@@ -44,7 +44,20 @@ export function PricingCard({ card, sx, ...other }) {
 
   const renderPrice = (
     <Stack direction="row" alignItems="baseline">
-      <Typography variant="h3">₹{price}</Typography>
+      <Typography variant="h3">
+        ₹{price}
+        <Box
+          component="span"
+          sx={{
+            typography: 'body1',
+            color: 'text.secondary',
+            verticalAlign: 'super',
+            ml: 0.5,
+          }}
+        >
+          *
+        </Box>
+      </Typography>
 
       <Typography
         component="span"
