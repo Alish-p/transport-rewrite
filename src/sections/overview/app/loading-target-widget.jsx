@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -11,6 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { alpha } from '@mui/material/styles';
 import Skeleton from '@mui/material/Skeleton';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -31,10 +31,12 @@ import {
   useDeleteTarget,
 } from 'src/query/use-customer-target';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { EmptyContent } from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { KanbanCustomerDialog } from 'src/sections/kanban/components/kanban-customer-dialog';
 
@@ -55,21 +57,270 @@ const MONTHS = [
   'December',
 ];
 
-// Helper function to get progress color
-const getProgressColor = (percentage) => {
-  if (percentage >= 100) return 'success';
-  if (percentage >= 75) return 'primary';
-  if (percentage >= 50) return 'warning';
-  return 'error';
-};
+// ----------------------------------------------------------------------
 
-// Helper function to get status label
-const getStatusLabel = (percentage) => {
-  if (percentage >= 100) return 'Completed';
-  if (percentage >= 75) return 'On Track';
-  if (percentage >= 50) return 'In Progress';
-  return 'Behind';
-};
+function TargetCardItem({ target, onEdit, onDelete }) {
+  const popover = usePopover();
+
+  const percentage = (target.achievedWeight / target.materialTarget.targetWeight) * 100;
+  const isCompleted = percentage >= 100;
+
+  return (
+    <>
+      <Box
+        sx={{
+          p: 2.5,
+          borderRadius: 2,
+          position: 'relative',
+          bgcolor: (theme) => {
+            const isDark = theme.palette.mode === 'dark';
+            if (isCompleted) {
+              return alpha(theme.palette.success.main, isDark ? 0.08 : 0.03);
+            }
+            return isDark
+              ? alpha(theme.palette.grey[500], 0.08)
+              : alpha(theme.palette.grey[500], 0.04);
+          },
+          border: (theme) => {
+            const isDark = theme.palette.mode === 'dark';
+            if (isCompleted) {
+              return `1px solid ${alpha(theme.palette.success.main, isDark ? 0.35 : 0.24)}`;
+            }
+            return `1px solid ${alpha(theme.palette.grey[500], isDark ? 0.24 : 0.12)}`;
+          },
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            bgcolor: (theme) => {
+              const isDark = theme.palette.mode === 'dark';
+              if (isCompleted) {
+                return alpha(theme.palette.success.main, isDark ? 0.12 : 0.06);
+              }
+              return isDark
+                ? alpha(theme.palette.grey[500], 0.14)
+                : alpha(theme.palette.grey[500], 0.08);
+            },
+            borderColor: (theme) => {
+              const isDark = theme.palette.mode === 'dark';
+              if (isCompleted) {
+                return isDark ? theme.palette.success.light : theme.palette.success.main;
+              }
+              return isDark ? theme.palette.primary.light : theme.palette.primary.main;
+            },
+            boxShadow: (theme) => {
+              const isDark = theme.palette.mode === 'dark';
+              const shadowColor = isCompleted ? theme.palette.success.main : theme.palette.primary.main;
+              return `0 4px 16px ${alpha(shadowColor, isDark ? 0.24 : 0.1)}`;
+            },
+            transform: 'translateY(-2px)',
+          },
+        }}
+      >
+        <Stack spacing={2}>
+          {/* Header with customer info and 3-dots menu */}
+          <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
+            <Box sx={{ flex: 1, minWidth: 0, pr: 1 }}>
+              <Typography
+                variant="subtitle2"
+                noWrap
+                sx={{
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  color: !target.customer
+                    ? (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? theme.palette.primary.light
+                          : theme.palette.primary.main
+                    : 'text.primary',
+                }}
+              >
+                {target.customer?.customerName || 'All Customers'}
+              </Typography>
+
+              <Box sx={{ mt: 0.75 }}>
+                <Label
+                  variant="soft"
+                  color="primary"
+                  startIcon={<Iconify icon="mdi:cube-outline" width={14} />}
+                  sx={{ typography: 'caption', fontWeight: 600 }}
+                >
+                  {target.materialTarget.material}
+                </Label>
+              </Box>
+            </Box>
+
+            <IconButton
+              size="small"
+              color={popover.open ? 'inherit' : 'default'}
+              onClick={popover.onOpen}
+              sx={{
+                color: 'text.secondary',
+                '&:hover': {
+                  color: 'text.primary',
+                  bgcolor: (theme) => alpha(theme.palette.grey[500], 0.08),
+                },
+              }}
+            >
+              <Iconify icon="eva:more-vertical-fill" width={20} />
+            </IconButton>
+          </Stack>
+
+          {/* Progress Section */}
+          <Box>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="baseline"
+              sx={{ mb: 1 }}
+            >
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <Box
+                  component="span"
+                  sx={{
+                    color: isCompleted
+                      ? (theme) =>
+                          theme.palette.mode === 'dark'
+                            ? theme.palette.success.light
+                            : theme.palette.success.main
+                      : 'text.primary',
+                    fontWeight: 700,
+                    fontSize: '1.05rem',
+                  }}
+                >
+                  {target.achievedWeight.toLocaleString()}
+                </Box>
+                <Box component="span" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  {' / '}
+                  {target.materialTarget.targetWeight.toLocaleString()} Ton
+                </Box>
+              </Typography>
+
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 700,
+                  color: isCompleted
+                    ? (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? theme.palette.success.light
+                          : theme.palette.success.main
+                    : (theme) =>
+                        theme.palette.mode === 'dark'
+                          ? theme.palette.primary.light
+                          : theme.palette.primary.main,
+                }}
+              >
+                {percentage.toFixed(1)}%
+              </Typography>
+            </Stack>
+
+            <LinearProgress
+              variant="determinate"
+              value={Math.min(percentage, 100)}
+              sx={{
+                height: 8,
+                borderRadius: 1,
+                bgcolor: (theme) =>
+                  isCompleted
+                    ? alpha(theme.palette.success.main, theme.palette.mode === 'dark' ? 0.2 : 0.12)
+                    : alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.2 : 0.08),
+                '& .MuiLinearProgress-bar': {
+                  borderRadius: 1,
+                  background: (theme) => {
+                    const isDark = theme.palette.mode === 'dark';
+                    if (isCompleted) {
+                      return isDark
+                        ? `linear-gradient(90deg, ${theme.palette.success.main}, ${theme.palette.success.light})`
+                        : `linear-gradient(90deg, ${theme.palette.success.light}, ${theme.palette.success.main})`;
+                    }
+                    return isDark
+                      ? `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`
+                      : `linear-gradient(90deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`;
+                  },
+                },
+              }}
+            />
+          </Box>
+
+          {/* Remaining/Excess indicator */}
+          {percentage < 100 ? (
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.6,
+                fontWeight: 500,
+              }}
+            >
+              <Iconify
+                icon="solar:target-bold"
+                width={15}
+                sx={{
+                  color: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? theme.palette.primary.light
+                      : theme.palette.primary.main,
+                }}
+              />
+              {(target.materialTarget.targetWeight - target.achievedWeight).toLocaleString()} Ton remaining
+            </Typography>
+          ) : (
+            <Typography
+              variant="caption"
+              sx={{
+                color: (theme) =>
+                  theme.palette.mode === 'dark'
+                    ? theme.palette.success.light
+                    : theme.palette.success.main,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.6,
+                fontWeight: 600,
+              }}
+            >
+              <Iconify icon="solar:check-circle-bold" width={15} />
+              Target achieved! +
+              {(target.achievedWeight - target.materialTarget.targetWeight).toLocaleString()} Ton extra
+            </Typography>
+          )}
+        </Stack>
+      </Box>
+
+      <CustomPopover
+        open={popover.open}
+        anchorEl={popover.anchorEl}
+        onClose={popover.onClose}
+        slotProps={{ arrow: { placement: 'top-right' } }}
+      >
+        <MenuList>
+          <MenuItem
+            onClick={() => {
+              popover.onClose();
+              onEdit(target);
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit Target
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              popover.onClose();
+              onDelete(target);
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete Target
+          </MenuItem>
+        </MenuList>
+      </CustomPopover>
+    </>
+  );
+}
+
+// ----------------------------------------------------------------------
 
 export function LoadingTargetWidget({ sx, ...other }) {
 
@@ -180,208 +431,71 @@ export function LoadingTargetWidget({ sx, ...other }) {
   };
 
   const renderLoading = (
-    <Stack spacing={2} sx={{ p: 3 }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gap: 2,
+        p: 2.5,
+        gridTemplateColumns: {
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+        },
+      }}
+    >
       {[1, 2, 3].map((item) => (
-        <Stack key={item} spacing={1}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Box
+          key={item}
+          sx={{
+            p: 2.5,
+            borderRadius: 2,
+            border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.12)}`,
+            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
+          }}
+        >
+          <Stack spacing={2}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+              <Box sx={{ flex: 1, pr: 1 }}>
+                <Skeleton variant="text" width="65%" height={22} />
+                <Skeleton
+                  variant="rectangular"
+                  width={80}
+                  height={22}
+                  sx={{ mt: 0.75, borderRadius: 0.75 }}
+                />
+              </Box>
+              <Skeleton variant="circular" width={28} height={28} />
+            </Stack>
+
             <Box>
-              <Skeleton variant="text" width={120} height={24} />
-              <Skeleton variant="text" width={80} height={16} />
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="baseline"
+                sx={{ mb: 1 }}
+              >
+                <Skeleton variant="text" width={110} height={20} />
+                <Skeleton variant="text" width={40} height={20} />
+              </Stack>
+              <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 1 }} />
             </Box>
-            <Skeleton variant="text" width={80} height={24} />
+
+            <Skeleton variant="text" width={120} height={18} />
           </Stack>
-          <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 1 }} />
-        </Stack>
+        </Box>
       ))}
-    </Stack>
+    </Box>
   );
 
-  const renderTargetCard = (target) => {
-    const percentage = (target.achievedWeight / target.materialTarget.targetWeight) * 100;
-    const progressColor = getProgressColor(percentage);
-    const statusLabel = getStatusLabel(percentage);
-    const isCompleted = percentage >= 100;
-
-    return (
-      <Box
-        key={target._id}
-        sx={{
-          p: 2,
-          borderRadius: 2,
-          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
-          border: (theme) => `1px solid ${alpha(theme.palette.grey[500], 0.08)}`,
-          transition: 'all 0.2s ease-in-out',
-          '&:hover': {
-            bgcolor: (theme) => alpha(theme.palette.grey[500], 0.08),
-            boxShadow: (theme) => `0 4px 12px ${alpha(theme.palette.grey[500], 0.12)}`,
-            transform: 'translateY(-2px)',
-          },
-        }}
-      >
-        <Stack spacing={1.5}>
-          {/* Header with customer info and actions */}
-          <Stack direction="row" alignItems="flex-start" justifyContent="space-between">
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography
-                  variant="subtitle2"
-                  noWrap
-                  sx={{ fontWeight: 600, color: !target.customer ? 'primary.main' : 'inherit' }}
-                >
-                  {target.customer?.customerName || 'All Customers'}
-                </Typography>
-                <Chip
-                  size="small"
-                  label={statusLabel}
-                  color={progressColor}
-                  variant={isCompleted ? 'filled' : 'soft'}
-                  sx={{
-                    height: 22,
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
-                  }}
-                />
-              </Stack>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  mt: 0.5,
-                }}
-              >
-                <Iconify icon="mdi:cube-outline" width={14} />
-                {target.materialTarget.material}
-              </Typography>
-            </Box>
-
-            <Stack direction="row" spacing={0.5}>
-              <Tooltip title="Edit Target">
-                <IconButton
-                  size="small"
-                  onClick={() => handleOpenEdit(target)}
-                  sx={{
-                    color: 'primary.main',
-                    '&:hover': {
-                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.08),
-                    },
-                  }}
-                >
-                  <Iconify icon="solar:pen-bold" width={18} />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Delete Target">
-                <IconButton
-                  size="small"
-                  onClick={() => handleDeleteClick(target)}
-                  sx={{
-                    color: 'error.main',
-                    '&:hover': {
-                      bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
-                    },
-                  }}
-                >
-                  <Iconify icon="solar:trash-bin-trash-bold" width={18} />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </Stack>
-
-          {/* Progress Section */}
-          <Box>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="baseline"
-              sx={{ mb: 0.75 }}
-            >
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                <Box component="span" sx={{ color: `${progressColor}.main`, fontWeight: 700 }}>
-                  {target.achievedWeight.toLocaleString()}
-                </Box>
-                <Box component="span" sx={{ color: 'text.secondary' }}>
-                  {' / '}
-                  {target.materialTarget.targetWeight.toLocaleString()} Ton
-                </Box>
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: 700,
-                  color: `${progressColor}.main`,
-                }}
-              >
-                {percentage.toFixed(1)}%
-              </Typography>
-            </Stack>
-
-            <LinearProgress
-              variant="determinate"
-              value={Math.min(percentage, 100)}
-              color={progressColor}
-              sx={{
-                height: 8,
-                borderRadius: 1,
-                bgcolor: (theme) => alpha(theme.palette.grey[500], 0.16),
-                '& .MuiLinearProgress-bar': {
-                  borderRadius: 1,
-                  ...(isCompleted && {
-                    background: (theme) =>
-                      `linear-gradient(90deg, ${theme.palette.success.main}, ${theme.palette.success.light})`,
-                  }),
-                },
-              }}
-            />
-          </Box>
-
-          {/* Remaining/Excess indicator */}
-          {percentage < 100 ? (
-            <Typography
-              variant="caption"
-              sx={{
-                color: 'text.secondary',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
-              }}
-            >
-              <Iconify icon="mdi:target" width={14} />
-              {(target.materialTarget.targetWeight - target.achievedWeight).toLocaleString()} Ton
-              remaining
-            </Typography>
-          ) : (
-            <Typography
-              variant="caption"
-              sx={{
-                color: 'success.main',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
-                fontWeight: 600,
-              }}
-            >
-              <Iconify icon="mdi:check-circle" width={14} />
-              Target achieved! +
-              {(target.achievedWeight - target.materialTarget.targetWeight).toLocaleString()} Ton
-              extra
-            </Typography>
-          )}
-        </Stack>
-      </Box>
-    );
-  };
-
   const renderList = (
-    <Scrollbar sx={{ maxHeight: 400 }}>
+    <Scrollbar sx={{ maxHeight: 480 }}>
       {isLoading ? (
         renderLoading
       ) : targets.length === 0 ? (
         <EmptyContent
           title="No targets set"
           description={`Set your first target for ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`}
-          sx={{ py: 5 }}
+          sx={{ py: 6 }}
           action={
             <Button
               variant="outlined"
@@ -395,9 +509,27 @@ export function LoadingTargetWidget({ sx, ...other }) {
           }
         />
       ) : (
-        <Stack spacing={2} sx={{ p: 2 }}>
-          {targets.map((target) => renderTargetCard(target))}
-        </Stack>
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            p: 2.5,
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+            },
+          }}
+        >
+          {targets.map((target) => (
+            <TargetCardItem
+              key={target._id}
+              target={target}
+              onEdit={handleOpenEdit}
+              onDelete={handleDeleteClick}
+            />
+          ))}
+        </Box>
       )}
     </Scrollbar>
   );
@@ -570,17 +702,29 @@ export function LoadingTargetWidget({ sx, ...other }) {
               sx={{
                 p: 1.5,
                 borderRadius: 1,
-                bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
-                border: (theme) => `1px dashed ${alpha(theme.palette.info.main, 0.24)}`,
+                bgcolor: (theme) =>
+                  alpha(
+                    theme.palette.primary.main,
+                    theme.palette.mode === 'dark' ? 0.12 : 0.06
+                  ),
+                border: (theme) =>
+                  `1px dashed ${alpha(
+                    theme.palette.primary.main,
+                    theme.palette.mode === 'dark' ? 0.35 : 0.24
+                  )}`,
               }}
             >
               <Typography
                 variant="caption"
                 sx={{
-                  color: 'info.main',
+                  color: (theme) =>
+                    theme.palette.mode === 'dark'
+                      ? theme.palette.primary.light
+                      : theme.palette.primary.main,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,
+                  fontWeight: 600,
                 }}
               >
                 <Iconify icon="mdi:calendar" width={16} />

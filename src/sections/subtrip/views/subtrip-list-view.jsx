@@ -210,7 +210,7 @@ export function SubtripListView() {
     },
     {
       value: 'received',
-      label: 'Recieved',
+      label: 'Received',
       color: SUBTRIP_STATUS_COLORS.received || 'success',
       count: statusCounts.received,
     },
