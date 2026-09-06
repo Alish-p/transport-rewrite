@@ -65,18 +65,19 @@ export const NewTransporterSchema = zod
     podCharges: zod.number().min(0, { message: 'POD Charges is required' }),
     isActive: zod.boolean().optional(),
 
-    bankDetails: zod.object({
-      name: zod.string().min(1, { message: 'Bank name is required' }),
-      branch: zod.string().min(1, { message: 'Branch is required' }),
-      ifsc: zod.string().min(1, { message: 'IFSC is required' }),
-      place: zod.string().min(1, { message: 'Place is required' }),
-      accNo: schemaHelper.accountNumber({
-        message: {
-          required_error: 'Account number is required',
-          invalid_error: 'Account number must be between 9 and 18 digits',
-        },
-      }),
-    }),
+    bankDetails: zod
+      .object({
+        name: zod.string().optional(),
+        branch: zod.string().optional(),
+        ifsc: zod.string().optional(),
+        place: zod.string().optional(),
+        accNo: schemaHelper.accountNumberOptional({
+          message: {
+            invalid_error: 'Account number must be between 9 and 18 digits',
+          },
+        }),
+      })
+      .optional(),
   })
   .superRefine((data, ctx) => {
     if (data.gstEnabled && !data.gstNo) {
@@ -472,16 +473,22 @@ function applyGstLookupToTransporterForm({ canonical, setValue, values }) {
   return applied;
 }
 
-// Strip empty strings in bankDetails to undefined
+// Strip empty bankDetails fields to undefined; drop bankDetails if all empty
 function sanitizeTransporterBeforeSubmit(data) {
   const out = { ...data };
   const bd = out?.bankDetails;
   if (bd && typeof bd === 'object') {
     const cleaned = { ...bd };
-    ['name', 'branch', 'ifsc', 'place', 'accNo'].forEach((k) => {
+    const keys = ['name', 'branch', 'ifsc', 'place', 'accNo'];
+    keys.forEach((k) => {
       if (cleaned[k] === '') cleaned[k] = undefined;
     });
-    out.bankDetails = cleaned;
+    const allEmpty = keys.every((k) => cleaned[k] === undefined || cleaned[k] === null);
+    if (allEmpty) {
+      delete out.bankDetails;
+    } else {
+      out.bankDetails = cleaned;
+    }
   }
   return out;
 }
