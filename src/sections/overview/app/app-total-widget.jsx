@@ -17,6 +17,8 @@ export function DashboardTotalWidget({
   total,
   color = 'primary',
   onTotalClick,
+  prefix,
+  formatter,
   sx,
   ...other
 }) {
@@ -64,7 +66,8 @@ export function DashboardTotalWidget({
               }),
             }}
           >
-            {fShortenNumber(total)}
+            {prefix ? `${prefix} ` : ''}
+            {formatter ? formatter(total) : fShortenNumber(total)}
           </Box>
         </Box>
       </Box>

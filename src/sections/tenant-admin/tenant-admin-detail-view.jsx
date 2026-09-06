@@ -1,26 +1,33 @@
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Paper from '@mui/material/Paper';
+import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import Grid from '@mui/material/Unstable_Grid2';
+import TextField from '@mui/material/TextField';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 
-import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { copyToClipboard } from 'src/utils/copy-to-clipboard';
+import { fDate, fToNow, fDateTime } from 'src/utils/format-time';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -31,10 +38,12 @@ import {
   useRecordTenantPayment,
 } from 'src/query/use-tenant-admin';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { HeroHeader } from 'src/components/hero-header-card';
+import { TableNoData, TablePaginationCustom } from 'src/components/table';
 
 import { DashboardTotalWidget } from 'src/sections/overview/app/app-total-widget';
 
@@ -44,6 +53,50 @@ import { TenantUserFormDialog } from './tenant-admin-users';
 import { TenantSubscriptionWidget } from './tenant-subscription-widget';
 import { TenantSubscriptionDialog } from './tenant-subscription-dialog';
 import { TenantRecordPaymentDialog } from './tenant-record-payment-dialog';
+
+const PAYMENT_METHOD_ICONS = {
+  UPI: 'solar:smartphone-bold',
+  BankTransfer: 'solar:banknote-2-bold',
+  Card: 'solar:card-2-bold',
+  Cash: 'solar:wallet-money-bold',
+};
+
+const getPaymentStatusColor = (status) => {
+  const s = String(status || '').toUpperCase();
+  if (s === 'COMPLETED' || s === 'SUCCESS') return 'success';
+  if (s === 'PENDING') return 'warning';
+  if (s === 'FAILED') return 'error';
+  return 'default';
+};
+
+const getLastLoginLabel = (date) => {
+  if (!date) {
+    return { text: 'Never', color: 'default' };
+  }
+  const dateObj = new Date(date);
+  if (Number.isNaN(dateObj.getTime())) {
+    return { text: 'Never', color: 'default' };
+  }
+
+  const diffHours = (Date.now() - dateObj.getTime()) / (1000 * 60 * 60);
+  const diffDays = diffHours / 24;
+
+  let color = 'success';
+  if (diffDays > 30) {
+    color = 'error';
+  } else if (diffDays > 7) {
+    color = 'warning';
+  } else if (diffDays > 1) {
+    color = 'info';
+  } else {
+    color = 'success';
+  }
+
+  const relative = fToNow(dateObj);
+  const text = relative ? `${relative} ago` : 'Recently';
+
+  return { text, color };
+};
 
 export default function TenantAdminDetailView({ tenant, users, stats }) {
   const navigate = useNavigate();
@@ -60,6 +113,42 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const [userFormOpen, setUserFormOpen] = useState(false);
   const [subFormOpen, setSubFormOpen] = useState(false);
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
+
+  // Pagination for Payments
+  const [paymentPage, setPaymentPage] = useState(0);
+  const [paymentRowsPerPage, setPaymentRowsPerPage] = useState(5);
+
+  // Search & Pagination for Users
+  const [userSearch, setUserSearch] = useState('');
+  const [userPage, setUserPage] = useState(0);
+  const [userRowsPerPage, setUserRowsPerPage] = useState(5);
+
+  const sortedPayments = useMemo(() => {
+    const list = [...(localTenant?.paymentHistory || [])];
+    return list.sort((a, b) => new Date(b.paymentDate || 0) - new Date(a.paymentDate || 0));
+  }, [localTenant?.paymentHistory]);
+
+  const paginatedPayments = useMemo(() => {
+    const start = paymentPage * paymentRowsPerPage;
+    return sortedPayments.slice(start, start + paymentRowsPerPage);
+  }, [sortedPayments, paymentPage, paymentRowsPerPage]);
+
+  const filteredUsers = useMemo(() => {
+    if (!userSearch) return localUsers;
+    const q = userSearch.toLowerCase();
+    return localUsers.filter(
+      (u) =>
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.designation?.toLowerCase().includes(q) ||
+        u.mobile?.includes(q)
+    );
+  }, [localUsers, userSearch]);
+
+  const paginatedUsers = useMemo(() => {
+    const start = userPage * userRowsPerPage;
+    return filteredUsers.slice(start, start + userRowsPerPage);
+  }, [filteredUsers, userPage, userRowsPerPage]);
 
   useEffect(() => {
     if (tenant) {
@@ -78,10 +167,16 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const legal = localTenant?.legalInfo || {};
   const bank = localTenant?.bankDetails || {};
 
+  const sub = localTenant?.subscription || stats?.subscription;
+
   const meta = [
     localTenant?.slug ? { icon: 'mdi:label', label: localTenant.slug } : null,
-    contact?.phone ? { icon: 'mdi:phone', label: contact.phone } : null,
-    contact?.email ? { icon: 'mdi:email', label: contact.email } : null,
+    contact?.phone
+      ? { icon: 'mdi:phone', label: contact.phone, href: `tel:${contact.phone}` }
+      : null,
+    contact?.email
+      ? { icon: 'mdi:email', label: contact.email, href: `mailto:${contact.email}` }
+      : null,
     addr?.city || addr?.state || addr?.pincode
       ? {
           icon: 'mdi:map-marker',
@@ -113,7 +208,6 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
       <HeroHeader
         offsetTop={70}
         title={localTenant?.name || 'Tenant'}
-        status={localTenant?.subscription?.planName || stats?.subscription?.planName || 'Active'}
         icon="solar:buildings-2-bold"
         meta={meta}
         actions={[
@@ -138,8 +232,9 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
 
           <Grid xs={12} md={4}>
             <TenantSubscriptionWidget
-              subscription={localTenant?.subscription || stats?.subscription}
+              subscription={sub}
               sx={{ height: 1 }}
+              onRenew={() => setRecordPaymentOpen(true)}
               action={
                 <IconButton onClick={() => setSubFormOpen(true)} size="small">
                   <Iconify icon="solar:pen-bold" />
@@ -154,10 +249,10 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
                 Basic Details
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              <InfoRow label="Name" value={localTenant?.name} />
-              <InfoRow label="Slug" value={localTenant?.slug} />
-              {localTenant?.tagline && <InfoRow label="Tagline" value={localTenant.tagline} />}
-              {localTenant?.theme && <InfoRow label="Theme" value={localTenant.theme} />}
+              <InfoRow label="Name" value={localTenant?.name} copyable />
+              <InfoRow label="Slug" value={localTenant?.slug} copyable />
+              <InfoRow label="Tagline" value={localTenant?.tagline} />
+              <InfoRow label="Theme" value={localTenant?.theme} />
             </Card>
           </Grid>
 
@@ -172,9 +267,9 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
               <InfoRow label="City" value={addr?.city} />
               <InfoRow label="State" value={addr?.state} />
               <InfoRow label="Pincode" value={addr?.pincode} />
-              <InfoRow label="Email" value={contact?.email} />
-              <InfoRow label="Phone" value={contact?.phone} />
-              {contact?.website && <InfoRow label="Website" value={contact.website} />}
+              <InfoRow label="Email" value={contact?.email} isEmail copyable />
+              <InfoRow label="Phone" value={contact?.phone} isPhone copyable />
+              <InfoRow label="Website" value={contact?.website} isLink />
             </Card>
           </Grid>
 
@@ -184,17 +279,17 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
                 Legal & Bank
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              <InfoRow label="PAN" value={legal?.panNumber} />
-              <InfoRow label="GSTIN" value={legal?.gstNumber} />
+              <InfoRow label="PAN" value={legal?.panNumber} copyable />
+              <InfoRow label="GSTIN" value={legal?.gstNumber} copyable />
               <InfoRow label="Registered State" value={legal?.registeredState} />
               <Divider sx={{ my: 1.5 }} />
               <InfoRow label="Bank Name" value={bank?.bankName || bank?.name} />
-              <InfoRow label="IFSC" value={bank?.ifscCode || bank?.ifsc} />
-              <InfoRow label="Account No" value={bank?.accountNumber || bank?.accNo} />
+              <InfoRow label="IFSC" value={bank?.ifscCode || bank?.ifsc} copyable />
+              <InfoRow label="Account No" value={bank?.accountNumber || bank?.accNo} copyable />
             </Card>
           </Grid>
 
-          {/* Totals (reuse DashboardTotalWidget) */}
+          {/* Totals Widgets */}
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
               title="Drivers"
@@ -213,9 +308,9 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
           </Grid>
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
-              title="Jobs"
+              title="Jobs / Trips"
               total={counts?.subtrips ?? 0}
-              color="success"
+              color="warning"
               icon={ICONS.subtrip}
             />
           </Grid>
@@ -223,34 +318,36 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
             <DashboardTotalWidget
               title="Transporters"
               total={counts?.transporters ?? 0}
-              color="warning"
+              color="info"
               icon={ICONS.transporter}
             />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
-              title="TP"
+              title="Transporter Payments"
               total={counts?.transporterPayments ?? 0}
               color="error"
-              icon={ICONS.invoice}
+              icon={<Iconify icon="solar:card-send-bold" width={32} />}
             />
           </Grid>
           <Grid xs={6} sm={4} md={2}>
             <DashboardTotalWidget
-              title="Invoice Generated"
+              title="Invoiced Revenue"
               total={totals?.invoiceGenerated ?? 0}
-              color="error"
-              icon={ICONS.invoice}
+              prefix="₹"
+              color="success"
+              icon={<Iconify icon="solar:bill-check-bold" width={32} />}
             />
           </Grid>
 
+          {/* Payment History Table */}
           <Grid xs={12}>
             <Card sx={{ p: 2.5 }}>
               <Stack
                 direction="row"
                 alignItems="center"
                 justifyContent="space-between"
-                sx={{ mb: 1.5 }}
+                sx={{ mb: 2 }}
               >
                 <Typography variant="h6">Payment History</Typography>
                 <Button
@@ -263,7 +360,7 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
                 </Button>
               </Stack>
               <Divider sx={{ mb: 2 }} />
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
@@ -277,43 +374,76 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {(localTenant?.paymentHistory || []).map((p, idx) => (
-                      <TableRow key={p._id || idx}>
-                        <TableCell>{idx + 1}</TableCell>
-                        <TableCell>{fCurrency(p.amount)}</TableCell>
+                    {paginatedPayments.map((p, idx) => (
+                      <TableRow key={p._id || idx} hover>
+                        <TableCell>{paymentPage * paymentRowsPerPage + idx + 1}</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{fCurrency(p.amount)}</TableCell>
                         <TableCell>{fDate(p.paymentDate)}</TableCell>
-                        <TableCell>{p.paymentMethod}</TableCell>
-                        <TableCell>{p.status || '-'}</TableCell>
-                        <TableCell>{p.notes || '-'}</TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={0.75} alignItems="center">
+                            {PAYMENT_METHOD_ICONS[p.paymentMethod] && (
+                              <Iconify
+                                icon={PAYMENT_METHOD_ICONS[p.paymentMethod]}
+                                width={16}
+                                sx={{ color: 'text.secondary' }}
+                              />
+                            )}
+                            <span>{p.paymentMethod || '—'}</span>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Label color={getPaymentStatusColor(p.status)} variant="soft">
+                            {p.status || 'Completed'}
+                          </Label>
+                        </TableCell>
+                        <TableCell sx={{ maxWidth: 220, color: 'text.secondary' }}>
+                          <Typography variant="body2" noWrap title={p.notes || ''}>
+                            {p.notes || '—'}
+                          </Typography>
+                        </TableCell>
                         <TableCell align="right">
-                          <IconButton
-                            color="primary"
-                            onClick={() => {
-                              setEditPayment(p);
-                              setFormOpen(true);
-                            }}
-                          >
-                            <Iconify icon="solar:pen-bold" />
-                          </IconButton>
-                          <IconButton
-                            color="error"
-                            onClick={() => setConfirm({ open: true, payment: p })}
-                          >
-                            <Iconify icon="solar:trash-bin-trash-bold" />
-                          </IconButton>
+                          <Tooltip title="Edit Payment">
+                            <IconButton
+                              color="primary"
+                              size="small"
+                              onClick={() => {
+                                setEditPayment(p);
+                                setFormOpen(true);
+                              }}
+                            >
+                              <Iconify icon="solar:pen-bold" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete Payment">
+                            <IconButton
+                              color="error"
+                              size="small"
+                              onClick={() => setConfirm({ open: true, payment: p })}
+                            >
+                              <Iconify icon="solar:trash-bin-trash-bold" />
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     ))}
-                    {(!localTenant?.paymentHistory || localTenant.paymentHistory.length === 0) && (
-                      <TableRow>
-                        <TableCell colSpan={7} align="center">
-                          No payments yet
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    <TableNoData notFound={sortedPayments.length === 0} />
                   </TableBody>
                 </Table>
               </TableContainer>
+
+              {sortedPayments.length > 0 && (
+                <TablePaginationCustom
+                  count={sortedPayments.length}
+                  page={paymentPage}
+                  rowsPerPage={paymentRowsPerPage}
+                  onPageChange={(e, newPage) => setPaymentPage(newPage)}
+                  onRowsPerPageChange={(e) => {
+                    setPaymentRowsPerPage(parseInt(e.target.value, 10));
+                    setPaymentPage(0);
+                  }}
+                  rowsPerPageOptions={[5, 10, 25]}
+                />
+              )}
             </Card>
           </Grid>
 
@@ -321,53 +451,169 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
           <Grid xs={12}>
             <Card sx={{ p: 2.5 }}>
               <Stack
-                direction="row"
-                alignItems="center"
+                direction={{ xs: 'column', sm: 'row' }}
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
                 justifyContent="space-between"
-                sx={{ mb: 1.5 }}
+                spacing={2}
+                sx={{ mb: 2 }}
               >
-                <Typography variant="h6">Users</Typography>
-                <Button
-                  size="small"
-                  variant="contained"
-                  startIcon={<Iconify icon="mdi:account-plus" />}
-                  onClick={() => setUserFormOpen(true)}
+                <Typography variant="h6">Users ({filteredUsers.length})</Typography>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ width: { xs: 1, sm: 'auto' } }}
                 >
-                  Add User
-                </Button>
+                  <TextField
+                    size="small"
+                    value={userSearch}
+                    onChange={(e) => {
+                      setUserSearch(e.target.value);
+                      setUserPage(0);
+                    }}
+                    placeholder="Search users..."
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ width: { xs: 1, sm: 240 } }}
+                  />
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<Iconify icon="mdi:account-plus" />}
+                    onClick={() => setUserFormOpen(true)}
+                    sx={{ flexShrink: 0 }}
+                  >
+                    Add User
+                  </Button>
+                </Stack>
               </Stack>
               <Divider sx={{ mb: 2 }} />
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
                       <TableCell>#</TableCell>
-                      <TableCell>Name</TableCell>
+                      <TableCell>User</TableCell>
                       <TableCell>Email</TableCell>
                       <TableCell>Mobile</TableCell>
                       <TableCell>Designation</TableCell>
+                      <TableCell>Role</TableCell>
+                      <TableCell>Last Login</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {(localUsers || []).map((u, idx) => (
-                      <TableRow key={u._id || idx}>
-                        <TableCell>{idx + 1}</TableCell>
-                        <TableCell>{u.name}</TableCell>
-                        <TableCell>{u.email}</TableCell>
-                        <TableCell>{u.mobile}</TableCell>
-                        <TableCell>{u.designation || '-'}</TableCell>
-                      </TableRow>
-                    ))}
-                    {(!localUsers || localUsers.length === 0) && (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          No users found
+                    {paginatedUsers.map((u, idx) => (
+                      <TableRow key={u._id || idx} hover>
+                        <TableCell>{userPage * userRowsPerPage + idx + 1}</TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1.5} alignItems="center">
+                            <Avatar
+                              sx={{
+                                width: 32,
+                                height: 32,
+                                fontSize: 13,
+                                fontWeight: 700,
+                                bgcolor: 'primary.lighter',
+                                color: 'primary.main',
+                              }}
+                            >
+                              {(u.name?.trim()?.[0] || 'U').toUpperCase()}
+                            </Avatar>
+                            <Typography variant="subtitle2">{u.name}</Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={0.5} alignItems="center">
+                            <Link
+                              href={`mailto:${u.email}`}
+                              variant="body2"
+                              sx={{
+                                color: 'text.primary',
+                                fontWeight: 500,
+                                '&:hover': { color: 'primary.main' },
+                              }}
+                            >
+                              {u.email}
+                            </Link>
+                            <Tooltip title="Copy email">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  copyToClipboard(u.email);
+                                  toast.success('Email copied to clipboard');
+                                }}
+                                sx={{ p: 0.5, color: 'text.disabled' }}
+                              >
+                                <Iconify icon="solar:copy-bold" width={14} />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          {u.mobile ? (
+                            <Link
+                              href={`tel:${u.mobile}`}
+                              variant="body2"
+                              sx={{
+                                color: 'text.primary',
+                                fontWeight: 500,
+                                '&:hover': { color: 'primary.main' },
+                              }}
+                            >
+                              {u.mobile}
+                            </Link>
+                          ) : (
+                            '—'
+                          )}
+                        </TableCell>
+                        <TableCell>{u.designation || '—'}</TableCell>
+                        <TableCell>
+                          <Label color={u.role === 'admin' ? 'primary' : 'default'} variant="soft">
+                            {(u.role || 'Member').toUpperCase()}
+                          </Label>
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          {(() => {
+                            const lastLoginDate = u.lastSeen || u.lastLogin || u.lastLoginAt;
+                            const labelInfo = getLastLoginLabel(lastLoginDate);
+                            return lastLoginDate ? (
+                              <Tooltip title={fDateTime(lastLoginDate)} placement="top" arrow>
+                                <Label variant="soft" color={labelInfo.color}>
+                                  {labelInfo.text}
+                                </Label>
+                              </Tooltip>
+                            ) : (
+                              <Label variant="soft" color={labelInfo.color}>
+                                {labelInfo.text}
+                              </Label>
+                            );
+                          })()}
                         </TableCell>
                       </TableRow>
-                    )}
+                    ))}
+                    <TableNoData notFound={filteredUsers.length === 0} />
                   </TableBody>
                 </Table>
               </TableContainer>
+
+              {filteredUsers.length > 0 && (
+                <TablePaginationCustom
+                  count={filteredUsers.length}
+                  page={userPage}
+                  rowsPerPage={userRowsPerPage}
+                  onPageChange={(e, newPage) => setUserPage(newPage)}
+                  onRowsPerPageChange={(e) => {
+                    setUserRowsPerPage(parseInt(e.target.value, 10));
+                    setUserPage(0);
+                  }}
+                  rowsPerPageOptions={[5, 10, 25]}
+                />
+              )}
             </Card>
           </Grid>
         </Grid>
@@ -409,8 +655,12 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
       <ConfirmDialog
         open={confirm.open}
         onClose={() => setConfirm({ open: false, payment: null })}
-        title="Delete Payment?"
-        content="This will remove the payment record."
+        title="Delete Payment Record?"
+        content={
+          confirm.payment
+            ? `Are you sure you want to delete payment of ${fCurrency(confirm.payment.amount)} dated ${fDate(confirm.payment.paymentDate)}? This action cannot be undone.`
+            : 'This will remove the payment record.'
+        }
         action={
           <Button
             variant="contained"
@@ -461,16 +711,81 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   );
 }
 
-function InfoRow({ label, value }) {
-  if (!value && value !== 0) return null;
+function InfoRow({ label, value, copyable, isPhone, isEmail, isLink }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!value) return;
+    await copyToClipboard(String(value));
+    setCopied(true);
+    toast.success(`${label} copied to clipboard`);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const hasValue = value != null && value !== '';
+
   return (
-    <Stack direction="row" spacing={1} sx={{ py: 0.5 }}>
+    <Stack direction="row" spacing={1} alignItems="center" sx={{ py: 0.5 }}>
       <Typography variant="body2" sx={{ color: 'text.secondary', minWidth: 140 }}>
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-        {String(value)}
-      </Typography>
+
+      {!hasValue ? (
+        <Typography variant="body2" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+          —
+        </Typography>
+      ) : (
+        <Stack
+          direction="row"
+          spacing={0.5}
+          alignItems="center"
+          sx={{ minWidth: 0, flexWrap: 'wrap' }}
+        >
+          {isPhone ? (
+            <Link
+              href={`tel:${value}`}
+              variant="body2"
+              sx={{ fontWeight: 600, color: 'text.primary', '&:hover': { color: 'primary.main' } }}
+            >
+              {String(value)}
+            </Link>
+          ) : isEmail ? (
+            <Link
+              href={`mailto:${value}`}
+              variant="body2"
+              sx={{ fontWeight: 600, color: 'text.primary', '&:hover': { color: 'primary.main' } }}
+            >
+              {String(value)}
+            </Link>
+          ) : isLink ? (
+            <Link
+              href={String(value).startsWith('http') ? value : `https://${value}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="body2"
+              sx={{ fontWeight: 600, color: 'primary.main' }}
+            >
+              {String(value)}
+            </Link>
+          ) : (
+            <Typography variant="body2" sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
+              {String(value)}
+            </Typography>
+          )}
+
+          {copyable && hasValue && (
+            <Tooltip title={copied ? 'Copied!' : `Copy ${label}`}>
+              <IconButton
+                size="small"
+                onClick={handleCopy}
+                sx={{ p: 0.5, color: copied ? 'success.main' : 'text.disabled' }}
+              >
+                <Iconify icon={copied ? 'solar:check-circle-bold' : 'solar:copy-bold'} width={15} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
+      )}
     </Stack>
   );
 }
