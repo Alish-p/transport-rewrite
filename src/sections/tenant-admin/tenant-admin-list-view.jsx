@@ -12,7 +12,7 @@ import TableContainer from '@mui/material/TableContainer';
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteTenant, usePaginatedTenants } from 'src/query/use-tenant-admin';
+import { useDeleteTenant, usePaginatedTenants, useRecordTenantPayment } from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -27,6 +27,7 @@ import {
 
 import TenantAdminTableRow from './tenant-admin-table-row';
 import { TENANT_TABLE_HEADERS } from './tenant-admin-table-config';
+import { TenantRecordPaymentDialog } from './tenant-record-payment-dialog';
 
 export default function TenantAdminListView() {
   const navigate = useNavigate();
@@ -42,11 +43,13 @@ export default function TenantAdminListView() {
 
   const { data, isLoading } = usePaginatedTenants(params);
   const { deleteTenant } = useDeleteTenant();
+  const { recordTenantPayment } = useRecordTenantPayment();
 
   const tenants = data?.tenants || [];
   const total = data?.total || 0;
 
   const [confirm, setConfirm] = useState({ open: false, id: null });
+  const [recordPaymentTenant, setRecordPaymentTenant] = useState(null);
   const handleDelete = (id) => setConfirm({ open: true, id });
   const closeConfirm = () => setConfirm({ open: false, id: null });
   const confirmDelete = async () => {
@@ -101,6 +104,7 @@ export default function TenantAdminListView() {
                         row={t}
                         onViewRow={() => navigate(paths.dashboard.tenants.details(t._id))}
                         onEditRow={() => navigate(paths.dashboard.tenants.edit(t._id))}
+                        onRecordPayment={(row) => setRecordPaymentTenant(row)}
                         onDeleteRow={() => handleDelete(t._id)}
                       />
                     ))}
@@ -134,6 +138,18 @@ export default function TenantAdminListView() {
           </Button>
         }
       />
+
+      {recordPaymentTenant && (
+        <TenantRecordPaymentDialog
+          open={Boolean(recordPaymentTenant)}
+          onClose={() => setRecordPaymentTenant(null)}
+          tenant={recordPaymentTenant}
+          onSubmit={async (values) => {
+            await recordTenantPayment({ tenantId: recordPaymentTenant._id, payload: values });
+            setRecordPaymentTenant(null);
+          }}
+        />
+      )}
     </DashboardContent>
   );
 }

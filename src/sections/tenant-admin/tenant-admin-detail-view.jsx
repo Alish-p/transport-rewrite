@@ -28,6 +28,7 @@ import {
   useTenantPayments,
   useCreateTenantUser,
   useUpdateTenantById,
+  useRecordTenantPayment,
 } from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
@@ -41,12 +42,14 @@ import { PaymentFormDialog } from './tenant-admin-payments';
 import { TenantUserFormDialog } from './tenant-admin-users';
 import { TenantSubscriptionWidget } from './tenant-subscription-widget';
 import { TenantSubscriptionDialog } from './tenant-subscription-dialog';
+import { TenantRecordPaymentDialog } from './tenant-record-payment-dialog';
 
 export default function TenantAdminDetailView({ tenant, users, stats }) {
   const navigate = useNavigate();
   const { addPayment, updatePayment, deletePayment } = useTenantPayments();
   const { createTenantUser } = useCreateTenantUser();
   const { updateTenantById } = useUpdateTenantById();
+  const { recordTenantPayment } = useRecordTenantPayment();
 
   const [localTenant, setLocalTenant] = useState(tenant);
   const [localUsers, setLocalUsers] = useState(users || []);
@@ -55,6 +58,7 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const [confirm, setConfirm] = useState({ open: false, payment: null });
   const [userFormOpen, setUserFormOpen] = useState(false);
   const [subFormOpen, setSubFormOpen] = useState(false);
+  const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
 
   const addr = localTenant?.address || {};
   const contact = localTenant?.contactDetails || {};
@@ -230,13 +234,10 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
                 <Button
                   size="small"
                   variant="contained"
-                  startIcon={<Iconify icon="mingcute:add-line" />}
-                  onClick={() => {
-                    setEditPayment(null);
-                    setFormOpen(true);
-                  }}
+                  startIcon={<Iconify icon="solar:card-send-bold" />}
+                  onClick={() => setRecordPaymentOpen(true)}
                 >
-                  Add Payment
+                  Record Payment
                 </Button>
               </Stack>
               <Divider sx={{ mb: 2 }} />
@@ -417,6 +418,21 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
           });
           setLocalTenant(updated);
           setSubFormOpen(false);
+        }}
+      />
+
+      {/* Record Payment & Plan Extension Dialog */}
+      <TenantRecordPaymentDialog
+        open={recordPaymentOpen}
+        onClose={() => setRecordPaymentOpen(false)}
+        tenant={localTenant}
+        onSubmit={async (values) => {
+          const updated = await recordTenantPayment({
+            tenantId: localTenant._id,
+            payload: values,
+          });
+          if (updated) setLocalTenant(updated);
+          setRecordPaymentOpen(false);
         }}
       />
     </DashboardContent>

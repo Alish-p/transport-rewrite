@@ -51,6 +51,11 @@ const deletePayment = async ({ tenantId, paymentId }) => {
   return data; // returns updated tenant
 };
 
+const recordPayment = async ({ tenantId, payload }) => {
+  const { data } = await axios.post(`${ENDPOINT}/${tenantId}/record-payment`, payload);
+  return data; // returns updated tenant
+};
+
 // Users (Superuser creates user for a specific tenant)
 const createTenantUser = async ({ tenantId, user }) => {
   // Do not include permissions; server grants full permissions for superuser-created accounts
@@ -171,6 +176,30 @@ export function useTenantPayments() {
     isAddingPayment: add.isPending,
     isUpdatingPayment: update.isPending,
     isDeletingPayment: remove.isPending,
+  };
+}
+
+export function useRecordTenantPayment() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: recordPayment,
+    onSuccess: (updatedTenant) => {
+      queryClient.invalidateQueries([QUERY_KEY]);
+      if (updatedTenant?._id) {
+        queryClient.setQueryData([QUERY_KEY, updatedTenant._id], updatedTenant);
+      }
+      toast.success('Payment recorded and plan validity extended');
+    },
+    onError: (error) => {
+      const errorMessage = error?.message || 'Failed to record payment';
+      toast.error(errorMessage);
+    },
+  });
+
+  return {
+    recordTenantPayment: mutation.mutateAsync,
+    isRecordingPayment: mutation.isPending,
   };
 }
 

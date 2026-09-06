@@ -13,7 +13,13 @@ import { paths } from 'src/routes/paths';
 import { Iconify } from 'src/components/iconify';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
-export default function TenantAdminTableRow({ row, onViewRow, onEditRow, onDeleteRow }) {
+export default function TenantAdminTableRow({
+  row,
+  onViewRow,
+  onEditRow,
+  onDeleteRow,
+  onRecordPayment,
+}) {
   const popover = usePopover();
   const navigate = useNavigate();
 
@@ -25,6 +31,10 @@ export default function TenantAdminTableRow({ row, onViewRow, onEditRow, onDelet
   const handleEdit = () => {
     if (onEditRow) onEditRow(row._id);
     else navigate(paths.dashboard.tenants.edit(row._id));
+  };
+
+  const handleRecordPayment = () => {
+    if (onRecordPayment) onRecordPayment(row);
   };
 
   const handleDelete = () => {
@@ -74,6 +84,15 @@ export default function TenantAdminTableRow({ row, onViewRow, onEditRow, onDelet
           >
             <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleRecordPayment();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:card-send-bold" />
+            Record Payment
           </MenuItem>
           <MenuItem
             onClick={() => {
