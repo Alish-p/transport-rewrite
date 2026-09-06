@@ -68,10 +68,16 @@ export function AccountPopover({ data = [], sx, ...other }) {
 
             const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
 
+            const getHref = () => {
+              if (option.label === 'Home') return rootHref;
+              if (option.label === 'Profile') return paths.dashboard.user.details(user?._id);
+              return option.href;
+            };
+
             return (
               <MenuItem
                 key={option.label}
-                onClick={() => handleClickItem(option.label === 'Home' ? rootHref : option.href)}
+                onClick={() => handleClickItem(getHref())}
                 sx={{
                   py: 1,
                   color: 'text.secondary',
