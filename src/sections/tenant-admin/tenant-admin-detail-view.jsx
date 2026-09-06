@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -38,6 +38,7 @@ import { HeroHeader } from 'src/components/hero-header-card';
 
 import { DashboardTotalWidget } from 'src/sections/overview/app/app-total-widget';
 
+import TenantLogoCardAdmin from './tenant-logo-card-admin';
 import { PaymentFormDialog } from './tenant-admin-payments';
 import { TenantUserFormDialog } from './tenant-admin-users';
 import { TenantSubscriptionWidget } from './tenant-subscription-widget';
@@ -59,6 +60,18 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const [userFormOpen, setUserFormOpen] = useState(false);
   const [subFormOpen, setSubFormOpen] = useState(false);
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false);
+
+  useEffect(() => {
+    if (tenant) {
+      setLocalTenant(tenant);
+    }
+  }, [tenant]);
+
+  useEffect(() => {
+    if (users) {
+      setLocalUsers(users);
+    }
+  }, [users]);
 
   const addr = localTenant?.address || {};
   const contact = localTenant?.contactDetails || {};
@@ -114,11 +127,19 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
 
       <Box sx={{ mt: 3 }}>
         <Grid container spacing={3}>
-          {/* Subscription Widget */}
-          <Grid xs={12} md={3}>
+          {/* Row 1: Identity, Subscription & Basic Details */}
+          <Grid xs={12} md={4}>
+            <TenantLogoCardAdmin
+              tenant={localTenant}
+              onUpdated={(updated) => setLocalTenant(updated)}
+              sx={{ height: 1 }}
+            />
+          </Grid>
+
+          <Grid xs={12} md={4}>
             <TenantSubscriptionWidget
               subscription={localTenant?.subscription || stats?.subscription}
-              sx={{ height: 380 }}
+              sx={{ height: 1 }}
               action={
                 <IconButton onClick={() => setSubFormOpen(true)} size="small">
                   <Iconify icon="solar:pen-bold" />
@@ -127,8 +148,8 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
             />
           </Grid>
 
-          <Grid xs={12} md={3}>
-            <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
+          <Grid xs={12} md={4}>
+            <Card sx={{ p: 2.5, height: 1 }}>
               <Typography variant="h6" sx={{ mb: 1.5 }}>
                 Basic Details
               </Typography>
@@ -140,8 +161,9 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
             </Card>
           </Grid>
 
-          <Grid xs={12} md={3}>
-            <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
+          {/* Row 2: Address & Contact, Legal & Bank Details */}
+          <Grid xs={12} md={6}>
+            <Card sx={{ p: 2.5, height: 1 }}>
               <Typography variant="h6" sx={{ mb: 1.5 }}>
                 Address & Contact
               </Typography>
@@ -156,8 +178,8 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
             </Card>
           </Grid>
 
-          <Grid xs={12} md={3}>
-            <Card sx={{ p: 2.5, height: 380, overflow: 'auto' }}>
+          <Grid xs={12} md={6}>
+            <Card sx={{ p: 2.5, height: 1 }}>
               <Typography variant="h6" sx={{ mb: 1.5 }}>
                 Legal & Bank
               </Typography>

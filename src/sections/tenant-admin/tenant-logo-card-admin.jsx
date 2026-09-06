@@ -26,7 +26,7 @@ function getExtension(file) {
   return map[file.type] || '';
 }
 
-export default function TenantLogoCardAdmin({ tenant, onUpdated }) {
+export default function TenantLogoCardAdmin({ tenant, onUpdated, sx, ...other }) {
   const [isUploading, setUploading] = useState(false);
   const [isSaving, setSaving] = useState(false);
   const [localFile, setLocalFile] = useState(null);
@@ -96,7 +96,7 @@ export default function TenantLogoCardAdmin({ tenant, onUpdated }) {
   };
 
   return (
-    <Card>
+    <Card sx={sx} {...other}>
       <CardHeader title="Branding" subheader="Upload company logo" sx={{ mb: 1 }} />
       <Divider />
       <Stack spacing={2} alignItems="flex-start" sx={{ p: 3 }}>
