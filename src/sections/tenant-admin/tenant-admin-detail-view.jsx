@@ -170,7 +170,6 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const sub = localTenant?.subscription || stats?.subscription;
 
   const meta = [
-    localTenant?.slug ? { icon: 'mdi:label', label: localTenant.slug } : null,
     contact?.phone
       ? { icon: 'mdi:phone', label: contact.phone, href: `tel:${contact.phone}` }
       : null,
@@ -250,7 +249,6 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <InfoRow label="Name" value={localTenant?.name} copyable />
-              <InfoRow label="Slug" value={localTenant?.slug} copyable />
               <InfoRow label="Tagline" value={localTenant?.tagline} />
               <InfoRow label="Theme" value={localTenant?.theme} />
             </Card>

@@ -84,7 +84,7 @@ export default function TenantAdminListView() {
           <TextField
             fullWidth
             label="Search tenants"
-            placeholder="Name, slug, address..."
+            placeholder="Name, city, address..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

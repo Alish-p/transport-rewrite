@@ -49,7 +49,6 @@ export default function TenantAdminTableRow({
             {row?.name}
           </Link>
         </TableCell>
-        <TableCell>{row?.slug}</TableCell>
         <TableCell>{row?.address?.city || '-'}</TableCell>
         <TableCell>{row?.contactDetails?.phone || '-'}</TableCell>
         <TableCell>{row?.contactDetails?.email || '-'}</TableCell>

@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { LoadingButton } from '@mui/lab';
@@ -38,7 +38,6 @@ import TenantLogoCardAdmin from './tenant-logo-card-admin';
 export const TenantAdminSchema = zod
   .object({
     name: zod.string().min(1, { message: 'Name is required' }),
-    slug: zod.string().min(1, { message: 'Slug is required' }),
     tagline: zod.string().optional(),
     theme: zod.string().optional(),
     address: zod
@@ -132,7 +131,6 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
   const defaultValues = useMemo(
     () => ({
       name: currentTenant?.name || '',
-      slug: currentTenant?.slug || '',
       tagline: currentTenant?.tagline || '',
       theme: currentTenant?.theme || 'default',
       address: {
@@ -192,23 +190,6 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
   } = methods;
   const values = watch();
   const bankDialog = useBoolean();
-
-  // Helper to generate slug from name (lowercase and hyphenated)
-  const slugify = (str) =>
-    (str || '')
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-
-  // Auto-generate slug from name while creating (slug is immutable after creation)
-  const watchName = watch('name');
-  useEffect(() => {
-    if (!isEditing) {
-      setValue('slug', slugify(watchName), { shouldValidate: true, shouldDirty: true });
-    }
-  }, [watchName, isEditing, setValue]);
 
   const onSubmit = handleSubmit(async (data) => {
     // Clean nested optional objects by removing empty strings
@@ -277,11 +258,6 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
           }
         : undefined,
     };
-
-    // Slug is immutable. Only include during creation.
-    if (!isEditing) {
-      payload.slug = data.slug;
-    }
 
     if (currentTenant?._id) {
       const updated = await updateTenantById({ id: currentTenant._id, data: payload });
@@ -390,16 +366,6 @@ export default function TenantAdminForm({ currentTenant, onSaved }) {
           <Divider />
           <Stack spacing={3} sx={{ p: 3 }}>
             <Field.Text name="name" label="Company name" />
-            <Field.Text
-              name="slug"
-              label="Slug"
-              disabled
-              helperText={
-                isEditing
-                  ? 'Slug is locked after creation'
-                  : 'Auto-generated from name; locked after creation'
-              }
-            />
             <Field.Text name="tagline" label="Tagline" />
           </Stack>
         </Card>

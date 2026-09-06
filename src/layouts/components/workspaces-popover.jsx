@@ -136,7 +136,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
 
               return (
                 <MenuItem
-                  key={companyId || company.slug}
+                  key={companyId || company.name}
                   selected={isActive}
                   disabled={isSwitching}
                   onClick={() => handleSwitchTenant(companyId)}

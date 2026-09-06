@@ -49,14 +49,14 @@ Base path: relative to `CONFIG.site.serverUrl`
 Tenants (Superuser)
 - Create tenant
   - `POST /api/tenants`
-  - Body follows `entities/tenant/tenant.model.js` (e.g., `name`, `slug`, `address`, `contactDetails`, `legalInfo`, ...).
+  - Body follows `entities/tenant/tenant.model.js` (e.g., `name`, `address`, `contactDetails`, `legalInfo`, ...).
 
 - List tenants
   - `GET /api/tenants?search=<text>&page=<n>&limit=<n>`
   - Response example:
     ```json
     {
-      "tenants": [{ "_id": "...", "name": "...", "slug": "..." }],
+      "tenants": [{ "_id": "...", "name": "..." }],
       "total": 123,
       "page": 1,
       "limit": 10
@@ -156,7 +156,7 @@ const { data, isLoading } = usePaginatedTenants({ search, page: 1, limit: 10 });
 
 // Create
 const { createTenant } = useCreateTenant();
-await createTenant({ name: 'Acme', slug: 'acme' });
+await createTenant({ name: 'Acme' });
 
 // Update
 const { updateTenantById } = useUpdateTenantById();
@@ -177,7 +177,7 @@ List view:
 
 Create view:
 - `src/sections/tenant-admin/tenant-admin-create-view.jsx:1`
-  - Form for `name`, `slug`, `address`, `contactDetails`, `legalInfo`.
+  - Form for `name`, `address`, `contactDetails`, `legalInfo`.
 
 Edit view:
 - `src/sections/tenant-admin/tenant-admin-edit-view.jsx:1`
@@ -200,7 +200,7 @@ Tenant-scoped (unchanged):
 ## Validation Rules
 
 Tenant (admin form):
-- Requires `name` and `slug`.
+- Requires `name`.
 - Optional nested objects cleaned to `undefined` when empty to avoid noisy updates.
 
 Payment:
@@ -226,8 +226,8 @@ Navigation & Access
 - Direct navigation to `/dashboard/tenants` denies access for non-super users.
 
 Tenants CRUD
-- Create a tenant with minimal fields (name, slug) succeeds.
-- Listing shows search working across name/slug/address.
+- Create a tenant with minimal fields (name) succeeds.
+- Listing shows search working across name/city/address.
 - Edit updates fields; re-fetch shows persisted values.
 - Delete removes from listing and shows success toast.
 

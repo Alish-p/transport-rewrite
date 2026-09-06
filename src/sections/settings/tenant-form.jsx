@@ -23,7 +23,6 @@ import TenantLogoCard from './tenant-logo-card';
 export const TenantSchema = zod
   .object({
     name: zod.string().min(1, { message: 'Name is required' }),
-    slug: zod.string().min(1, { message: 'Slug is required' }),
     tagline: zod.string().optional(),
     theme: zod.string().optional(),
     address: zod.object({
@@ -212,7 +211,6 @@ export default function TenantForm({ currentTenant }) {
   const defaultValues = useMemo(
     () => ({
       name: currentTenant?.name || '',
-      slug: currentTenant?.slug || '',
       tagline: currentTenant?.tagline || '',
       theme: currentTenant?.theme || 'default',
       address: {
@@ -443,7 +441,6 @@ export default function TenantForm({ currentTenant }) {
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="name" label="Name" />
-        <Field.Text name="slug" label="Slug" disabled />
         <Field.Text name="tagline" label="Tagline" />
       </Stack>
     </Card>
