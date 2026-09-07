@@ -2,6 +2,8 @@ import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
+import { CONFIG } from 'src/config-global';
+import { STORAGE_KEY } from 'src/auth/context/jwt/constant';
 
 const ENDPOINT = '/api/whatsapp';
 const QUERY_KEY = 'whatsapp';
@@ -28,7 +30,12 @@ const markAsRead = async (conversationId) => {
 };
 
 export function getMediaProxyUrl(mediaId) {
-  return `${axios.defaults.baseURL}${ENDPOINT}/media/${mediaId}`;
+  if (!mediaId) return '';
+  const base = (CONFIG.site.serverUrl || '').replace(/\/+$/, '');
+  const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+  const cleanToken = token ? token.replace(/^"|"$/g, '') : null;
+  const query = cleanToken ? `?token=${encodeURIComponent(cleanToken)}` : '';
+  return `${base}${ENDPOINT}/media/${mediaId}${query}`;
 }
 
 // Hooks
