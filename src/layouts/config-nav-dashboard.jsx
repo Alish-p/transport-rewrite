@@ -74,6 +74,12 @@ export const navData = [
         icon: <Iconify icon="mdi:map-marker-radius" />,
         info: 'New',
       },
+      {
+        title: 'WhatsApp',
+        path: paths.dashboard.whatsapp,
+        icon: <Iconify icon="ic:baseline-whatsapp" />,
+        roles: ['super'],
+      },
     ],
   },
 

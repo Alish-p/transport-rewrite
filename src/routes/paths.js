@@ -85,6 +85,7 @@ export const paths = {
   dashboard: {
     root: ROOTS.DASHBOARD,
     liveTracking: `${ROOTS.DASHBOARD}/live-tracking`,
+    whatsapp: `${ROOTS.DASHBOARD}/whatsapp`,
     mail: `${ROOTS.DASHBOARD}/mail`,
     chat: `${ROOTS.DASHBOARD}/chat`,
     blank: `${ROOTS.DASHBOARD}/blank`,

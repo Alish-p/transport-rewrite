@@ -18,6 +18,9 @@ const IndexPage = lazy(() => import('src/pages/dashboard'));
 // Live Tracking
 const LiveTrackingPage = lazy(() => import('src/sections/live-tracking/live-tracking-view'));
 
+// WhatsApp
+const WhatsAppInboxPage = lazy(() => import('src/sections/whatsapp/view/whatsapp-inbox-view'));
+
 // Vehicle
 const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
 const VehicleListPage = lazy(() => import('src/pages/dashboard/vehicle/list'));
@@ -238,6 +241,7 @@ export const dashboardRoutes = [
     children: [
       { element: <IndexPage />, index: true },
       { path: 'live-tracking', element: <LiveTrackingPage /> },
+      { path: 'whatsapp', element: <WhatsAppInboxPage /> },
 
       {
         path: 'vehicle',
