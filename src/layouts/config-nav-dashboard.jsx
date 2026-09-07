@@ -74,12 +74,6 @@ export const navData = [
         icon: <Iconify icon="mdi:map-marker-radius" />,
         info: 'New',
       },
-      {
-        title: 'WhatsApp',
-        path: paths.dashboard.whatsapp,
-        icon: <Iconify icon="ic:baseline-whatsapp" />,
-        roles: ['super'],
-      },
     ],
   },
 
@@ -416,6 +410,12 @@ export const navData = [
           { title: 'List', path: paths.dashboard.tenants.root },
           { title: 'Create', path: paths.dashboard.tenants.new },
         ],
+      },
+      {
+        title: 'WhatsApp',
+        path: paths.dashboard.whatsapp,
+        icon: <Iconify icon="ic:baseline-whatsapp" />,
+        roles: ['super'],
       },
     ],
   },
