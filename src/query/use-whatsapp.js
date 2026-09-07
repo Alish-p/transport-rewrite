@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
 
@@ -53,6 +53,30 @@ export function useWhatsAppMessages(conversationId, params, options = {}) {
   });
 }
 
+export function useWhatsAppInfiniteMessages(conversationId, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite-messages', conversationId],
+    queryFn: async ({ pageParam = null }) => {
+      const params = { limit: 50 };
+      if (pageParam) {
+        params.before = pageParam;
+      }
+      return getConversationMessages(conversationId, params);
+    },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => {
+      const msgs = lastPage?.data || [];
+      if (!msgs.length || msgs.length < 50) {
+        return undefined;
+      }
+      return msgs[0]?.timestamp || msgs[0]?.createdAt || undefined;
+    },
+    enabled: !!conversationId,
+    refetchInterval: 3000,
+    ...options,
+  });
+}
+
 export function useSendWhatsAppMessage() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
@@ -61,6 +85,7 @@ export function useSendWhatsAppMessage() {
       toast.success('Message sent successfully!');
       queryClient.invalidateQueries([QUERY_KEY, 'conversations']);
       queryClient.invalidateQueries([QUERY_KEY, 'messages']);
+      queryClient.invalidateQueries([QUERY_KEY, 'infinite-messages']);
     },
     onError: (error) => {
       const errorMessage = error?.message || 'Failed to send message';

@@ -131,7 +131,7 @@ export function WhatsAppMessageItem({ message, onImageClick }) {
               lineHeight: 1,
             }}
           >
-            {fTime(createdAt)}
+            {fTime(message.timestamp || createdAt)}
           </Typography>
           {isOutbound && (
             <Iconify icon={statusIcon.icon} width={14} sx={{ color: statusIcon.color }} />

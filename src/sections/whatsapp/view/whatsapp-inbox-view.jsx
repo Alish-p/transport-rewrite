@@ -7,7 +7,7 @@ import { useSearchParams } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import {
-  useWhatsAppMessages,
+  useWhatsAppInfiniteMessages,
   useWhatsAppConversations,
   useMarkConversationAsRead,
 } from 'src/query/use-whatsapp';
@@ -49,9 +49,15 @@ export default function WhatsAppInboxView() {
   // Find the selected conversation object
   const selectedConversation = conversations.find((c) => c._id === selectedConversationId) || null;
 
-  // Fetch messages for selected conversation
-  const messagesQuery = useWhatsAppMessages(selectedConversationId);
-  const messages = messagesQuery.data?.data || [];
+  // Fetch messages with infinite scrolling for selected conversation
+  const infiniteMessagesQuery = useWhatsAppInfiniteMessages(selectedConversationId);
+  const messages = useMemo(() => {
+    if (!infiniteMessagesQuery.data?.pages) return [];
+    return infiniteMessagesQuery.data.pages
+      .slice()
+      .reverse()
+      .flatMap((page) => page?.data || []);
+  }, [infiniteMessagesQuery.data]);
 
   // Deep-link: auto-select conversation by ?phone= query param on mount
   useEffect(() => {
@@ -124,7 +130,14 @@ export default function WhatsAppInboxView() {
         }
         messages={
           selectedConversation ? (
-            <WhatsAppMessageList conversationId={selectedConversationId} />
+            <WhatsAppMessageList
+              conversationId={selectedConversationId}
+              messages={messages}
+              isLoading={infiniteMessagesQuery.isLoading}
+              isFetchingNextPage={infiniteMessagesQuery.isFetchingNextPage}
+              hasNextPage={infiniteMessagesQuery.hasNextPage}
+              fetchNextPage={infiniteMessagesQuery.fetchNextPage}
+            />
           ) : (
             <WhatsAppEmptyConversation />
           )
