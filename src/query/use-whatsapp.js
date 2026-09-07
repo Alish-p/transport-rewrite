@@ -2,7 +2,9 @@ import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 
 import axios from 'src/utils/axios';
+
 import { CONFIG } from 'src/config-global';
+
 import { STORAGE_KEY } from 'src/auth/context/jwt/constant';
 
 const ENDPOINT = '/api/whatsapp';

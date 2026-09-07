@@ -7,9 +7,9 @@ import { useSearchParams } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import {
-  useWhatsAppInfiniteMessages,
   useWhatsAppConversations,
   useMarkConversationAsRead,
+  useWhatsAppInfiniteMessages,
 } from 'src/query/use-whatsapp';
 
 import { WhatsAppNav } from './whatsapp-nav';
