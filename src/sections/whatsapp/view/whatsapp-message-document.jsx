@@ -1,8 +1,8 @@
 import { Box, Card, Stack, Typography } from '@mui/material';
 
-import { Iconify } from 'src/components/iconify';
-
 import { getMediaProxyUrl } from 'src/query/use-whatsapp';
+
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

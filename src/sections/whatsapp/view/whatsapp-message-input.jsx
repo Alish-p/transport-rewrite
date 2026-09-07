@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 
-import { Alert, CircularProgress, IconButton, InputBase, Stack, Typography } from '@mui/material';
-
-import { Iconify } from 'src/components/iconify';
+import { Alert, Stack, InputBase, IconButton, Typography, CircularProgress } from '@mui/material';
 
 import { useSendWhatsAppMessage } from 'src/query/use-whatsapp';
+
+import { Iconify } from 'src/components/iconify';
 
 import { isReplyWindowOpen } from '../utils/whatsapp-formatter';
 

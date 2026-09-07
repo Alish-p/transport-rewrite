@@ -1,4 +1,5 @@
 import { Stack, Typography } from '@mui/material';
+
 import { Iconify } from 'src/components/iconify';
 
 export function WhatsAppEmptyConversation() {

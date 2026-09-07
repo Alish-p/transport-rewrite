@@ -1,4 +1,4 @@
-import { Avatar, Box, Chip, IconButton, InputBase, Skeleton, Stack } from '@mui/material';
+import { Box, Chip, Stack, Skeleton, InputBase, IconButton } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';

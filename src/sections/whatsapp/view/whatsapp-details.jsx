@@ -1,24 +1,24 @@
 import { useMemo, useState } from 'react';
 
 import {
-  Avatar,
   Box,
-  Divider,
-  ImageList,
-  ImageListItem,
   Link,
   Stack,
+  Avatar,
+  Divider,
+  ImageList,
   Typography,
+  ImageListItem,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
-import { Iconify } from 'src/components/iconify';
+import { getMediaProxyUrl } from 'src/query/use-whatsapp';
+
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Lightbox } from 'src/components/lightbox';
 import { Scrollbar } from 'src/components/scrollbar';
-
-import { getMediaProxyUrl } from 'src/query/use-whatsapp';
 
 import { formatPhoneDisplay } from '../utils/whatsapp-formatter';
 

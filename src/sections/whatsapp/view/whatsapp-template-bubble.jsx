@@ -1,8 +1,9 @@
-import { Box, Typography, Divider, Stack } from '@mui/material';
-import { parseWhatsAppMarkdown } from '../utils/whatsapp-formatter';
-import { reconstructTemplateText, getTemplateButtons } from '../utils/template-registry';
+import { Box, Stack, Divider, Typography } from '@mui/material';
 
-export function WhatsAppTemplateBubble({ templateName, templateComponents, rawPayload }) {
+import { parseWhatsAppMarkdown } from '../utils/whatsapp-formatter';
+import { getTemplateButtons, reconstructTemplateText } from '../utils/template-registry';
+
+export function WhatsAppTemplateBubble({ templateName, templateComponents }) {
   const bodyText = reconstructTemplateText(templateName, templateComponents);
   const buttons = getTemplateButtons(templateName, templateComponents);
 
@@ -10,12 +11,12 @@ export function WhatsAppTemplateBubble({ templateName, templateComponents, rawPa
     <Stack spacing={1.5}>
       <Box>
         {bodyText.split('\n').map((line, i) => (
-          <Typography 
-            key={i} 
-            variant="body2" 
-            sx={{ 
+          <Typography
+            key={i}
+            variant="body2"
+            sx={{
               minHeight: line.trim() === '' ? '0.75em' : 'auto',
-              whiteSpace: 'pre-line' 
+              whiteSpace: 'pre-line'
             }}
           >
             {parseWhatsAppMarkdown(line)}

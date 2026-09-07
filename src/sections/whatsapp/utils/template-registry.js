@@ -30,7 +30,7 @@ export function reconstructTemplateText(templateName, templateComponents) {
       if (param.type === 'text') val = param.text;
       if (param.type === 'currency') val = param.currency?.fallback_value || '';
       if (param.type === 'date_time') val = param.date_time?.fallback_value || '';
-      
+
       text = text.replace(`{{${index + 1}}}`, val);
     });
   }
@@ -38,13 +38,13 @@ export function reconstructTemplateText(templateName, templateComponents) {
   return text;
 }
 
-export function getTemplateButtons(templateName, templateComponents) {
+export function getTemplateButtons(templateName) {
   const template = TEMPLATE_REGISTRY[templateName];
   if (!template || !template.buttons) return [];
   return template.buttons;
 }
 
-export function getTemplateSnippet(templateName, templateComponents) {
+export function getTemplateSnippet(templateName) {
   const template = TEMPLATE_REGISTRY[templateName];
   if (!template) return `Template: ${templateName}`;
   return template.snippetPrefix ? `${template.snippetPrefix}` : `Template: ${templateName}`;

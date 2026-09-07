@@ -1,7 +1,7 @@
-import { Avatar, Divider, IconButton, Stack, Typography } from '@mui/material';
+import { Stack, Avatar, Divider, IconButton, Typography } from '@mui/material';
 
-import { Iconify } from 'src/components/iconify';
 import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 
 import { formatPhoneDisplay } from '../utils/whatsapp-formatter';
 

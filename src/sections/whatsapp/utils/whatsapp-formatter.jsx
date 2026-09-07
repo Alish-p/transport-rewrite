@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { getTemplateSnippet } from './template-registry';
 
 export function parseWhatsAppMarkdown(text) {

@@ -1,10 +1,10 @@
-import { Avatar, ListItemButton, Stack, Typography } from '@mui/material';
+import { Stack, Avatar, Typography, ListItemButton } from '@mui/material';
 
 import { fToNow } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 
-import { formatMessageSnippet, formatPhoneDisplay } from '../utils/whatsapp-formatter';
+import { formatPhoneDisplay, formatMessageSnippet } from '../utils/whatsapp-formatter';
 
 // ----------------------------------------------------------------------
 

@@ -1,15 +1,14 @@
-import { Box, Card, Link, Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+import { Box, Card, Link, Stack, Typography } from '@mui/material';
 
 import { fTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
-import { getStatusIcon, parseWhatsAppMarkdown } from '../utils/whatsapp-formatter';
-
-import { WhatsAppMessageDocument } from './whatsapp-message-document';
 import { WhatsAppMessageImage } from './whatsapp-message-image';
 import { WhatsAppTemplateBubble } from './whatsapp-template-bubble';
+import { WhatsAppMessageDocument } from './whatsapp-message-document';
+import { getStatusIcon, parseWhatsAppMarkdown } from '../utils/whatsapp-formatter';
 
 // ----------------------------------------------------------------------
 

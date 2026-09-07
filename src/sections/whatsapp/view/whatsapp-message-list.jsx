@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 
-import { Box, CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
 
-import { Scrollbar } from 'src/components/scrollbar';
-import { Lightbox } from 'src/components/lightbox';
-
 import { useWhatsAppMessages } from 'src/query/use-whatsapp';
+
+import { Lightbox } from 'src/components/lightbox';
+import { Scrollbar } from 'src/components/scrollbar';
 
 import { WhatsAppMessageItem } from './whatsapp-message-item';
 

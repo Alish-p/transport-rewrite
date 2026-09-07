@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+
 import { Box } from '@mui/material';
 
 import { useSearchParams } from 'src/routes/hooks';
@@ -6,20 +7,19 @@ import { useSearchParams } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import {
-  useWhatsAppConversations,
   useWhatsAppMessages,
+  useWhatsAppConversations,
   useMarkConversationAsRead,
 } from 'src/query/use-whatsapp';
 
-import { isReplyWindowOpen } from '../utils/whatsapp-formatter';
-
-import { WhatsAppDetails } from './whatsapp-details';
-import { WhatsAppEmptyConversation } from './whatsapp-empty-conversation';
+import { WhatsAppNav } from './whatsapp-nav';
 import { WhatsAppHeader } from './whatsapp-header';
 import { WhatsAppLayout } from './whatsapp-layout';
-import { WhatsAppMessageInput } from './whatsapp-message-input';
+import { WhatsAppDetails } from './whatsapp-details';
 import { WhatsAppMessageList } from './whatsapp-message-list';
-import { WhatsAppNav } from './whatsapp-nav';
+import { isReplyWindowOpen } from '../utils/whatsapp-formatter';
+import { WhatsAppMessageInput } from './whatsapp-message-input';
+import { WhatsAppEmptyConversation } from './whatsapp-empty-conversation';
 
 // ----------------------------------------------------------------------
 
