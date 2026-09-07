@@ -72,7 +72,7 @@ export function useUsersLastSeen() {
 
 export function useCreateUser() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -83,12 +83,12 @@ export function useCreateUser() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateUser() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateUser(id, data),
     onSuccess: (updatedUser) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -102,12 +102,12 @@ export function useUpdateUser() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteUser() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (id) => deleteUser(id),
     onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -119,5 +119,5 @@ export function useDeleteUser() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
