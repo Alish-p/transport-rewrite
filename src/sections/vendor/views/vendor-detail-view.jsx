@@ -15,6 +15,7 @@ import { useSearchParams } from 'src/routes/hooks';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
+import { BankDetailsCard } from 'src/components/bank';
 import { HeroHeader } from 'src/components/hero-header-card';
 
 import { VendorAnalyticsWidget } from '../widgets/vendor-analytics-widget';
@@ -93,7 +94,7 @@ export function VendorDetailView({ vendor }) {
           <Grid container spacing={3}>
             {/* Vendor Details */}
             <Grid xs={12} md={6}>
-              <Card>
+              <Card sx={{ height: 1 }}>
                 <CardHeader title="Vendor Details" />
                 <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
                   <DetailRow label="Name" value={name} />
@@ -106,16 +107,7 @@ export function VendorDetailView({ vendor }) {
 
             {/* Bank Details */}
             <Grid xs={12} md={6}>
-              <Card>
-                <CardHeader title="Bank Details" />
-                <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-                  <DetailRow label="Bank Name" value={bankDetails?.name} />
-                  <DetailRow label="Branch" value={bankDetails?.branch} />
-                  <DetailRow label="IFSC" value={bankDetails?.ifsc} />
-                  <DetailRow label="Place" value={bankDetails?.place} />
-                  <DetailRow label="Account No" value={bankDetails?.accNo} />
-                </Stack>
-              </Card>
+              <BankDetailsCard bankDetails={bankDetails} />
             </Grid>
 
             {/* Recent Purchase Orders */}
