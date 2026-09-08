@@ -87,7 +87,11 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
         </Stack>
       </Box>
 
-      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 300 }}>
+      <TableContainer
+        component={Paper}
+        variant="outlined"
+        sx={{ maxHeight: 300, overflow: items.length === 0 ? 'hidden' : 'auto' }}
+      >
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -172,7 +176,15 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
                 </TableRow>
               );
             })}
-            <TableNoData notFound={items.length === 0} />
+            <TableNoData
+              notFound={items.length === 0}
+              colSpan={withDelete ? 7 : 6}
+              sx={{ py: 2.5 }}
+              slotProps={{
+                img: { maxWidth: 80 },
+                title: { typography: 'subtitle2' },
+              }}
+            />
           </TableBody>
         </Table>
       </TableContainer>
