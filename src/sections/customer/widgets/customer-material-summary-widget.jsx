@@ -98,10 +98,10 @@ export function CustomerMaterialSummaryWidget({ customer }) {
         sx={{
           pt: 4,
           pb: 3,
-          rowGap: 3,
-          columnGap: 5,
+          px: 2,
+          gap: { xs: 3, sm: 3 },
           display: 'flex',
-          flexWrap: 'wrap',
+          flexDirection: { xs: 'column', sm: 'row' },
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -110,8 +110,9 @@ export function CustomerMaterialSummaryWidget({ customer }) {
           type="polarArea"
           series={chartSeries}
           options={chartOptions}
-          width={{ xs: 240, md: 280 }}
-          height={{ xs: 240, md: 280 }}
+          width={{ xs: 220, sm: 240, md: 260 }}
+          height={{ xs: 220, sm: 240, md: 260 }}
+          sx={{ flexShrink: 0 }}
         />
 
         <ChartLegends

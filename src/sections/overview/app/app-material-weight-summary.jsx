@@ -94,10 +94,10 @@ export function AppMaterialWeightSummary({ title, subheader, ...other }) {
         sx={{
           pt: 4,
           pb: 3,
-          rowGap: 3,
-          columnGap: 5,
+          px: 2,
+          gap: { xs: 3, sm: 3 },
           display: 'flex',
-          flexWrap: 'wrap',
+          flexDirection: { xs: 'column', sm: 'row' },
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -106,11 +106,12 @@ export function AppMaterialWeightSummary({ title, subheader, ...other }) {
           type="polarArea"
           series={chartSeries}
           options={chartOptions}
-          width={{ xs: 240, md: 280 }}
-          height={{ xs: 240, md: 280 }}
+          width={{ xs: 220, sm: 240, md: 260 }}
+          height={{ xs: 220, sm: 240, md: 260 }}
+          sx={{ flexShrink: 0 }}
         />
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <ChartLegends
             colors={chartColorsAll.slice(0, displayCount)}
             labels={mapped.map((item) => item.label).slice(0, displayCount)}
