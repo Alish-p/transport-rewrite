@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
 
-import { paths } from 'src/routes/paths';
-
 import { BankDetailsCard } from 'src/components/bank';
 
 // ----------------------------------------------------------------------
 
 export function CustomerFinanceWidget({ customer }) {
-  const { _id, bankDetails, gstEnabled, GSTNo, PANNo } = customer || {};
+  const { bankDetails, gstEnabled, GSTNo, PANNo } = customer || {};
 
   const extraFields = useMemo(
     () => [
@@ -36,7 +34,6 @@ export function CustomerFinanceWidget({ customer }) {
       title="Finance Details"
       bankDetails={bankDetails}
       extraFields={extraFields}
-      editHref={_id ? paths.dashboard.customer.edit(_id) : undefined}
     />
   );
 }

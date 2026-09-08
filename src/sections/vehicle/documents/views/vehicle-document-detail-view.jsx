@@ -5,10 +5,10 @@ import { useMemo, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -21,6 +21,7 @@ import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -245,105 +246,137 @@ export function VehicleDocumentDetailView({ doc }) {
       <Grid container spacing={3}>
         {/* Left Column: Preview */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Card sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
             <CardHeader
-              title={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Iconify icon="solar:document-attachment-bold" />
-                  <Typography variant="h6">Attachment Preview</Typography>
-                </Stack>
-              }
-              sx={{ px: 0, pt: 0, mb: 3 }}
-            />
-            <Box
+              title="Attachment Preview"
+              avatar={<Iconify icon="solar:document-attachment-bold" color="primary.main" width={24} />}
               sx={{
-                flexGrow: 1,
-                bgcolor: 'background.neutral',
-                borderRadius: 1.5,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: 320,
-                position: 'relative',
-                overflow: 'hidden',
+                p: 2.5,
+                pb: 1.5,
+                '& .MuiCardHeader-avatar': { mr: 1 },
+                '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
               }}
-            >
-              {loadingUrl ? (
-                <CircularProgress />
-              ) : previewUrl ? (
-                <FileThumbnail
-                  imageView
-                  tooltip
-                  onDownload={handleDownload}
-                  file={previewUrl}
-                  sx={{
-                    width: 1,
-                    height: 1,
-                    minHeight: 320,
-                    borderRadius: 'inherit',
-                  }}
-                  slotProps={{
-                    img: {
+            />
+            <Box sx={{ p: 2.5, pt: 1, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  bgcolor: 'background.neutral',
+                  borderRadius: 1.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: 320,
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {loadingUrl ? (
+                  <CircularProgress />
+                ) : previewUrl ? (
+                  <FileThumbnail
+                    imageView
+                    tooltip
+                    onDownload={handleDownload}
+                    file={previewUrl}
+                    sx={{
                       width: 1,
                       height: 1,
-                      objectFit: 'contain',
-                    },
-                    icon: { width: 96, height: 96 },
-                  }}
-                />
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No attachment file uploaded for this document
-                </Typography>
-              )}
+                      minHeight: 320,
+                      borderRadius: 'inherit',
+                    }}
+                    slotProps={{
+                      img: {
+                        width: 1,
+                        height: 1,
+                        objectFit: 'contain',
+                      },
+                      icon: { width: 96, height: 96 },
+                    }}
+                  />
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No attachment file uploaded for this document
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </Card>
         </Grid>
 
         {/* Right Column: Properties */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, height: '100%' }}>
+          <Card sx={{ height: 1 }}>
             <CardHeader
-              title={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Iconify icon="solar:info-circle-bold" />
-                  <Typography variant="h6">Properties</Typography>
-                </Stack>
+              title="Document Details"
+              avatar={<Iconify icon="solar:document-text-bold" color="primary.main" width={24} />}
+              action={
+                doc?.docType ? (
+                  <Label variant="soft" color="primary" sx={{ typography: 'subtitle2' }}>
+                    {doc.docType}
+                  </Label>
+                ) : null
               }
-              sx={{ px: 0, pt: 0, mb: 3 }}
+              sx={{
+                p: 2.5,
+                pb: 1.5,
+                '& .MuiCardHeader-avatar': { mr: 1 },
+                '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
+              }}
             />
-            <Stack spacing={1}>
-              <PropRow label="Vehicle Number" value={doc?.vehicle?.vehicleNo || doc?.vehicleNo || '-'} />
-              <Divider />
-              <PropRow label="Document Type" value={doc?.docType || '-'} />
-              <Divider />
-              <PropRow label="Document Number" value={doc?.docNumber || '-'} />
-              <Divider />
-              <PropRow label="Issuer" value={doc?.issuer || '-'} />
-              <Divider />
-              <PropRow label="Issue Date" value={doc?.issueDate ? fDateTime(doc.issueDate) : '-'} />
-              <Divider />
-              <PropRow label="Expiry Date" value={doc?.expiryDate ? fDateTime(doc.expiryDate) : '-'} />
-              <Divider />
-              <PropRow
-                label="Status"
+
+            <Stack spacing={1} sx={{ px: 2.5, pb: 2.5, pt: 1 }}>
+              <InfoRow
+                icon="mdi:road-variant"
+                label="Vehicle Number"
                 value={
-                  statusMeta ? (
-                    <Stack direction="row" alignItems="center" spacing={0.5}>
-                      <Iconify icon={statusMeta.icon} sx={{ color: `${statusMeta.color}.main`, width: 18, height: 18 }} />
-                      <Typography variant="body2" sx={{ color: `${statusMeta.color}.main`, fontWeight: 'fontWeightSemiBold' }}>
-                        {status}
-                      </Typography>
-                    </Stack>
+                  vehicleId && (doc?.vehicle?.vehicleNo || doc?.vehicleNo) ? (
+                    <Link
+                      component={RouterLink}
+                      href={paths.dashboard.vehicle.details(vehicleId)}
+                      color="primary"
+                      underline="hover"
+                      sx={{ fontWeight: 600, fontSize: '0.8125rem' }}
+                    >
+                      {doc?.vehicle?.vehicleNo || doc?.vehicleNo}
+                    </Link>
                   ) : (
-                    '-'
+                    doc?.vehicle?.vehicleNo || doc?.vehicleNo
                   )
                 }
               />
-              <Divider />
-              <PropRow
+              <InfoRow icon="mdi:file-document-outline" label="Document Type" value={doc?.docType} />
+              <InfoRow icon="mdi:numeric" label="Document Number" value={doc?.docNumber} />
+              <InfoRow icon="mdi:domain" label="Issuer" value={doc?.issuer} />
+              <InfoRow
+                icon="mdi:calendar-start"
+                label="Issue Date"
+                value={doc?.issueDate ? fDateTime(doc.issueDate) : null}
+              />
+              <InfoRow
+                icon="mdi:calendar-end"
+                label="Expiry Date"
+                value={doc?.expiryDate ? fDateTime(doc.expiryDate) : null}
+              />
+              <InfoRow
+                icon="solar:info-circle-bold"
+                label="Status"
+                value={
+                  status ? (
+                    <Label
+                      variant="soft"
+                      color={statusMeta?.color || 'default'}
+                      startIcon={statusMeta?.icon ? <Iconify icon={statusMeta.icon} width={14} /> : undefined}
+                    >
+                      {status}
+                    </Label>
+                  ) : null
+                }
+              />
+              <InfoRow
+                icon="mdi:account"
                 label="Created By"
-                value={doc?.createdBy?.name || doc?.createdByName || '-'}
+                value={doc?.createdBy?.name || doc?.createdByName}
               />
             </Stack>
           </Card>
@@ -351,162 +384,164 @@ export function VehicleDocumentDetailView({ doc }) {
 
         {/* Bottom Section: History */}
         <Grid item xs={12}>
-          <Card sx={{ p: 3 }}>
+          <Card>
             <CardHeader
-              title={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Iconify icon="solar:history-bold" />
-                  <Typography variant="h6">Document Version History</Typography>
-                </Stack>
-              }
-              sx={{ px: 0, pt: 0, mb: 3 }}
+              title="Document Version History"
+              avatar={<Iconify icon="solar:history-bold" color="primary.main" width={24} />}
+              sx={{
+                p: 2.5,
+                pb: 1.5,
+                '& .MuiCardHeader-avatar': { mr: 1 },
+                '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
+              }}
             />
+            <Box sx={{ p: 2.5, pt: 1 }}>
+              {historyLoading && (
+                <Stack alignItems="center" sx={{ py: 3 }}>
+                  <CircularProgress size={24} />
+                </Stack>
+              )}
 
-            {historyLoading && (
-              <Stack alignItems="center" sx={{ py: 3 }}>
-                <CircularProgress size={24} />
-              </Stack>
-            )}
+              {!historyLoading && historyList.length === 0 && (
+                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                  No version history available for this document.
+                </Typography>
+              )}
 
-            {!historyLoading && historyList.length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                No version history available for this document.
-              </Typography>
-            )}
+              {!historyLoading && historyList.length > 0 && (
+                <Box>
+                  <TableContainer component={Box} sx={{ borderRadius: 1, border: (theme) => `1px solid ${theme.palette.divider}` }}>
+                    <Table size="medium">
+                      <TableHead sx={{ bgcolor: 'background.neutral' }}>
+                        <TableRow>
+                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Uploaded</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Doc Number</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Issuer</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Validity</Typography></TableCell>
+                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Uploaded By</Typography></TableCell>
+                          <TableCell align="center"><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Action</Typography></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {historyList.map((h) => {
+                          // Validity custom logic
+                          const renderValidity = (expiryDate) => {
+                            if (!expiryDate) {
+                              return {
+                                primary: <Typography variant="body2">-</Typography>,
+                                secondary: null,
+                              };
+                            }
+                            const now = new Date();
+                            const exp = new Date(expiryDate);
+                            const diffMs = exp.getTime() - now.getTime();
+                            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                            const absDays = Math.abs(diffDays);
+                            const isExpired = diffDays < 0;
 
-            {!historyLoading && historyList.length > 0 && (
-              <Box>
-                <TableContainer component={Box} sx={{ borderRadius: 1, border: (theme) => `1px solid ${theme.palette.divider}` }}>
-                  <Table size="medium">
-                    <TableHead sx={{ bgcolor: 'background.neutral' }}>
-                      <TableRow>
-                        <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Uploaded</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Doc Number</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Issuer</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Validity</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Uploaded By</Typography></TableCell>
-                        <TableCell align="center"><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Action</Typography></TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {historyList.map((h) => {
-                        // Validity custom logic
-                        const renderValidity = (expiryDate) => {
-                          if (!expiryDate) {
+                            let primary;
+                            let secondaryText;
+
+                            if (isExpired) {
+                              primary = (
+                                <Label color="error" variant="soft">
+                                  Expired
+                                </Label>
+                              );
+                              secondaryText = `Expired ${absDays} day${absDays > 1 ? 's' : ''} ago`;
+                            } else {
+                              primary = (
+                                <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>
+                                  Expires on {fDate(expiryDate)}
+                                </Typography>
+                              );
+                              secondaryText = `Expiring in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+                            }
+
                             return {
-                              primary: <Typography variant="body2">-</Typography>,
-                              secondary: null,
+                              primary,
+                              secondary: (
+                                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
+                                  {secondaryText}
+                                </Typography>
+                              ),
                             };
-                          }
-                          const now = new Date();
-                          const exp = new Date(expiryDate);
-                          const diffMs = exp.getTime() - now.getTime();
-                          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-                          const absDays = Math.abs(diffDays);
-                          const isExpired = diffDays < 0;
-
-                          let primary;
-                          let secondaryText;
-
-                          if (isExpired) {
-                            primary = (
-                              <Label color="error" variant="soft">
-                                Expired
-                              </Label>
-                            );
-                            secondaryText = `Expired ${absDays} day${absDays > 1 ? 's' : ''} ago`;
-                          } else {
-                            primary = (
-                              <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>
-                                Expires on {fDate(expiryDate)}
-                              </Typography>
-                            );
-                            secondaryText = `Expiring in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
-                          }
-
-                          return {
-                            primary,
-                            secondary: (
-                              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
-                                {secondaryText}
-                              </Typography>
-                            ),
                           };
-                        };
 
-                        const { primary, secondary } = renderValidity(h.expiryDate);
+                          const { primary, secondary } = renderValidity(h.expiryDate);
 
-                        return (
-                          <TableRow key={h._id} hover>
-                            <TableCell>
-                              <Typography variant="body2">
-                                {h.createdAt ? fDateTime(h.createdAt) : '-'}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Typography variant="body2">{h.docNumber || '-'}</Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Typography variant="body2">{h.issuer || '-'}</Typography>
-                            </TableCell>
-                            <TableCell>
-                              {primary}
-                              {secondary}
-                            </TableCell>
-                            <TableCell>
-                              <Typography variant="body2">
-                                {h.createdBy?.name || 'System'}
-                              </Typography>
-                            </TableCell>
-                            <TableCell align="center">
-                              {h.fileUrl ? (
-                                <IconButton color="primary" onClick={() => handleDownloadHistory(h)}>
-                                  <Iconify icon="solar:download-bold" />
-                                </IconButton>
-                              ) : (
-                                '-'
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                          return (
+                            <TableRow key={h._id} hover>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {h.createdAt ? fDateTime(h.createdAt) : '-'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">{h.docNumber || '-'}</Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">{h.issuer || '-'}</Typography>
+                              </TableCell>
+                              <TableCell>
+                                {primary}
+                                {secondary}
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {h.createdBy?.name || 'System'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell align="center">
+                                {h.fileUrl ? (
+                                  <IconButton color="primary" onClick={() => handleDownloadHistory(h)}>
+                                    <Iconify icon="solar:download-bold" />
+                                  </IconButton>
+                                ) : (
+                                  '-'
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
 
-                {historyTotal > rowsPerPage && (
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                    justifyContent="center"
-                    sx={{ mt: 3 }}
-                  >
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      disabled={histPage <= 1 || historyFetching}
-                      onClick={() => setHistPage((p) => Math.max(1, p - 1))}
+                  {historyTotal > rowsPerPage && (
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                      justifyContent="center"
+                      sx={{ mt: 3 }}
                     >
-                      Prev
-                    </Button>
-                    <Typography variant="caption" color="text.secondary">
-                      Page {histPage} of {Math.max(1, Math.ceil(historyTotal / rowsPerPage))}
-                    </Typography>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      disabled={
-                        histPage >= Math.ceil(historyTotal / rowsPerPage) || historyFetching
-                      }
-                      onClick={() => setHistPage((p) => p + 1)}
-                    >
-                      Next
-                    </Button>
-                  </Stack>
-                )}
-              </Box>
-            )}
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        disabled={histPage <= 1 || historyFetching}
+                        onClick={() => setHistPage((p) => Math.max(1, p - 1))}
+                      >
+                        Prev
+                      </Button>
+                      <Typography variant="caption" color="text.secondary">
+                        Page {histPage} of {Math.max(1, Math.ceil(historyTotal / rowsPerPage))}
+                      </Typography>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        disabled={
+                          histPage >= Math.ceil(historyTotal / rowsPerPage) || historyFetching
+                        }
+                        onClick={() => setHistPage((p) => p + 1)}
+                      >
+                        Next
+                      </Button>
+                    </Stack>
+                  )}
+                </Box>
+              )}
+            </Box>
           </Card>
         </Grid>
       </Grid>
@@ -526,15 +561,38 @@ export function VehicleDocumentDetailView({ doc }) {
   );
 }
 
-function PropRow({ label, value }) {
+// ----------------------------------------------------------------------
+
+function InfoRow({ icon, label, value }) {
+  if (value === undefined || value === null || value === '' || value === '-') return null;
+
   return (
-    <Stack direction="row" alignItems="center" sx={{ typography: 'body2', py: 1.25 }}>
-      <Box component="span" sx={{ width: 160, color: 'text.secondary', fontWeight: 'fontWeightMedium', flexShrink: 0 }}>
-        {label}
-      </Box>
-      <Box sx={{ flexGrow: 1 }}>
+    <Stack
+      direction="row"
+      alignItems="flex-start"
+      justifyContent="space-between"
+      spacing={1.5}
+      sx={{ typography: 'body2', minHeight: 24 }}
+    >
+      <Stack direction="row" alignItems="center" spacing={0.75} sx={{ minWidth: 0, flexShrink: 0 }}>
+        {icon && <Iconify icon={icon} width={16} sx={{ color: 'text.disabled', flexShrink: 0 }} />}
+        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
+          {label}
+        </Typography>
+      </Stack>
+      <Box sx={{ textAlign: 'right', minWidth: 0, flex: 1, ml: 1 }}>
         {typeof value === 'string' || typeof value === 'number' ? (
-          <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>{value}</Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.8125rem',
+              color: 'text.primary',
+              wordBreak: 'break-word',
+            }}
+          >
+            {value}
+          </Typography>
         ) : (
           value
         )}
@@ -542,3 +600,4 @@ function PropRow({ label, value }) {
     </Stack>
   );
 }
+
