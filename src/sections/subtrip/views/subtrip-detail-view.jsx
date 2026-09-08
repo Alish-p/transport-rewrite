@@ -11,6 +11,7 @@ import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import { titleCase } from 'src/utils/change-case';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 import { downloadFileFromUrl } from 'src/utils/download-file';
 import { generateStaticMapImage } from 'src/utils/generate-static-map';
@@ -265,7 +266,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
         <HeroHeader
           offsetTop={70}
           title={`Job #${subtripNo}`}
-          status={subtripStatus}
+          status={titleCase(subtripStatus)}
           icon="mdi:routes"
           meta={[
             {
