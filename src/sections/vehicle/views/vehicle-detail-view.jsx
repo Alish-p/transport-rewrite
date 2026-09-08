@@ -2,14 +2,16 @@ import { useNavigate } from 'react-router';
 import { useMemo, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import { Tab, Tabs, Link, Grid, Card, Stack, CardHeader, Typography } from '@mui/material';
+import { Tab, Tabs, Link, Grid, Card, Stack, Divider, CardHeader, Typography } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { useGps } from 'src/query/use-gps';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
 
@@ -50,6 +52,9 @@ export function VehicleDetailView({ vehicle }) {
     trackingLink,
   } = vehicle;
 
+  const transporterName = transporter?.transportName;
+  const transporterId = transporter?._id;
+
   // Read tab from URL, fallback to 'overview'
   const currentTab = useMemo(() => {
     const tabParam = searchParams.get('tab');
@@ -81,140 +86,106 @@ export function VehicleDetailView({ vehicle }) {
   const renderDetails = (
     <Card>
       <CardHeader
-        title={
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Iconify icon="mdi:information-outline" width={24} />
-            <Typography variant="h6">Details</Typography>
-          </Stack>
+        title="Vehicle Details"
+        avatar={<Iconify icon="solar:bus-bold" color="primary.main" width={24} />}
+        action={
+          vehicleNo ? (
+            <Label variant="soft" color="primary" sx={{ typography: 'subtitle2' }}>
+              {vehicleNo}
+            </Label>
+          ) : null
         }
+        sx={{
+          p: 2.5,
+          pb: 1.5,
+          '& .MuiCardHeader-avatar': { mr: 1 },
+          '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
+        }}
       />
 
-      <Stack spacing={1.5} sx={{ p: 3, typography: 'body2' }}>
-        {/* Vehicle Number */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:road-variant" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Vehicle Number
-          </Box>
-          <Typography>{vehicleNo || '-'}</Typography>
-        </Stack>
-
-        {/* Vehicle Type */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:car" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Type
-          </Box>
-          <Typography>{vehicleType || '-'}</Typography>
-        </Stack>
-
-        {/* Model Type */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:car-estate" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Model
-          </Box>
-          <Typography>{modelType || '-'}</Typography>
-        </Stack>
-
-        {/* Company */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:domain" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Make
-          </Box>
-          <Typography>{vehicleCompany || '-'}</Typography>
-        </Stack>
-
-        {/* Number of Tyres */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:car-tire-alert" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Tyres
-          </Box>
-          <Typography>{noOfTyres ? `${noOfTyres} Tyres` : '-'}</Typography>
-        </Stack>
-
-        {/* Chasis No. */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:hexagon-outline" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Chasis No.
-          </Box>
-          <Typography>{chasisNo || '-'}</Typography>
-        </Stack>
-
-        {/* Engine No. */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:engine" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Engine No.
-          </Box>
-          <Typography>{engineNo || '-'}</Typography>
-        </Stack>
-
-        {/* Manufacturing Year */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:calendar-range" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Year
-          </Box>
-          <Typography>{manufacturingYear || '-'}</Typography>
-        </Stack>
-
-        {/* Loading Capacity */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:weight-lifter" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Loading Capacity
-          </Box>
-          <Typography>{loadingCapacity ? `${loadingCapacity} Ton` : '-'}</Typography>
-        </Stack>
-
-        {/* Engine Type */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:engine-outline" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Engine Type
-          </Box>
-          <Typography>{engineType || '-'}</Typography>
-        </Stack>
-
-        {/* Fuel Tank Capacity */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:gas-station" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Fuel Tank
-          </Box>
-          <Typography>{fuelTankCapacity ? `${fuelTankCapacity} L` : '-'}</Typography>
-        </Stack>
-
-        {/* Tracking Link */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:map-marker-path" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Tracking URL
-          </Box>
-          <Typography>
-            {trackingLink ? (
-              <Link href={trackingLink} target="_blank" rel="noopener">
-                View Tracker
-              </Link>
-            ) : (
-              '-'
-            )}
-          </Typography>
-        </Stack>
-
-        {/* Transporter */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Iconify icon="mdi:account" width={20} />
-          <Box component="span" sx={{ color: 'text.secondary', width: 180, flexShrink: 0 }}>
-            Transporter
-          </Box>
-          <Typography>{transporter?.transportName || '-'}</Typography>
-        </Stack>
+      {/* 1. General Information */}
+      <SectionHeader icon="solar:info-circle-bold" title="General Info" />
+      <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
+        <InfoRow icon="mdi:road-variant" label="Vehicle Number" value={vehicleNo} />
+        <InfoRow icon="mdi:car" label="Type" value={vehicleType} />
+        <InfoRow icon="mdi:domain" label="Make" value={vehicleCompany} />
+        <InfoRow icon="mdi:car-estate" label="Model" value={modelType} />
+        <InfoRow icon="mdi:calendar-range" label="Year" value={manufacturingYear} />
+        <InfoRow
+          icon="mingcute:wheel-line"
+          label="Tyres"
+          value={noOfTyres ? `${noOfTyres} Tyres` : null}
+        />
       </Stack>
+
+      <Divider sx={{ borderStyle: 'dashed' }} />
+
+      {/* 2. Specifications & Capacity */}
+      <SectionHeader icon="solar:settings-bold" title="Specifications & Capacity" />
+      <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
+        <InfoRow
+          icon="mdi:weight-lifter"
+          label="Loading Capacity"
+          value={loadingCapacity ? `${loadingCapacity} Ton` : null}
+        />
+        <InfoRow icon="mdi:engine-outline" label="Engine Type" value={engineType} />
+        <InfoRow icon="mdi:engine" label="Engine No." value={engineNo} />
+        <InfoRow icon="mdi:hexagon-outline" label="Chasis No." value={chasisNo} />
+        <InfoRow
+          icon="mdi:gas-station"
+          label="Fuel Tank"
+          value={fuelTankCapacity ? `${fuelTankCapacity} L` : null}
+        />
+      </Stack>
+
+      {/* 3. Assignment & Tracking */}
+      {(transporterName || trackingLink) && (
+        <>
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          <SectionHeader icon="solar:map-point-bold" title="Assignment & Tracking" />
+          <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
+            {transporterName && (
+              <InfoRow
+                icon="mdi:account"
+                label="Transporter"
+                value={
+                  transporterId ? (
+                    <Link
+                      component={RouterLink}
+                      href={paths.dashboard.transporter.details(transporterId)}
+                      color="primary"
+                      underline="hover"
+                      sx={{ fontWeight: 600, fontSize: '0.8125rem' }}
+                    >
+                      {transporterName}
+                    </Link>
+                  ) : (
+                    transporterName
+                  )
+                }
+              />
+            )}
+            {trackingLink && (
+              <InfoRow
+                icon="mdi:map-marker-path"
+                label="Tracking URL"
+                value={
+                  <Link
+                    href={trackingLink}
+                    target="_blank"
+                    rel="noopener"
+                    color="primary"
+                    underline="hover"
+                    sx={{ fontWeight: 600, fontSize: '0.8125rem' }}
+                  >
+                    View Tracker
+                  </Link>
+                }
+              />
+            )}
+          </Stack>
+        </>
+      )}
     </Card>
   );
 
@@ -318,3 +289,65 @@ export function VehicleDetailView({ vehicle }) {
     </DashboardContent>
   );
 }
+
+// ----------------------------------------------------------------------
+
+function SectionHeader({ icon, title }) {
+  return (
+    <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 2.5, pt: 1.5, pb: 1 }}>
+      <Iconify icon={icon} width={16} sx={{ color: 'primary.main' }} />
+      <Typography
+        variant="caption"
+        sx={{
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+          color: 'text.secondary',
+        }}
+      >
+        {title}
+      </Typography>
+    </Stack>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function InfoRow({ icon, label, value }) {
+  if (value === undefined || value === null || value === '' || value === '-') return null;
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="flex-start"
+      justifyContent="space-between"
+      spacing={1.5}
+      sx={{ typography: 'body2', minHeight: 24 }}
+    >
+      <Stack direction="row" alignItems="center" spacing={0.75} sx={{ minWidth: 0, flexShrink: 0 }}>
+        {icon && <Iconify icon={icon} width={16} sx={{ color: 'text.disabled', flexShrink: 0 }} />}
+        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
+          {label}
+        </Typography>
+      </Stack>
+      <Box sx={{ textAlign: 'right', minWidth: 0, flex: 1, ml: 1 }}>
+        {typeof value === 'string' || typeof value === 'number' ? (
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+              fontSize: '0.8125rem',
+              color: 'text.primary',
+              wordBreak: 'break-word',
+            }}
+          >
+            {value}
+          </Typography>
+        ) : (
+          value
+        )}
+      </Box>
+    </Stack>
+  );
+}
+
