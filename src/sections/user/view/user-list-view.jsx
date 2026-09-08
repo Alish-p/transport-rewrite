@@ -105,6 +105,13 @@ export function UserListView() {
 
 
 
+  const handleViewRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.user.details(id));
+    },
+    [router]
+  );
+
   const handleEditRow = useCallback(
     (id) => {
       router.push(paths.dashboard.user.edit(id));
@@ -291,6 +298,7 @@ export function UserListView() {
                           selected={table.selected.includes(row._id)}
                           onSelectRow={() => table.onSelectRow(row._id)}
                           onDeleteRow={() => deleteUser(row._id)}
+                          onViewRow={() => handleViewRow(row._id)}
                           onEditRow={() => handleEditRow(row._id)}
                         />
                       ))}

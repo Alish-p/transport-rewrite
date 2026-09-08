@@ -23,7 +23,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export function UserTableRow({ row, selected, onViewRow, onEditRow, onSelectRow, onDeleteRow }) {
   const confirm = useBoolean();
 
   const popover = usePopover();
@@ -46,14 +46,19 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
 
         <TableCell>
           <Stack spacing={2} direction="row" alignItems="center">
-            <Avatar alt={row.name} src={row.avatarUrl}>
+            <Avatar
+              alt={row.name}
+              src={row.avatarUrl}
+              onClick={onViewRow || onEditRow}
+              sx={{ cursor: 'pointer' }}
+            >
               {row.name?.charAt(0).toUpperCase()}
             </Avatar>
 
             <Link
               color="inherit"
-              onClick={onEditRow}
-              sx={{ cursor: 'pointer', typography: 'body2' }}
+              onClick={onViewRow || onEditRow}
+              sx={{ cursor: 'pointer', typography: 'body2', fontWeight: 600 }}
             >
               {row.name}
             </Link>
@@ -112,13 +117,12 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
         <MenuList>
           <MenuItem
             onClick={() => {
-              confirm.onTrue();
+              if (onViewRow) onViewRow();
               popover.onClose();
             }}
-            sx={{ color: 'error.main' }}
           >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
+            <Iconify icon="solar:eye-bold" />
+            View
           </MenuItem>
 
           <MenuItem
@@ -129,6 +133,17 @@ export function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRo
           >
             <Iconify icon="solar:pen-bold" />
             Edit
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
           </MenuItem>
         </MenuList>
       </CustomPopover>

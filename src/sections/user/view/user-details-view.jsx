@@ -1,180 +1,124 @@
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import Typography from '@mui/material/Typography';
-import ListItemText from '@mui/material/ListItemText';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
-import { useTabs } from 'src/hooks/use-tabs';
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import { fToNow } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
-import { Scrollbar } from 'src/components/scrollbar';
-import { TableHeadCustom } from 'src/components/table';
+import { HeroHeader } from 'src/components/hero-header-card';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ACTIONS, PERMISSIONS } from '../config';
-import { AccountChangePassword } from '../../account/account-change-password';
-
-// ----------------------------------------------------------------------
-
-const TABS = [
-  {
-    value: 'general',
-    label: 'General',
-    icon: <Iconify icon="solar:user-id-bold" width={24} />,
-  },
-  {
-    value: 'permissions',
-    label: 'Permissions',
-    icon: <Iconify icon="solar:shield-check-bold" width={24} />,
-  },
-  {
-    value: 'security',
-    label: 'Security',
-    icon: <Iconify icon="ic:round-vpn-key" width={24} />,
-  },
-];
-
-const TABLE_HEAD = [
-  { id: 'module', label: 'Module' },
-  { id: 'create', label: 'Create', align: 'center' },
-  { id: 'view', label: 'View', align: 'center' },
-  { id: 'update', label: 'Update', align: 'center' },
-  { id: 'delete', label: 'Delete', align: 'center' },
-];
+import {
+  UserBankWidget,
+  UserBasicWidget,
+  UserAccountWidget,
+  UserChangePasswordDialog,
+} from '../widgets';
 
 // ----------------------------------------------------------------------
 
 export function UserDetailView({ user }) {
-  const tabs = useTabs('general');
+  const passwordDialog = useBoolean();
 
-  const renderGeneral = (
-    <Card sx={{ p: 3 }}>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell sx={{ width: 200 }}>
-              <Typography variant="subtitle2">Full Name</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="body2">{user?.name}</Typography>
-            </TableCell>
-          </TableRow>
+  const { name, email, mobile, address, designation, lastSeen, _id } = user || {};
 
-          <TableRow>
-            <TableCell>
-              <Typography variant="subtitle2">Email</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="body2">{user?.email}</Typography>
-            </TableCell>
-          </TableRow>
-
-          <TableRow>
-            <TableCell>
-              <Typography variant="subtitle2">Mobile</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="body2">{user?.mobile}</Typography>
-            </TableCell>
-          </TableRow>
-
-          <TableRow>
-            <TableCell>
-              <Typography variant="subtitle2">Address</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="body2">{user?.address}</Typography>
-            </TableCell>
-          </TableRow>
-
-          <TableRow>
-            <TableCell>
-              <Typography variant="subtitle2">Designation</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="body2">{user?.designation}</Typography>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </Card>
-  );
-
-  const renderPermissions = (
-    <Card sx={{ p: 3 }}>
-      <Scrollbar>
-        <Table sx={{ minWidth: 800 }}>
-          <TableHeadCustom headLabel={TABLE_HEAD} />
-
-          <TableBody>
-            {PERMISSIONS.map((permission) => (
-              <TableRow key={permission.name}>
-                <TableCell>
-                  <ListItemText
-                    primary={permission.subheader}
-                    secondary={permission.caption}
-                    primaryTypographyProps={{ typography: 'subtitle2', mb: 0.5 }}
-                    secondaryTypographyProps={{
-                      component: 'span',
-                      typography: 'caption',
-                      color: 'text.secondary',
-                    }}
-                  />
-                </TableCell>
-                {ACTIONS.map((action) => (
-                  <TableCell key={action} align="center">
-                    {user?.permissions?.[permission.name]?.[action] ? (
-                      <Iconify icon="eva:checkmark-circle-2-fill" sx={{ color: 'success.main' }} />
-                    ) : (
-                      <Iconify icon="eva:close-circle-fill" sx={{ color: 'error.main' }} />
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Scrollbar>
-    </Card>
-  );
+  const metaItems = [
+    email ? { icon: 'solar:letter-bold', label: email } : null,
+    mobile ? { icon: 'solar:phone-bold', label: mobile } : null,
+    address ? { icon: 'solar:map-point-bold', label: address } : null,
+    {
+      icon: 'solar:clock-circle-bold',
+      label: lastSeen ? `Last seen: ${fToNow(lastSeen)} ago` : 'Last seen: Never',
+    },
+  ].filter(Boolean);
 
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Profile"
+        heading="User Profile"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'User', href: paths.dashboard.user.root },
-          { name: 'Profile' },
+          { name: name || 'Details' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <Tabs
-        value={tabs.value}
-        onChange={tabs.onChange}
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
-      >
-        {TABS.map((tab) => (
-          <Tab key={tab.value} label={tab.label} icon={tab.icon} value={tab.value} />
-        ))}
-      </Tabs>
+      <HeroHeader
+        offsetTop={70}
+        title={name || 'User Profile'}
+        status={designation || 'Active User'}
+        icon="solar:user-bold"
+        meta={metaItems}
+        action={
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={<Iconify icon="solar:key-minimalistic-square-bold" />}
+              onClick={passwordDialog.onTrue}
+              sx={{
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+                color: 'common.white',
+                '&:hover': {
+                  borderColor: 'common.white',
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              Change Password
+            </Button>
 
-      {tabs.value === 'general' && renderGeneral}
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.user.edit(_id)}
+              variant="contained"
+              startIcon={<Iconify icon="solar:pen-bold" />}
+              sx={{
+                bgcolor: 'common.white',
+                color: 'primary.darker',
+                '&:hover': {
+                  bgcolor: 'grey.200',
+                },
+              }}
+            >
+              Edit User
+            </Button>
+          </Stack>
+        }
+      />
 
-      {tabs.value === 'permissions' && renderPermissions}
+      <Box sx={{ mt: 3 }}>
+        <Grid container spacing={3}>
+          <Grid xs={12} md={4}>
+            <UserBasicWidget user={user} />
+          </Grid>
 
-      {tabs.value === 'security' && <AccountChangePassword />}
+          <Grid xs={12} md={4}>
+            <UserAccountWidget user={user} />
+          </Grid>
+
+          <Grid xs={12} md={4}>
+            <UserBankWidget user={user} />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <UserChangePasswordDialog
+        open={passwordDialog.value}
+        onClose={passwordDialog.onFalse}
+        user={user}
+      />
     </DashboardContent>
   );
 }
+
+export default UserDetailView;
