@@ -81,28 +81,23 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
   const { getLabel, isRequired } = useFieldHelpers('subtrip', customerId);
 
-  // Initialize default freight details when selectedSubtrip loads/changes
+  // Initialize form fields and helper context fields when selectedSubtrip changes
   useEffect(() => {
-    if (selectedSubtrip && selectedSubtrip.freightDetails) {
+    if (!selectedSubtrip) return;
+
+    if (selectedSubtrip.freightDetails) {
       setValue(
         'freightDetails',
         {
           freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
-          endKm:
-            selectedSubtrip.freightDetails.endKm !== undefined &&
-              selectedSubtrip.freightDetails.endKm !== null
-              ? selectedSubtrip.freightDetails.endKm
-              : undefined,
+          endKm: selectedSubtrip.freightDetails.endKm ?? undefined,
           endTime: selectedSubtrip.freightDetails.endTime || null,
         },
         { shouldValidate: true }
       );
     }
-  }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
 
-  // Initialize default commission details when selectedSubtrip loads/changes
-  useEffect(() => {
-    if (selectedSubtrip && selectedSubtrip.commissionDetails) {
+    if (selectedSubtrip.commissionDetails) {
       setValue(
         'commissionDetails',
         {
@@ -112,19 +107,29 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         { shouldValidate: true }
       );
     }
-  }, [selectedSubtrip?._id, setValue, selectedSubtrip]);
 
-  // Initialize helper context fields for zod dynamic schema validation
-  useEffect(() => {
-    if (selectedSubtrip) {
-      setValue('freightModel', selectedSubtrip.freightDetails?.freightModel || 'per_ton');
-      setValue('startKm', selectedSubtrip.freightDetails?.startKm || 0);
-      setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
-      setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
-      setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
-      setValue('remarksRequired', isRequired('remarks'));
+    setValue('freightModel', selectedSubtrip.freightDetails?.freightModel || 'per_ton');
+    setValue('startKm', selectedSubtrip.freightDetails?.startKm || 0);
+    setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
+    setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
+    setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
+    setValue('remarksRequired', isRequired('remarks'));
+
+    const currentUnloading = watch('unloadingWeight');
+    if ((!currentUnloading || Number(currentUnloading) === 0) && selectedSubtrip.loadingWeight) {
+      setValue('unloadingWeight', selectedSubtrip.loadingWeight, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
-  }, [selectedSubtrip, setValue, isRequired]);
+  }, [selectedSubtrip, setValue, isRequired, watch]);
+
+  const loadingWeight = Number(selectedSubtrip?.loadingWeight || 0);
+  const currentUnloading = Number(unloadingWeight || 0);
+  const weightDiff =
+    selectedSubtrip?.loadingWeight && unloadingWeight !== '' && unloadingWeight !== undefined
+      ? Number((currentUnloading - loadingWeight).toFixed(3))
+      : 0;
 
   // Auto-calculate commission amount based on commissionRate and loadingWeight for per_ton / per_kl model
   useEffect(() => {
@@ -237,26 +242,41 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         {selectedSubtrip && (
           <>
             <Field.Configurable entity="subtrip" name="unloadingWeight" customerId={customerId}>
-              <Field.Text
-                name="unloadingWeight"
-                label={getLabel(
-                  'unloadingWeight',
-                  freightModel === 'per_kl' ? 'Unloading Volume (KL)' : 'Unloading Weight'
+              <Stack spacing={0.5}>
+                <Field.Text
+                  name="unloadingWeight"
+                  label={getLabel(
+                    'unloadingWeight',
+                    freightModel === 'per_kl' ? 'Unloading Volume (KL)' : 'Unloading Weight'
+                  )}
+                  type="number"
+                  required={
+                    freightModel === 'per_ton' ||
+                    freightModel === 'per_kl' ||
+                    isRequired('unloadingWeight')
+                  }
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {getWeightUnit(selectedSubtrip)}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                {weightDiff !== 0 && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      px: 0.5,
+                      fontWeight: 600,
+                      color: weightDiff < 0 ? 'error.main' : 'warning.main',
+                    }}
+                  >
+                    {weightDiff > 0 ? `+${weightDiff}` : weightDiff} {getWeightUnit(selectedSubtrip)}
+                  </Typography>
                 )}
-                type="number"
-                required={
-                  freightModel === 'per_ton' ||
-                  freightModel === 'per_kl' ||
-                  isRequired('unloadingWeight')
-                }
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {getWeightUnit(selectedSubtrip)}
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              </Stack>
             </Field.Configurable>
 
             {isOwn ? null : freightModel === 'per_ton' || freightModel === 'per_kl' ? (
@@ -464,6 +484,7 @@ export function SubtripReceiveForm() {
       reset({
         ...defaultValues,
         subtripId: subtrip._id,
+        unloadingWeight: subtrip.loadingWeight || 0,
       });
     },
     [reset]
@@ -510,6 +531,17 @@ export function SubtripReceiveForm() {
 
   // Removed endKm auto-fill via GPS as endKm is no longer captured
 
+  const freightModel = selectedSubtripData?.freightDetails?.freightModel || 'per_ton';
+  const isOverweight = unloadingWeight > (selectedSubtripData?.loadingWeight || 0);
+  const isCommissionExceeded =
+    !isOwn &&
+    (freightModel === 'per_ton' || freightModel === 'per_kl'
+      ? commissionDetails?.commissionRate > (selectedSubtripData?.freightDetails?.rate || 0)
+      : commissionDetails?.commissionAmount >
+        (selectedSubtripData?.freightDetails?.freightAmount || 0));
+
+  const isSubmitDisabled = !isValid || isSubmitting || isOverweight || isCommissionExceeded;
+
   return (
     <>
       <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -539,22 +571,7 @@ export function SubtripReceiveForm() {
                 type="submit"
                 variant="contained"
                 loading={isSubmitting}
-                disabled={
-                  !isValid ||
-                  isSubmitting ||
-                  // local errors
-                  unloadingWeight > selectedSubtripData?.loadingWeight ||
-                  (!isOwn &&
-                    (selectedSubtripData?.freightDetails?.freightModel === 'per_ton' ||
-                      selectedSubtripData?.freightDetails?.freightModel === 'per_kl') &&
-                    commissionDetails?.commissionRate >
-                    selectedSubtripData?.freightDetails?.rate) ||
-                  (!isOwn &&
-                    selectedSubtripData?.freightDetails?.freightModel !== 'per_ton' &&
-                    selectedSubtripData?.freightDetails?.freightModel !== 'per_kl' &&
-                    commissionDetails?.commissionAmount >
-                    selectedSubtripData?.freightDetails?.freightAmount)
-                }
+                disabled={isSubmitDisabled}
               >
                 Save Changes
               </LoadingButton>
