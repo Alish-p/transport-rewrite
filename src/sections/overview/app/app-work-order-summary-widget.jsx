@@ -26,7 +26,7 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
     theme.palette.primary.dark,
   ];
 
-  const totalParts = data?.totalWorkOrders || 0;
+  const totalWorkOrders = data?.totalWorkOrders || 0;
   const openWorkOrders = data?.openWorkOrders || 0;
   const inprogressWorkOrders = data?.inprogressWorkOrders || 0;
   const completedWorkOrders = data?.completedWorkOrders || 0;
@@ -57,7 +57,7 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
           labels: {
             value: { formatter: (value) => fShortenNumber(value) },
             total: {
-              formatter: () => fShortenNumber(totalParts),
+              formatter: () => fShortenNumber(totalWorkOrders),
             },
           },
         },
@@ -68,12 +68,6 @@ export function AppWorkOrderSummaryWidget({ ...other }) {
   if (isLoading || !data) return null;
 
   const STATS = [
-    {
-      title: 'Total WO',
-      value: totalParts,
-      icon: 'mdi:file-document-multiple-outline',
-      color: theme.palette.primary.main,
-    },
     {
       title: 'Open',
       value: openWorkOrders,
