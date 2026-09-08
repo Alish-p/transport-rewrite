@@ -567,7 +567,7 @@ export function SubtripDocumentsWidget({ subtrip, publicMode = false, sx }) {
 
   return (
     <>
-      <Card sx={{ mt: 3, ...sx }}>
+      <Card sx={{ ...sx }}>
         <CardHeader
           title="Documents"
           avatar={<Iconify icon="solar:document-bold" color="primary.main" width={24} />}

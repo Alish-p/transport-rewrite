@@ -64,50 +64,69 @@ const EVENT_COLORS = {
 
 // ----------------------------------------------------------------------
 
-export function SubtripTimeline({ events = [] }) {
+export function SubtripTimeline({ events = [], sx, ...other }) {
   return (
     <Card
       sx={{
-        mt: 2,
         height: 400,
         display: 'flex',
         flexDirection: 'column',
+        ...sx,
       }}
+      {...other}
     >
-      <CardHeader title="Activity timeline" />
+      <CardHeader
+        title="Activity Timeline"
+        avatar={<Iconify icon="solar:history-bold" color="primary.main" width={24} />}
+        sx={{
+          p: 2.5,
+          pb: 1,
+          '& .MuiCardHeader-avatar': { mr: 1 },
+          '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
+        }}
+      />
       <Scrollbar sx={{ flexGrow: 1 }}>
-        <Timeline
-          sx={{
-            m: 0,
-            p: 3,
-            [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 },
-          }}
-        >
-          {events.map((event, index) => {
-            const eventColor = EVENT_COLORS[event.eventType] || 'primary';
-            const titleColor = eventColor === 'grey' ? 'text.secondary' : eventColor;
+        {events.length === 0 ? (
+          <Typography
+            variant="body2"
+            sx={{ color: 'text.secondary', p: 3, textAlign: 'center' }}
+          >
+            No activity recorded yet
+          </Typography>
+        ) : (
+          <Timeline
+            sx={{
+              m: 0,
+              p: 2.5,
+              [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 },
+            }}
+          >
+            {events.map((event, index) => {
+              const eventColor = EVENT_COLORS[event.eventType] || 'primary';
+              const titleColor = eventColor === 'grey' ? 'text.secondary' : eventColor;
 
-            return (
-              <TimelineItem key={event._id}>
-                <TimelineSeparator>
-                  <TimelineDot color={eventColor}>
-                    <Iconify icon={EVENT_ICONS[event.eventType]} width={24} />
-                  </TimelineDot>
-                  {index === events.length - 1 ? null : <TimelineConnector />}
-                </TimelineSeparator>
-                <TimelineContent>
-                  <Typography variant="subtitle2" color={titleColor}>
-                    {event.eventType}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                    {fDateTime(event.timestamp)}
-                  </Typography>
-                  <EventMessage message={event.displayMessage} />
-                </TimelineContent>
-              </TimelineItem>
-            );
-          })}
-        </Timeline>
+              return (
+                <TimelineItem key={event._id}>
+                  <TimelineSeparator>
+                    <TimelineDot color={eventColor}>
+                      <Iconify icon={EVENT_ICONS[event.eventType]} width={20} />
+                    </TimelineDot>
+                    {index === events.length - 1 ? null : <TimelineConnector />}
+                  </TimelineSeparator>
+                  <TimelineContent>
+                    <Typography variant="subtitle2" color={titleColor}>
+                      {event.eventType}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                      {fDateTime(event.timestamp)}
+                    </Typography>
+                    <EventMessage message={event.displayMessage} />
+                  </TimelineContent>
+                </TimelineItem>
+              );
+            })}
+          </Timeline>
+        )}
       </Scrollbar>
     </Card>
   );

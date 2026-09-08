@@ -283,12 +283,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             // Show Trip only when associated (non-market vehicles)
             ...(hasTrip
               ? [
-                  {
-                    icon: 'mdi:routes',
-                    label: `Trip #${subtrip.tripId.tripNo}`,
-                    href: paths.dashboard.trip.details(subtrip.tripId._id),
-                  },
-                ]
+                {
+                  icon: 'mdi:routes',
+                  label: `Trip #${subtrip.tripId.tripNo}`,
+                  href: paths.dashboard.trip.details(subtrip.tripId._id),
+                },
+              ]
               : []),
           ].filter((m) => (publicMode ? m.label !== 'Actions' : true))}
           menus={[
@@ -533,13 +533,13 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
           actions={
             !publicMode
               ? [
-                  {
-                    label: 'Edit',
-                    icon: 'solar:pen-bold',
-                    onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
-                    disabled: !isEditingAllowed(),
-                  },
-                ]
+                {
+                  label: 'Edit',
+                  icon: 'solar:pen-bold',
+                  onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+                  disabled: !isEditingAllowed(),
+                },
+              ]
               : undefined
           }
         />
@@ -733,12 +733,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             </Stack>
           </Grid>
 
-          <Grid item xs={12} md={4} gap={2}>
-            <LRInfo subtrip={subtrip} />
+          <Grid item xs={12} md={4}>
+            <LRInfo subtrip={subtrip} sx={{ mb: 3 }} />
 
-            <SubtripTimeline events={events} />
+            <SubtripTimeline events={events} sx={{ mb: 3 }} />
 
-            <EpodInfoCard subtrip={subtrip} />
+            <EpodInfoCard subtrip={subtrip} sx={{ mb: 3 }} />
 
             <SubtripDocumentsWidget subtrip={subtrip} publicMode={publicMode} />
           </Grid>
