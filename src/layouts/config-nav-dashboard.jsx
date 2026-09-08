@@ -73,6 +73,7 @@ export const navData = [
         path: paths.dashboard.liveTracking,
         icon: <Iconify icon="mdi:map-marker-radius" />,
         info: 'New',
+        feature: 'vehicleGPS',
       },
     ],
   },

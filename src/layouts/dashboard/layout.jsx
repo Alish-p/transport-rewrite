@@ -313,6 +313,7 @@ function useNavColorVars(theme, settings) {
 // ----------------------------------------------------------------------
 
 const FEATURE_CHECKERS = {
+  vehicleGPS: (tenant) => !!tenant?.integrations?.vehicleGPS?.enabled,
   maintenanceAndInventory: (tenant) => !!tenant?.integrations?.maintenanceAndInventory?.enabled,
   tyre: (tenant) => !!tenant?.integrations?.tyre?.enabled,
   marketVehicle: (tenant) => {

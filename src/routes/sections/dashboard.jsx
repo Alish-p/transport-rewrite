@@ -213,6 +213,7 @@ function SuperGuard({ children }) {
 // ----------------------------------------------------------------------
 
 const ROUTE_FEATURE_CHECKERS = {
+  vehicleGPS: (tenant) => !!tenant?.integrations?.vehicleGPS?.enabled,
   maintenanceAndInventory: (tenant) => !!tenant?.integrations?.maintenanceAndInventory?.enabled,
   tyre: (tenant) => !!tenant?.integrations?.tyre?.enabled,
 };
@@ -240,7 +241,14 @@ export const dashboardRoutes = [
     element: CONFIG.auth.skip ? <>{layoutContent}</> : <AuthGuard>{layoutContent}</AuthGuard>,
     children: [
       { element: <IndexPage />, index: true },
-      { path: 'live-tracking', element: <LiveTrackingPage /> },
+      {
+        path: 'live-tracking',
+        element: (
+          <FeatureGuard feature="vehicleGPS">
+            <LiveTrackingPage />
+          </FeatureGuard>
+        ),
+      },
       { path: 'whatsapp', element: <WhatsAppInboxPage /> },
 
       {
