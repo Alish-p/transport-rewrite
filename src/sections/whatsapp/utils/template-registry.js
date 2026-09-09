@@ -26,7 +26,25 @@ export const TEMPLATE_REGISTRY = {
 
 export function reconstructTemplateText(templateName, templateComponents) {
   const template = TEMPLATE_REGISTRY[templateName];
-  if (!template) return `[Template: ${templateName}]`;
+  if (!template) {
+    // Graceful fallback: extract and display parameters if present
+    const bodyComponent = templateComponents?.find?.((c) => c.type === 'body');
+    if (bodyComponent && Array.isArray(bodyComponent.parameters) && bodyComponent.parameters.length > 0) {
+      const paramTexts = bodyComponent.parameters
+        .map((p) => {
+          if (p.type === 'text') return p.text;
+          if (p.type === 'currency') return p.currency?.fallback_value || p.currency?.amount || '';
+          if (p.type === 'date_time') return p.date_time?.fallback_value || '';
+          return String(p.text || '');
+        })
+        .filter(Boolean);
+
+      if (paramTexts.length > 0) {
+        return `[Template: ${templateName || 'Message'}]\n${paramTexts.join('\n')}`;
+      }
+    }
+    return `[Template: ${templateName || 'Message'}]`;
+  }
 
   let text = template.body;
   if (!templateComponents) return text;

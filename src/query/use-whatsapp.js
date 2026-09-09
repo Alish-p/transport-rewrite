@@ -17,7 +17,7 @@ const getConversations = async (params) => {
 };
 
 const getConversationMessages = async (conversationId, params) => {
-  const { data } = await axios.get(`${ENDPOINT}/conversations/${conversationId}/messages`, { params });
+  const { data } = await axios.get(`${ENDPOINT}/conversations/${encodeURIComponent(conversationId)}/messages`, { params });
   return data;
 };
 
@@ -27,7 +27,7 @@ const sendMessage = async (payload) => {
 };
 
 const markAsRead = async (conversationId) => {
-  const { data } = await axios.patch(`${ENDPOINT}/conversations/${conversationId}/read`);
+  const { data } = await axios.patch(`${ENDPOINT}/conversations/${encodeURIComponent(conversationId)}/read`);
   return data;
 };
 

@@ -19,7 +19,7 @@ const IndexPage = lazy(() => import('src/pages/dashboard'));
 const LiveTrackingPage = lazy(() => import('src/sections/live-tracking/live-tracking-view'));
 
 // WhatsApp
-const WhatsAppInboxPage = lazy(() => import('src/sections/whatsapp/view/whatsapp-inbox-view'));
+const WhatsAppInboxPage = lazy(() => import('src/pages/dashboard/whatsapp'));
 
 // Vehicle
 const VehicleDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/details'));
