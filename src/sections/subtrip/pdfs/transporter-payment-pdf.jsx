@@ -46,12 +46,15 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
   // For market vehicles, use advances; for own vehicles, use expenses
   const isMarketVehicle = vehicleId?.isOwn === false;
   const deductionItems = useMemo(
-    () => (isMarketVehicle ? subtrip.advances || [] : expenses || []),
+    () =>
+      (isMarketVehicle ? subtrip.advances || [] : expenses || []).filter(
+        (item) => item.status !== 'Cancelled'
+      ),
     [isMarketVehicle, subtrip.advances, expenses]
   );
 
   const totalExpense = useMemo(
-    () => deductionItems.filter(item => item.status !== 'Cancelled').reduce((total, item) => total + (item.amount || 0), 0),
+    () => deductionItems.reduce((total, item) => total + (item.amount || 0), 0),
     [deductionItems]
   );
 
@@ -335,11 +338,13 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
         {renderIncomeDetails()}
       </Page>
 
-      <Page size="A5" style={styles.page} orientation="landscape">
-        {/* Headers */}
+      {deductionItems.length > 0 && (
+        <Page size="A5" style={styles.page} orientation="landscape">
+          {/* Headers */}
 
-        {renderExpenseDetails()}
-      </Page>
+          {renderExpenseDetails()}
+        </Page>
+      )}
     </Document>
   );
 }

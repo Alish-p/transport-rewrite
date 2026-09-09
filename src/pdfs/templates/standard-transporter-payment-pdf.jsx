@@ -240,12 +240,14 @@ export default function StandardTransporterPaymentPdf({ transporterPayment, tena
     ];
 
     const expenseRows = subtripSnapshot.flatMap((st) =>
-      (st.expenses || []).map((e) => ({
-        subtripNo: st.subtripNo,
-        expenseType: e.expenseType,
-        amount: e.amount,
-        remarks: e.remarks || '',
-      }))
+      (st.expenses || [])
+        .filter((e) => e.status !== 'Cancelled')
+        .map((e) => ({
+          subtripNo: st.subtripNo,
+          expenseType: e.expenseType,
+          amount: e.amount,
+          remarks: e.remarks || '',
+        }))
     );
 
     const tableData = expenseRows.map((row, idx) => ({ ...row, sno: idx + 1 }));
@@ -285,7 +287,7 @@ export default function StandardTransporterPaymentPdf({ transporterPayment, tena
           signatory={`For ${tenant.name}`}
         />
       </Page>
-      {subtripSnapshot.some((st) => (st.expenses || []).length > 0) && (
+      {subtripSnapshot.some((st) => (st.expenses || []).some((e) => e.status !== 'Cancelled')) && (
         <Page size="A4" style={PDFStyles.page} orientation="landscape">
           <PDFTitle title="Trip Advances" />
           <PDFHeader company={tenant} />
