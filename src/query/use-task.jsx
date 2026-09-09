@@ -7,9 +7,13 @@ const ENDPOINT = '/api/tasks';
 const QUERY_KEY = 'tasks';
 
 // Fetchers
-const getTasks = async () => {
-  const { data } = await axios.get(ENDPOINT);
-  console.log({ data });
+const getTasks = async (params = {}) => {
+  const { data } = await axios.get(ENDPOINT, { params });
+  return data;
+};
+
+const getMyTasks = async () => {
+  const { data } = await axios.get(ENDPOINT, { params: { assignees: 'me' } });
   return data;
 };
 
@@ -54,8 +58,19 @@ const addActivityToTask = async (taskId, activity) => {
 };
 
 // Queries & Mutations
-export function useTasks() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: getTasks });
+export function useTasks(params) {
+  return useQuery({
+    queryKey: params ? [QUERY_KEY, params] : [QUERY_KEY],
+    queryFn: () => getTasks(params),
+  });
+}
+
+export function useMyTasks(options = {}) {
+  return useQuery({
+    queryKey: [QUERY_KEY, 'my-tasks'],
+    queryFn: getMyTasks,
+    ...options,
+  });
 }
 
 export function useCreateTask() {

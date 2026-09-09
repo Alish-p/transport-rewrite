@@ -16,6 +16,7 @@ import { AccountDrawer } from '../components/account-drawer';
 import { ContactsPopover } from '../components/contacts-popover';
 import { LanguagePopover } from '../components/language-popover';
 import { WorkspacesPopover } from '../components/workspaces-popover';
+import { AssignedIssuesPopover } from '../components/assigned-issues-popover';
 
 // ----------------------------------------------------------------------
 
@@ -64,6 +65,7 @@ export function HeaderBase({
     workspaces = true,
     menuButton = true,
     localization = true,
+    assignedIssues = true,
     contacts = true,
   } = {},
 
@@ -137,6 +139,9 @@ export function HeaderBase({
 
               {/* -- Language popover -- */}
               {localization && <LanguagePopover data-slot="localization" data={data?.langs} />}
+
+              {/* -- Assigned Issues popover -- */}
+              {assignedIssues && <AssignedIssuesPopover data-slot="assigned-issues" />}
 
               {/* -- Notifications popover -- */}
               {/* {notifications && (
