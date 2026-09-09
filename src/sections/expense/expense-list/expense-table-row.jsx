@@ -17,11 +17,10 @@ export default function ExpenseTableRow({
   disabledColumns,
   columnOrder,
 }) {
+  const isCancelled = row?.status === 'Cancelled';
   const handleView = onViewRow ? () => onViewRow(row._id) : undefined;
-  const handleEdit = onEditRow ? () => onEditRow(row._id) : undefined;
-  const handleDelete = onDeleteRow ? () => onDeleteRow(row._id) : undefined;
-
-  console.log({ row });
+  const handleEdit = !isCancelled && onEditRow ? () => onEditRow(row._id) : undefined;
+  const handleDelete = !isCancelled && onDeleteRow ? () => onDeleteRow(row._id) : undefined;
 
   return (
     <GenericTableRow
@@ -35,6 +34,17 @@ export default function ExpenseTableRow({
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
       columnOrder={columnOrder}
+      rowProps={
+        isCancelled
+          ? {
+              sx: {
+                opacity: 0.6,
+                textDecoration: 'line-through',
+                '& .MuiTableCell-root': { textDecoration: 'line-through' },
+              },
+            }
+          : {}
+      }
     />
   );
 }

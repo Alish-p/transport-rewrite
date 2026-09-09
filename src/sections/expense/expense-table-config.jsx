@@ -214,4 +214,21 @@ export const TABLE_COLUMNS = [
     align: 'right',
     showTotal: true,
   },
+  {
+    id: 'status',
+    label: 'Status',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => row?.status || 'Recorded',
+    render: (row) => {
+      const status = row?.status || 'Recorded';
+      const color = status === 'Cancelled' ? 'error' : 'success';
+      return (
+        <Label variant="soft" color={color}>
+          {status}
+        </Label>
+      );
+    },
+  },
 ];
