@@ -21,6 +21,7 @@ const EVENT_ICONS = {
   MATERIAL_ADDED: 'mdi:package-variant',
   EXPENSE_ADDED: 'mdi:cash-plus',
   EXPENSE_DELETED: 'mdi:cash-minus',
+  EXPENSE_CANCELLED: 'mdi:cash-minus',
   RECEIVED: 'material-symbols:call-received',
   INVOICE_GENERATED: 'mdi:file-document-edit',
   INVOICE_DELETED: 'mdi:file-document-remove',
@@ -37,6 +38,7 @@ const EVENT_ICONS = {
   EPOD_SUBMITTED: 'mdi:file-check-outline',
   ADVANCE_ADDED: 'mdi:cash-plus',
   ADVANCE_DELETED: 'mdi:cash-minus',
+  ADVANCE_CANCELLED: 'mdi:cash-minus',
 };
 
 const EVENT_COLORS = {
@@ -44,6 +46,7 @@ const EVENT_COLORS = {
   MATERIAL_ADDED: 'info',
   EXPENSE_ADDED: 'info',
   EXPENSE_DELETED: 'error',
+  EXPENSE_CANCELLED: 'error',
   RECEIVED: 'success',
   ERROR_REPORTED: 'warning',
   ERROR_RESOLVED: 'success',
@@ -59,6 +62,7 @@ const EVENT_COLORS = {
   STATUS_CHANGED: 'grey',
   ADVANCE_ADDED: 'info',
   ADVANCE_DELETED: 'error',
+  ADVANCE_CANCELLED: 'error',
   EPOD_SUBMITTED: 'success',
 };
 
