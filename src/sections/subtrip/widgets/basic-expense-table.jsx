@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Box,
   Card,
@@ -19,8 +20,6 @@ import {
   TableContainer,
 } from '@mui/material';
 
-import LoadingButton from '@mui/lab/LoadingButton';
-
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -31,13 +30,14 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 import { useCancelExpense } from 'src/query/use-expense';
 import { useCancelTransporterAdvance } from 'src/query/use-transporter-advance';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { TableNoData } from 'src/components/table';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
-export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd = false }) => {
+export const BasicExpenseTable = ({ selectedSubtrip, withDelete = true, withAdd = false }) => {
   const cancelExpense = useCancelExpense();
   const cancelAdvance = useCancelTransporterAdvance();
   const navigate = useNavigate();
@@ -108,27 +108,30 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell align="center" width="15%">
+              <TableCell align="center" width="12%">
                 Date
               </TableCell>
-              <TableCell align="center" width="20%">
+              <TableCell align="center" width="18%">
                 Type
               </TableCell>
-              <TableCell align="center" width="15%">
+              <TableCell align="center" width="12%">
                 Diesel Ltr
               </TableCell>
-              <TableCell align="center" width="15%">
+              <TableCell align="center" width="12%">
                 Diesel Price
               </TableCell>
-              <TableCell align="center" width="20%">
+              <TableCell align="center" width="15%">
                 Amount
               </TableCell>
               <TableCell align="center" width="15%">
                 Remarks
               </TableCell>
+              <TableCell align="center" width="10%">
+                Status
+              </TableCell>
               {withDelete && (
-                <TableCell align="center" width="15%">
-                  Cancel
+                <TableCell align="center" width="6%">
+                  Action
                 </TableCell>
               )}
             </TableRow>
@@ -172,19 +175,29 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
                       </Typography>
                     </Tooltip>
                   </TableCell>
+                  <TableCell align="center">
+                    <Label
+                      variant="soft"
+                      color={item.status === 'Cancelled' ? 'error' : 'success'}
+                    >
+                      {item.status || 'Recorded'}
+                    </Label>
+                  </TableCell>
                   {withDelete && (
                     <TableCell align="center">
                       {item.status !== 'Cancelled' && (
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => {
-                            confirm.onTrue();
-                            setSelectedItem(item);
-                          }}
-                        >
-                          <Iconify icon="mdi:close" />
-                        </IconButton>
+                        <Tooltip title={`Cancel ${isMarketVehicle ? 'advance' : 'expense'}`}>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => {
+                              confirm.onTrue();
+                              setSelectedItem(item);
+                            }}
+                          >
+                            <Iconify icon="solar:trash-bin-trash-bold" />
+                          </IconButton>
+                        </Tooltip>
                       )}
                     </TableCell>
                   )}
@@ -193,7 +206,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
             })}
             <TableNoData
               notFound={items.length === 0}
-              colSpan={withDelete ? 7 : 6}
+              colSpan={withDelete ? 8 : 7}
               sx={{ py: 2.5 }}
               slotProps={{
                 img: { maxWidth: 80 },

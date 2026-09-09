@@ -714,7 +714,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                 />
               </Stack>
               <Grid item>
-                <BasicExpenseTable selectedSubtrip={subtrip} withAdd={!publicMode} />
+                <BasicExpenseTable selectedSubtrip={subtrip} withAdd={!publicMode} withDelete={!publicMode} />
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <ExpenseChart
