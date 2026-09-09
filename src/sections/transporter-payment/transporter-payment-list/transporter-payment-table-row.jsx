@@ -79,6 +79,8 @@ export default function TransporterPaymentTableRow({
     }
   };
 
+  const isCancelled = row?.status === 'cancelled';
+
   return (
     <>
       <GenericTableRow
@@ -88,10 +90,23 @@ export default function TransporterPaymentTableRow({
         onSelectRow={onSelectRow}
         onViewRow={onViewRow}
         onEditRow={onEditRow}
+        editDisabled={isCancelled}
+        editDisabledReason="Cancelled payment receipt cannot be edited"
         customActions={customActions}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
         columnOrder={columnOrder}
+        rowProps={
+          isCancelled
+            ? {
+                sx: {
+                  opacity: 0.6,
+                  textDecoration: 'line-through',
+                  '& .MuiTableCell-root': { textDecoration: 'line-through' },
+                },
+              }
+            : {}
+        }
       />
 
       {canMarkPaid && (

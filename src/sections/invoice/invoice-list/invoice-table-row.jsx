@@ -53,6 +53,8 @@ export default function InvoiceTableRow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canRecordPayment, invoiceStatus, onDeleteRow]);
 
+  const isCancelled = invoiceStatus === INVOICE_STATUS.CANCELLED;
+
   return (
     <>
       <GenericTableRow
@@ -62,10 +64,23 @@ export default function InvoiceTableRow({
         onSelectRow={onSelectRow}
         onViewRow={handleView}
         onEditRow={handleEdit}
+        editDisabled={isCancelled}
+        editDisabledReason="Cancelled invoice cannot be edited"
         customActions={customActions}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
         columnOrder={columnOrder}
+        rowProps={
+          isCancelled
+            ? {
+              sx: {
+                opacity: 0.7,
+                textDecoration: 'line-through',
+                '& .MuiTableCell-root': { textDecoration: 'line-through' },
+              },
+            }
+            : {}
+        }
       />
 
       {canRecordPayment && (

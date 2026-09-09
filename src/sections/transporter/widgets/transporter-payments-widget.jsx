@@ -62,39 +62,61 @@ export function TransporterPaymentsWidget({ transporterId, title = 'Payments', .
               <TableSkeleton />
             ) : payments.length ? (
               <>
-                {displayed.map((row) => (
-                  <TableRow key={row._id}>
-                    <TableCell>
-                      <Label variant="soft">
-                        <Link
-                          component={RouterLink}
-                          to={paths.dashboard.transporterPayment.details(row._id)}
-                          variant="body2"
-                          noWrap
-                          sx={{ color: 'text.disabled' }}
+                {displayed.map((row) => {
+                  const isCancelled = row.status === 'cancelled';
+                  return (
+                    <TableRow
+                      key={row._id}
+                      sx={
+                        isCancelled
+                          ? {
+                              opacity: 0.6,
+                              textDecoration: 'line-through',
+                              '& .MuiTableCell-root': { textDecoration: 'line-through' },
+                            }
+                          : {}
+                      }
+                    >
+                      <TableCell>
+                        <Label variant="soft">
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.transporterPayment.details(row._id)}
+                            variant="body2"
+                            noWrap
+                            sx={{ color: 'text.disabled' }}
+                          >
+                            {row.paymentId}
+                          </Link>
+                        </Label>
+                      </TableCell>
+                      <TableCell>
+                        {(() => {
+                          const jobs = row.subtripSnapshot?.map((st) => st.subtripNo)?.join(', ');
+                          return (
+                            <Tooltip title={jobs}>
+                              <ListItemText
+                                primary={wrapText(jobs || '-', 30)}
+                                primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+                              />
+                            </Tooltip>
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Label
+                          variant="soft"
+                          color={
+                            row.status === 'paid'
+                              ? 'success'
+                              : row.status === 'generated'
+                                ? 'warning'
+                                : 'error'
+                          }
                         >
-                          {row.paymentId}
-                        </Link>
-                      </Label>
-                    </TableCell>
-                    <TableCell>
-                      {(() => {
-                        const jobs = row.subtripSnapshot?.map((st) => st.subtripNo)?.join(', ');
-                        return (
-                          <Tooltip title={jobs}>
-                            <ListItemText
-                              primary={wrapText(jobs || '-', 30)}
-                              primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-                            />
-                          </Tooltip>
-                        );
-                      })()}
-                    </TableCell>
-                    <TableCell align="center">
-                      <Label variant="soft" color={row.status === 'paid' ? 'success' : 'error'}>
-                        {row.status}
-                      </Label>
-                    </TableCell>
+                          {row.status}
+                        </Label>
+                      </TableCell>
                     <TableCell>{fDate(new Date(row.issueDate))}</TableCell>
                     <TableCell align="right">
                       {fCurrency(row.summary?.netIncome ?? row.amount)}
@@ -102,8 +124,9 @@ export function TransporterPaymentsWidget({ transporterId, title = 'Payments', .
                     <TableCell align="right">
                       {fCurrency(row.taxBreakup?.tds?.amount ?? 0)}
                     </TableCell>
-                  </TableRow>
-                ))}
+                    </TableRow>
+                  );
+                })}
               </>
             ) : (
               <TableNoData notFound />

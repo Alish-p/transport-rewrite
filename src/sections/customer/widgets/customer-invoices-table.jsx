@@ -66,8 +66,21 @@ export function CustomerInvoicesTable({ customer, title, subheader, ...other }) 
                   const issueDate = row.issueDate || row.invoiceDate;
                   const amount = row.netTotal ?? row.totalAmount;
 
+                  const isCancelled = invoiceStatus === 'Cancelled';
+
                   return (
-                    <TableRow key={row._id}>
+                    <TableRow
+                      key={row._id}
+                      sx={
+                        isCancelled
+                          ? {
+                              opacity: 0.6,
+                              textDecoration: 'line-through',
+                              '& .MuiTableCell-root': { textDecoration: 'line-through' },
+                            }
+                          : {}
+                      }
+                    >
                       <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
 
                       <TableCell>
@@ -88,9 +101,11 @@ export function CustomerInvoicesTable({ customer, title, subheader, ...other }) 
                           color={
                             invoiceStatus === 'paid'
                               ? 'success'
-                              : invoiceStatus === 'over-due'
+                              : isCancelled
                                 ? 'error'
-                                : 'warning'
+                                : invoiceStatus === 'over-due'
+                                  ? 'error'
+                                  : 'warning'
                           }
                         >
                           {invoiceStatus}
