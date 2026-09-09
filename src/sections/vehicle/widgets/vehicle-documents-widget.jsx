@@ -12,7 +12,10 @@ import {
   Stack,
   Table,
   Button,
+  Divider,
   TableRow,
+  MenuList,
+  MenuItem,
   TableHead,
   TableCell,
   TableBody,
@@ -22,7 +25,6 @@ import {
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -40,6 +42,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { TableNoData, TableSkeleton } from 'src/components/table';
+import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 import { getStatusMeta, getExpiryStatus } from 'src/sections/vehicle/utils/document-utils';
 
@@ -246,7 +249,49 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
     setSelectedDoc(row);
     confirmDelete.onTrue();
   };
-  const handleDownload = async (row) => {
+
+  return (
+    <>
+      <Table size="small" sx={{ minWidth: 720 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Type</TableCell>
+            <TableCell>Number</TableCell>
+            <TableCell>Issue Date</TableCell>
+            <TableCell>Expiry Date</TableCell>
+            <TableCell>Status</TableCell>
+            {showActive && <TableCell>Active</TableCell>}
+            <TableCell align="right" sx={{ px: 1 }} />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {!hasRows && <TableNoData notFound title={emptyLabel} />}
+          {rows?.map((d) => (
+            <DocumentTableRow
+              key={d._id}
+              row={d}
+              vehicleId={vehicleId}
+              showActive={showActive}
+              onDelete={onDelete}
+            />
+          ))}
+        </TableBody>
+      </Table>
+      <ConfirmDeleteDocument
+        open={confirmDelete.value}
+        onClose={confirmDelete.onFalse}
+        vehicleId={vehicleId}
+        doc={selectedDoc}
+      />
+    </>
+  );
+}
+
+function DocumentTableRow({ row, vehicleId, showActive, onDelete }) {
+  const popover = usePopover();
+  const navigate = useNavigate();
+
+  const handleDownload = async () => {
     try {
       const { data } = await axios.get(`/api/documents/${vehicleId}/${row._id}/download`);
       if (data?.url) {
@@ -259,6 +304,7 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
       toast.error(msg);
     }
   };
+
   const renderStatus = (status) => {
     if (!status) return '-';
     const cfg = getStatusMeta(status);
@@ -272,83 +318,83 @@ function DocumentsTable({ rows, vehicleId, showActive = false, emptyLabel = 'No 
 
   return (
     <>
-      <Table size="small" sx={{ minWidth: 720 }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Type</TableCell>
-            <TableCell>Number</TableCell>
-            <TableCell>Issue Date</TableCell>
-            <TableCell>Expiry Date</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell align="center">Actions</TableCell>
-            {showActive && <TableCell>Active</TableCell>}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!hasRows && <TableNoData notFound title={emptyLabel} />}
-          {rows?.map((d) => (
-            <TableRow key={d._id} hover>
-              <TableCell sx={{ textTransform: 'capitalize' }}>{d.docType}</TableCell>
-              <TableCell>{d.docNumber || '-'}</TableCell>
-              <TableCell>{d.issueDate ? fDate(d.issueDate) : '-'}</TableCell>
-              <TableCell>{d.expiryDate ? fDate(d.expiryDate) : '-'}</TableCell>
-              <TableCell>{renderStatus(getExpiryStatus(d.expiryDate))}</TableCell>
-              <TableCell align="center">
-                {d.fileUrl && (
-                  <Tooltip title="Download">
-                    <IconButton size="small" onClick={() => handleDownload(d)}>
-                      <Iconify icon="eva:download-outline" />
-                    </IconButton>
-                  </Tooltip>
-                )}
+      <TableRow hover>
+        <TableCell sx={{ textTransform: 'capitalize' }}>{row.docType}</TableCell>
+        <TableCell>{row.docNumber || '-'}</TableCell>
+        <TableCell>{row.issueDate ? fDate(row.issueDate) : '-'}</TableCell>
+        <TableCell>{row.expiryDate ? fDate(row.expiryDate) : '-'}</TableCell>
+        <TableCell>{renderStatus(getExpiryStatus(row.expiryDate))}</TableCell>
+        {showActive && (
+          <TableCell>
+            <Label
+              color={row.isActive ? 'success' : 'error'}
+              variant="soft"
+              sx={{ textTransform: 'capitalize' }}
+            >
+              {row.isActive ? 'Yes' : 'No'}
+            </Label>
+          </TableCell>
+        )}
+        <TableCell align="right" sx={{ px: 1 }}>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+        </TableCell>
+      </TableRow>
 
-                <Tooltip title="View">
-                  <IconButton
-                    size="small"
-                    component={RouterLink}
-                    to={paths.dashboard.vehicle.documentDetails(d._id)}
-                  >
-                    <Iconify icon="solar:eye-bold" />
-                  </IconButton>
-                </Tooltip>
+      <CustomPopover
+        open={popover.open}
+        anchorEl={popover.anchorEl}
+        onClose={popover.onClose}
+        slotProps={{ arrow: { placement: 'right-top' } }}
+      >
+        <MenuList>
+          {row.fileUrl && (
+            <MenuItem
+              onClick={() => {
+                handleDownload();
+                popover.onClose();
+              }}
+            >
+              <Iconify icon="eva:download-outline" />
+              Download
+            </MenuItem>
+          )}
 
-                <Tooltip title="Edit">
-                  <IconButton
-                    size="small"
-                    component={RouterLink}
-                    to={paths.dashboard.vehicle.editDocument(d._id)}
-                  >
-                    <Iconify icon="eva:edit-2-outline" />
-                  </IconButton>
-                </Tooltip>
+          <MenuItem
+            onClick={() => {
+              navigate(paths.dashboard.vehicle.documentDetails(row._id));
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
 
-                <Tooltip title="Delete">
-                  <IconButton size="small" color="error" onClick={() => onDelete(d)}>
-                    <Iconify icon="eva:trash-2-outline" />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-              {showActive && (
-                <TableCell>
-                  <Label
-                    color={d.isActive ? 'success' : 'error'}
-                    variant="soft"
-                    sx={{ textTransform: 'capitalize' }}
-                  >
-                    {d.isActive ? 'Yes' : 'No'}
-                  </Label>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <ConfirmDeleteDocument
-        open={confirmDelete.value}
-        onClose={confirmDelete.onFalse}
-        vehicleId={vehicleId}
-        doc={selectedDoc}
-      />
+          <MenuItem
+            onClick={() => {
+              navigate(paths.dashboard.vehicle.editDocument(row._id));
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <MenuItem
+            onClick={() => {
+              onDelete(row);
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Delete
+          </MenuItem>
+        </MenuList>
+      </CustomPopover>
     </>
   );
 }
