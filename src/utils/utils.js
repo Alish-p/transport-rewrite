@@ -6,7 +6,7 @@ export const calculateDriverSalaryPerSubtrip = (subtrip) => {
 
   // Filter expenses for driver-salary type
   const driverSalaryExpenses = subtrip?.expenses.filter(
-    (expense) => expense.expenseType === 'Driver Salary'
+    (expense) => expense.status !== 'Cancelled' && expense.expenseType === 'Driver Salary'
   );
 
   // Sum the amounts of driver-salary expenses

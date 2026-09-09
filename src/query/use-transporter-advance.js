@@ -31,13 +31,13 @@ export function useCreateTransporterAdvance() {
   return mutateAsync;
 }
 
-export function useDeleteTransporterAdvance() {
+export function useCancelTransporterAdvance() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteTransporterAdvance(id),
     onSuccess: () => {
       queryClient.invalidateQueries(['subtrips']);
-      toast.success('Advance deleted successfully!');
+      toast.success('Advance cancelled successfully!');
     },
     onError: (error) => {
       console.log({ error });

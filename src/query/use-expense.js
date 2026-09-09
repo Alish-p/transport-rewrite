@@ -62,13 +62,14 @@ export function useCreateExpense() {
   return mutateAsync;
 }
 
-export function useDeleteExpense() {
+export function useCancelExpense() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (id) => deleteExpense(id),
     onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Expense deleted successfully!');
+      queryClient.invalidateQueries(['subtrips']);
+      toast.success('Expense cancelled successfully!');
     },
     onError: (error) => {
       console.log({ error });

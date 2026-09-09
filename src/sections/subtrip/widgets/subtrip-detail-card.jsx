@@ -108,7 +108,7 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
 
     // Calculate total expenses
     const expenses =
-      selectedSubtrip.expenses?.reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
+      selectedSubtrip.expenses?.filter(e => e.status !== 'Cancelled').reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
 
     // Calculate driver salary
     const driverSalary = calculateDriverSalaryPerSubtrip(selectedSubtrip);

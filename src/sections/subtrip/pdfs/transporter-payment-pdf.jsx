@@ -51,7 +51,7 @@ export default function TransporterPaymentPdf({ subtrip, tenant }) {
   );
 
   const totalExpense = useMemo(
-    () => deductionItems.reduce((total, item) => total + (item.amount || 0), 0),
+    () => deductionItems.filter(item => item.status !== 'Cancelled').reduce((total, item) => total + (item.amount || 0), 0),
     [deductionItems]
   );
 

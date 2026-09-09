@@ -35,7 +35,7 @@ import { exportToExcel, prepareDataForExport } from 'src/utils/export-to-excel';
 
 import ExpenseListPdf from 'src/pdfs/expense-list-pdf';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteExpense, usePaginatedExpenses } from 'src/query/use-expense';
+import { useCancelExpense, usePaginatedExpenses } from 'src/query/use-expense';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -83,7 +83,7 @@ export function ExpenseListView() {
   const router = useRouter();
   const table = useTable({ defaultOrderBy: 'date', defaultOrder: 'desc', syncToUrl: true });
   const navigate = useNavigate();
-  const deleteExpense = useDeleteExpense();
+  const cancelExpense = useCancelExpense();
   const subtripExpenseTypes = useSubtripExpenseTypes();
   const vehicleExpenseTypes = useVehicleExpenseTypes();
 
@@ -605,7 +605,7 @@ export function ExpenseListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteExpense(row._id)}
+                        onDeleteRow={() => cancelExpense(row._id)}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
                         columnOrder={columnOrder}

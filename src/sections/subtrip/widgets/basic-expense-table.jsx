@@ -26,8 +26,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fDate } from 'src/utils/format-time';
 import { fNumber, fCurrency } from 'src/utils/format-number';
 
-import { useDeleteExpense } from 'src/query/use-expense';
-import { useDeleteTransporterAdvance } from 'src/query/use-transporter-advance';
+import { useCancelExpense } from 'src/query/use-expense';
+import { useCancelTransporterAdvance } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { TableNoData } from 'src/components/table';
@@ -36,8 +36,8 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSubtripExpenseTypes } from '../../expense/expense-config';
 
 export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd = false }) => {
-  const deleteExpense = useDeleteExpense();
-  const deleteAdvance = useDeleteTransporterAdvance();
+  const cancelExpense = useCancelExpense();
+  const cancelAdvance = useCancelTransporterAdvance();
   const navigate = useNavigate();
   const confirm = useBoolean();
   const subtripExpenseTypes = useSubtripExpenseTypes();
@@ -47,15 +47,16 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
   // Determine if this is a market vehicle subtrip (use advances) or own vehicle (use expenses)
   const isMarketVehicle = selectedSubtrip?.vehicleId?.isOwn === false;
   const items = isMarketVehicle ? selectedSubtrip?.advances || [] : selectedSubtrip?.expenses || [];
-  const totalAmount = items.reduce((acc, item) => acc + (item.amount || 0), 0);
+  const activeItems = items.filter(item => item.status !== 'Cancelled');
+  const totalAmount = activeItems.reduce((acc, item) => acc + (item.amount || 0), 0);
 
   const label = isMarketVehicle ? 'Advances' : 'Expenses';
 
-  const handleDelete = (item) => {
+  const handleCancel = (item) => {
     if (isMarketVehicle) {
-      deleteAdvance(item._id);
+      cancelAdvance(item._id);
     } else {
-      deleteExpense(item._id);
+      cancelExpense(item._id);
     }
   };
 
@@ -115,7 +116,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
               </TableCell>
               {withDelete && (
                 <TableCell align="center" width="15%">
-                  Delete
+                  Cancel
                 </TableCell>
               )}
             </TableRow>
@@ -125,7 +126,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
             {items.map((item) => {
               const itemType = item.advanceType || item.expenseType;
               return (
-                <TableRow key={item._id} hover>
+                <TableRow key={item._id} hover sx={item.status === 'Cancelled' ? { opacity: 0.5, textDecoration: 'line-through' } : {}}>
                   <TableCell align="center">{fDate(item.date)}</TableCell>
                   <TableCell align="center">
                     <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
@@ -161,16 +162,18 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
                   </TableCell>
                   {withDelete && (
                     <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => {
-                          confirm.onTrue();
-                          setSelectedItem(item);
-                        }}
-                      >
-                        <Iconify icon="mdi:delete" />
-                      </IconButton>
+                      {item.status !== 'Cancelled' && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            confirm.onTrue();
+                            setSelectedItem(item);
+                          }}
+                        >
+                          <Iconify icon="mdi:close" />
+                        </IconButton>
+                      )}
                     </TableCell>
                   )}
                 </TableRow>
@@ -192,18 +195,18 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title={`Delete ${isMarketVehicle ? 'Advance' : 'Expense'}`}
-        content={`Are you sure you want to delete this ${isMarketVehicle ? 'advance' : 'expense'}?`}
+        title={`Cancel ${isMarketVehicle ? 'Advance' : 'Expense'}`}
+        content={`Are you sure you want to cancel this ${isMarketVehicle ? 'advance' : 'expense'}?`}
         action={
           <Button
             variant="contained"
             color="error"
             onClick={() => {
               confirm.onFalse();
-              handleDelete(selectedItem);
+              handleCancel(selectedItem);
             }}
           >
-            Delete
+            Cancel
           </Button>
         }
       />

@@ -97,7 +97,7 @@ export default function TripSheetPdf({ trip, tenant }) {
     const rate = st.freightDetails?.rate || 0;
     const income = st.freightDetails?.freightAmount || 0;
     const expenseTotal = Array.isArray(st.expenses)
-      ? st.expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+      ? st.expenses.filter(e => e.status !== 'Cancelled').reduce((sum, e) => sum + (e.amount || 0), 0)
       : 0;
     const net = income - expenseTotal;
 
@@ -146,7 +146,7 @@ export default function TripSheetPdf({ trip, tenant }) {
   ];
 
   const allExpenses = subtrips.flatMap((st) =>
-    (st.expenses || []).map((e) => {
+    (st.expenses || []).filter(e => e.status !== 'Cancelled').map((e) => {
       expenseIndex += 1;
       return {
         sno: expenseIndex,
@@ -166,7 +166,7 @@ export default function TripSheetPdf({ trip, tenant }) {
     (sum, st) =>
       sum +
       (Array.isArray(st.expenses)
-        ? st.expenses.reduce(
+        ? st.expenses.filter(e => e.status !== 'Cancelled').reduce(
             (s, e) => (e.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL ? s + (e.dieselLtr || 0) : s),
             0
           )

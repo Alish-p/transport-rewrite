@@ -173,7 +173,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
   // For market vehicles, use advances; for own vehicles, use expenses
   const isMarketVehicle = subtrip?.vehicleId?.isOwn === false;
-  const deductionItems = isMarketVehicle ? subtrip?.advances || [] : subtrip?.expenses || [];
+  const deductionItems = (isMarketVehicle ? subtrip?.advances || [] : subtrip?.expenses || []).filter(item => item.status !== 'Cancelled');
 
   const totalExpenses = deductionItems.reduce((sum, item) => sum + (item.amount || 0), 0);
   const totalDieselLtr = deductionItems.reduce((sum, item) => {

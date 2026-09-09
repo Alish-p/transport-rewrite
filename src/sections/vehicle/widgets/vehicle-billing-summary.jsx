@@ -70,7 +70,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
 
   const subtripsRaw = data?.results || [];
   const subtrips = subtripsRaw.map((row) => {
-    const totalExpense = (row?.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+    const totalExpense = (row?.expenses || []).filter(e => e.status !== 'Cancelled').reduce((sum, e) => sum + (e.amount || 0), 0);
     const amount = row?.freightDetails?.freightAmount || 0;
     return {
       ...row,
@@ -103,7 +103,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
     (sum, st) => sum + (st.amt || 0) - (st.totalExpense || 0),
     0
   );
-  const totalLoss = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const totalLoss = expenses.filter(e => e.status !== 'Cancelled').reduce((sum, e) => sum + (e.amount || 0), 0);
   const overall = totalNetProfit - totalLoss;
 
   return (
@@ -400,7 +400,7 @@ function ProfitsTable({ subtrips, isLoading }) {
 // ----------------------------------------------------------------------
 // Loss Table Component
 function VehicleLossTable({ expenses, isLoading }) {
-  const totalAmount = (expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
+  const totalAmount = (expenses || []).filter(e => e.status !== 'Cancelled').reduce((sum, e) => sum + (e.amount || 0), 0);
 
   return (
     <TableContainer sx={{ position: 'relative', overflow: 'unset', mt: 2 }}>

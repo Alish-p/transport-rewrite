@@ -63,12 +63,13 @@ export const calculateTransporterPayment = (subtrip) => {
   }
 
   // ⛽ Total Deductions (advances for market vehicles, expenses for own)
-  const deductionSource =
+  let deductionSource =
     Array.isArray(subtrip.advances) && subtrip.advances.length > 0
       ? subtrip.advances
       : Array.isArray(subtrip.expenses)
         ? subtrip.expenses
         : [];
+  deductionSource = deductionSource.filter(item => item.status !== 'Cancelled');
   const totalExpense = deductionSource.reduce((acc, item) => acc + (item.amount || 0), 0);
 
   // 📉 Shortage Deduction

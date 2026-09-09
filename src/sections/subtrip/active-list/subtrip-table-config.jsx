@@ -486,7 +486,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => {
       if (row?.vehicleId?.isOwn === false) return 'N.A.';
       if (!row?.expenses || row.expenses.length === 0) return fNumber(0);
-      const total = row.expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+      const total = row.expenses.filter(e => e.status !== 'Cancelled').reduce((sum, exp) => sum + (exp.amount || 0), 0);
       return fNumber(total);
     },
     render: (row) => {
@@ -498,7 +498,7 @@ export const TABLE_COLUMNS = [
         );
       }
       if (!row?.expenses || row.expenses.length === 0) return fNumber(0);
-      const total = row.expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+      const total = row.expenses.filter(e => e.status !== 'Cancelled').reduce((sum, exp) => sum + (exp.amount || 0), 0);
       return (
         <Label variant="soft" color="warning">
           {fNumber(total)}
@@ -515,7 +515,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => {
       if (row?.vehicleId?.isOwn === true) return 'N.A.';
       if (!row?.advances || row.advances.length === 0) return fNumber(0);
-      const total = row.advances.reduce((sum, adv) => sum + (adv.amount || 0), 0);
+      const total = row.advances.filter(a => a.status !== 'Cancelled').reduce((sum, adv) => sum + (adv.amount || 0), 0);
       return fNumber(total);
     },
     render: (row) => {
@@ -527,7 +527,7 @@ export const TABLE_COLUMNS = [
         );
       }
       if (!row?.advances || row.advances.length === 0) return fNumber(0);
-      const total = row.advances.reduce((sum, adv) => sum + (adv.amount || 0), 0);
+      const total = row.advances.filter(a => a.status !== 'Cancelled').reduce((sum, adv) => sum + (adv.amount || 0), 0);
       return (
         <Label variant="soft" color="info">
           {fNumber(total)}
@@ -547,7 +547,7 @@ export const TABLE_COLUMNS = [
       }
 
       const freight = row?.freightDetails?.freightAmount || 0;
-      const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
+      const expenses = row?.expenses?.filter(e => e.status !== 'Cancelled').reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
       return fNumber(freight - expenses);
     },
     render: (row) => {
@@ -556,7 +556,7 @@ export const TABLE_COLUMNS = [
         pnl = row?.commissionDetails?.commissionAmount || 0;
       } else {
         const freight = row?.freightDetails?.freightAmount || 0;
-        const expenses = row?.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
+        const expenses = row?.expenses?.filter(e => e.status !== 'Cancelled').reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
         pnl = freight - expenses;
       }
 

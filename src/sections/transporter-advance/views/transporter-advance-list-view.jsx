@@ -33,7 +33,7 @@ import { useSubtrip } from 'src/query/use-subtrip';
 import { DashboardContent } from 'src/layouts/dashboard';
 import {
   usePaginatedAdvances,
-  useDeleteTransporterAdvance,
+  useCancelTransporterAdvance,
 } from 'src/query/use-transporter-advance';
 
 import { Label } from 'src/components/label';
@@ -78,7 +78,7 @@ export default function TransporterAdvanceListView() {
   const theme = useTheme();
   const table = useTable({ syncToUrl: true });
   const navigate = useNavigate();
-  const deleteAdvance = useDeleteTransporterAdvance();
+  const cancelAdvance = useCancelTransporterAdvance();
 
   const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
     onResetPage: table.onResetPage,
@@ -137,6 +137,7 @@ export default function TransporterAdvanceListView() {
     { value: 'all', label: 'All', color: 'default', count: totals.countGiven || 0 },
     { value: 'Recovered', label: 'Recovered', color: 'success', count: totals.countRecovered || 0 },
     { value: 'Pending', label: 'Pending', color: 'warning', count: totals.countPending || 0 },
+    { value: 'Cancelled', label: 'Cancelled', color: 'error', count: totals.countCancelled || 0 },
   ];
 
   const handleFilterStatus = useCallback(
@@ -183,12 +184,12 @@ export default function TransporterAdvanceListView() {
     navigate(paths.dashboard.expense.edit(id)); // Assuming edit uses the same form logic
   };
 
-  const handleDeleteRow = (row) => {
+  const handleCancelRow = (row) => {
     if (row.status === 'Recovered') {
-      toast.error('Cannot delete a recovered advance.');
+      toast.error('Cannot cancel a recovered advance.');
       return;
     }
-    deleteAdvance(row._id);
+    cancelAdvance(row._id);
   };
 
   return (
@@ -244,6 +245,15 @@ export default function TransporterAdvanceListView() {
               price={totals.totalPending || 0}
               icon="solar:clock-circle-bold-duotone"
               color={theme.palette.warning.main}
+              loading={isLoading}
+            />
+            <ExpenseAnalytic
+              title="Total Cancelled"
+              total={totals.countCancelled || 0}
+              percent={totals.totalGiven ? (totals.totalCancelled / totals.totalGiven) * 100 : 0}
+              price={totals.totalCancelled || 0}
+              icon="solar:close-circle-bold-duotone"
+              color={theme.palette.error.main}
               loading={isLoading}
             />
           </Stack>
@@ -509,7 +519,7 @@ export default function TransporterAdvanceListView() {
                           row.status === 'Pending' ? () => handleEditRow(row._id) : undefined
                         }
                         onDeleteRow={
-                          row.status === 'Pending' ? () => handleDeleteRow(row) : undefined
+                          row.status === 'Pending' ? () => handleCancelRow(row) : undefined
                         }
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
