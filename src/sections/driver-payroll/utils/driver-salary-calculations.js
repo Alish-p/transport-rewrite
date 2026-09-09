@@ -8,9 +8,9 @@ export function calculateDriverSalary(subtrip) {
     return 0;
   }
 
-  // Filter only the expenses of type 'Driver Salary'
+  // Filter only the expenses of type 'Driver Salary' that are not cancelled
   const driverSalaryExpenses = subtrip.expenses.filter(
-    (expense) => expense.expenseType === 'Driver Salary'
+    (expense) => expense.expenseType === 'Driver Salary' && expense.status !== 'Cancelled'
   );
 
   // Sum up the amounts of those expenses
