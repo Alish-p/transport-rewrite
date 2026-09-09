@@ -62,14 +62,14 @@ export default function InvoiceSettingForm({ currentTenant }) {
 
   const onSubmit = async (data) => {
     try {
-      const sanitized = {
-        ...currentTenant,
+      await updateTenant({
         config: {
-          ...currentTenant?.config,
-          ...data.config,
+          invoice: {
+            defaultTaxRates: data.config?.invoice?.defaultTaxRates,
+            termsAndConditions: data.config?.invoice?.termsAndConditions,
+          },
         },
-      };
-      await updateTenant(sanitized);
+      });
     } catch (error) {
       console.error(error);
     }

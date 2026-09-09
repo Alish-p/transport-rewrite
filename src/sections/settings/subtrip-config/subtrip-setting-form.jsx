@@ -125,17 +125,14 @@ export default function SubtripSettingForm() {
 
   const onSubmit = async (formData) => {
     await updateTenant({
-      ...currentTenant,
       config: {
-        ...currentTenant.config,
         subtrip: {
-          ...currentTenant.config?.subtrip,
           materialOptions: formData.materialOptions,
           allowedFreightModels: formData.freightConfig.allowedModels,
           defaultFreightModel: formData.freightConfig.defaultModel,
           fields: formData.fields,
         },
-      }
+      },
     });
   };
 

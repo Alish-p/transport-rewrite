@@ -52,14 +52,13 @@ export default function CustomerSettingForm({ currentTenant }) {
 
   const onSubmit = async (data) => {
     try {
-      const sanitized = {
-        ...currentTenant,
+      await updateTenant({
         config: {
-          ...currentTenant?.config,
-          ...data.config,
+          invoice: {
+            defaultDueInDays: data.config?.invoice?.defaultDueInDays,
+          },
         },
-      };
-      await updateTenant(sanitized);
+      });
     } catch (error) {
       console.error(error);
     }

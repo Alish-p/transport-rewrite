@@ -50,16 +50,6 @@ export const TenantSchema = zod
         accNo: schemaHelper.accountNumberOptional({}),
       })
       .optional(),
-    config: zod
-      .object({
-        vehicle: zod.object({}).optional(),
-        pump: zod
-          .object({
-            enabled: zod.boolean().optional(),
-          })
-          .optional(),
-      })
-      .optional(),
     integrations: zod
       .object({
         whatsapp: zod
@@ -235,12 +225,6 @@ export default function TenantForm({ currentTenant }) {
         ifsc: currentTenant?.bankDetails?.ifsc || '',
         place: currentTenant?.bankDetails?.place || '',
         accNo: currentTenant?.bankDetails?.accNo || '',
-      },
-      config: {
-        vehicle: {},
-        pump: {
-          enabled: currentTenant?.config?.pump?.enabled ?? true,
-        },
       },
       integrations: {
         whatsapp: {
