@@ -33,9 +33,10 @@ export function useCreateTransporterAdvance() {
 
 export function useCancelTransporterAdvance() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (id) => deleteTransporterAdvance(id),
     onSuccess: () => {
+      queryClient.invalidateQueries(['advances']);
       queryClient.invalidateQueries(['subtrips']);
       toast.success('Advance cancelled successfully!');
     },
@@ -45,7 +46,7 @@ export function useCancelTransporterAdvance() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 const fetchPaginatedAdvances = async (params) => {

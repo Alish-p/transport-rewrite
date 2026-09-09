@@ -31,6 +31,12 @@ export default function ExpenseTableRow({
       onViewRow={handleView}
       onEditRow={handleEdit}
       onDeleteRow={handleDelete}
+      deleteTitle="Cancel Expense"
+      deleteContent="Are you sure you want to cancel this expense?"
+      deleteActionText="Yes, Cancel"
+      deleteCancelText="Close"
+      deleteMenuLabel="Cancel"
+      deleteIcon="solar:close-circle-bold"
       visibleColumns={visibleColumns}
       disabledColumns={disabledColumns}
       columnOrder={columnOrder}

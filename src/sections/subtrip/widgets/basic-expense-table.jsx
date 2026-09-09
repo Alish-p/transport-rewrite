@@ -19,6 +19,8 @@ import {
   TableContainer,
 } from '@mui/material';
 
+import LoadingButton from '@mui/lab/LoadingButton';
+
 import { paths } from 'src/routes/paths';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -43,6 +45,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
   const subtripExpenseTypes = useSubtripExpenseTypes();
 
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Determine if this is a market vehicle subtrip (use advances) or own vehicle (use expenses)
   const isMarketVehicle = selectedSubtrip?.vehicleId?.isOwn === false;
@@ -52,11 +55,20 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
 
   const label = isMarketVehicle ? 'Advances' : 'Expenses';
 
-  const handleCancel = (item) => {
-    if (isMarketVehicle) {
-      cancelAdvance(item._id);
-    } else {
-      cancelExpense(item._id);
+  const handleCancel = async (item) => {
+    if (!item) return;
+    try {
+      setIsCancelling(true);
+      if (isMarketVehicle) {
+        await cancelAdvance(item._id);
+      } else {
+        await cancelExpense(item._id);
+      }
+      confirm.onFalse();
+    } catch (err) {
+      // Handled by query mutation onError
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -194,20 +206,20 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = false, withAdd
 
       <ConfirmDialog
         open={confirm.value}
-        onClose={confirm.onFalse}
+        onClose={isCancelling ? undefined : confirm.onFalse}
         title={`Cancel ${isMarketVehicle ? 'Advance' : 'Expense'}`}
         content={`Are you sure you want to cancel this ${isMarketVehicle ? 'advance' : 'expense'}?`}
+        cancelText="Close"
+        cancelDisabled={isCancelling}
         action={
-          <Button
+          <LoadingButton
             variant="contained"
             color="error"
-            onClick={() => {
-              confirm.onFalse();
-              handleCancel(selectedItem);
-            }}
+            loading={isCancelling}
+            onClick={() => handleCancel(selectedItem)}
           >
-            Cancel
-          </Button>
+            Yes, Cancel
+          </LoadingButton>
         }
       />
     </Card>

@@ -64,7 +64,7 @@ export function useCreateExpense() {
 
 export function useCancelExpense() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (id) => deleteExpense(id),
     onSuccess: (_) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -77,5 +77,5 @@ export function useCancelExpense() {
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }

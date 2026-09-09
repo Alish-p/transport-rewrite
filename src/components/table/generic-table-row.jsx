@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -10,6 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -31,6 +32,12 @@ export function GenericTableRow({
   onDeleteRow,
   deleteDisabled = false,
   deleteDisabledReason = '',
+  deleteTitle = 'Delete',
+  deleteContent = 'Are you sure want to delete?',
+  deleteActionText = 'Delete',
+  deleteCancelText = 'Cancel',
+  deleteIcon = 'solar:trash-bin-trash-bold',
+  deleteMenuLabel = 'Delete',
   customActions = [],
   visibleColumns = {},
   disabledColumns = {},
@@ -40,6 +47,20 @@ export function GenericTableRow({
 }) {
   const confirm = useBoolean();
   const popover = usePopover();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!onDeleteRow) return;
+    try {
+      setIsDeleting(true);
+      await onDeleteRow(row);
+      confirm.onFalse();
+    } catch (err) {
+      // Handled by query mutation onError or caller
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const hasActions = !!(onViewRow || onEditRow || onDeleteRow || customActions.length > 0);
 
@@ -160,17 +181,17 @@ export function GenericTableRow({
               >
                 <span>
                   <MenuItem
-                    disabled={deleteDisabled}
+                    disabled={deleteDisabled || isDeleting}
                     onClick={() => {
-                      if (!deleteDisabled) {
+                      if (!deleteDisabled && !isDeleting) {
                         confirm.onTrue();
                         popover.onClose();
                       }
                     }}
                     sx={{ color: deleteDisabled ? 'text.disabled' : 'error.main' }}
                   >
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                    Delete
+                    <Iconify icon={deleteIcon} />
+                    {deleteMenuLabel}
                   </MenuItem>
                 </span>
               </Tooltip>
@@ -182,13 +203,20 @@ export function GenericTableRow({
       {onDeleteRow && hasActions && (
         <ConfirmDialog
           open={confirm.value}
-          onClose={confirm.onFalse}
-          title="Delete"
-          content="Are you sure want to delete?"
+          onClose={isDeleting ? undefined : confirm.onFalse}
+          title={deleteTitle}
+          content={deleteContent}
+          cancelText={deleteCancelText}
+          cancelDisabled={isDeleting}
           action={
-            <Button variant="contained" color="error" onClick={() => onDeleteRow(row)}>
-              Delete
-            </Button>
+            <LoadingButton
+              variant="contained"
+              color="error"
+              loading={isDeleting}
+              onClick={handleDelete}
+            >
+              {deleteActionText}
+            </LoadingButton>
           }
         />
       )}

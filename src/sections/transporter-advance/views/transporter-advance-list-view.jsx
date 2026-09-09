@@ -184,12 +184,12 @@ export default function TransporterAdvanceListView() {
     navigate(paths.dashboard.expense.edit(id)); // Assuming edit uses the same form logic
   };
 
-  const handleCancelRow = (row) => {
+  const handleCancelRow = async (row) => {
     if (row.status === 'Recovered') {
       toast.error('Cannot cancel a recovered advance.');
       return;
     }
-    cancelAdvance(row._id);
+    await cancelAdvance(row._id);
   };
 
   return (
@@ -521,9 +521,26 @@ export default function TransporterAdvanceListView() {
                         onDeleteRow={
                           row.status === 'Pending' ? () => handleCancelRow(row) : undefined
                         }
+                        deleteTitle="Cancel Advance"
+                        deleteContent="Are you sure you want to cancel this advance?"
+                        deleteActionText="Yes, Cancel"
+                        deleteCancelText="Close"
+                        deleteMenuLabel="Cancel"
+                        deleteIcon="solar:close-circle-bold"
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
                         columnOrder={columnOrder}
+                        rowProps={
+                          row.status === 'Cancelled'
+                            ? {
+                                sx: {
+                                  opacity: 0.6,
+                                  textDecoration: 'line-through',
+                                  '& .MuiTableCell-root': { textDecoration: 'line-through' },
+                                },
+                              }
+                            : {}
+                        }
                       />
                     ))}
                     <TableNoData notFound={notFound} />
