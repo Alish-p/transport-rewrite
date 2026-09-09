@@ -308,6 +308,9 @@ export function fDateTimeDuration(startDate, endDate) {
   }
 
   const diffMs = end.diff(start);
+  if (diffMs < 0) {
+    return '-';
+  }
   const durationObj = dayjs.duration(diffMs);
 
   const days = Math.floor(durationObj.asDays());

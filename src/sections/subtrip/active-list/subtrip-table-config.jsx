@@ -5,7 +5,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { wrapText } from 'src/utils/change-case';
 import { fNumber, fCurrency } from 'src/utils/format-number';
-import { fDate, fTime, fDateTime } from 'src/utils/format-time';
+import { fDate, fTime, fDateTime, fDateTimeDuration } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -294,6 +294,27 @@ export const TABLE_COLUMNS = [
         }}
       />
     ),
+  },
+  {
+    id: 'jobDuration',
+    label: 'Job Duration',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => {
+      if (!row?.startDate || !row?.endDate) return '-';
+      return fDateTimeDuration(row.startDate, row.endDate) || '-';
+    },
+    align: 'center',
+    render: (row) => {
+      if (!row?.startDate || !row?.endDate) return '-';
+      const duration = fDateTimeDuration(row.startDate, row.endDate);
+      if (!duration || duration === '-') return '-';
+      return (
+        <Typography variant="body2" noWrap>
+          {duration}
+        </Typography>
+      );
+    },
   },
   {
     id: 'ewayExpiryDate',
