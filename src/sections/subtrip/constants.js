@@ -5,6 +5,7 @@ export const SUBTRIP_STATUS_COLORS = {
   error: 'error',
   closed: 'secondary',
   billed: 'success',
+  cancelled: 'default',
 };
 
 export const SUBTRIP_STATUS = {
@@ -13,6 +14,7 @@ export const SUBTRIP_STATUS = {
   ERROR: 'error', // When there is a problem with documents or other issues
   RECEIVED: 'received', // When the consignment is successfully received at the destination
   BILLED: 'billed', // When the invoice is generated but pending payment
+  CANCELLED: 'cancelled', // When the job is cancelled
 };
 
 export const DRIVER_ADVANCE_GIVEN_BY_OPTIONS = {

@@ -39,6 +39,7 @@ const EVENT_ICONS = {
   ADVANCE_ADDED: 'mdi:cash-plus',
   ADVANCE_DELETED: 'mdi:cash-minus',
   ADVANCE_CANCELLED: 'mdi:cash-minus',
+  SUBTRIP_CANCELLED: 'material-symbols:cancel-outline',
 };
 
 const EVENT_COLORS = {
@@ -58,6 +59,7 @@ const EVENT_COLORS = {
   TRANSPORTER_PAYMENT_GENERATED: 'success',
   TRANSPORTER_PAYMENT_PAID: 'success',
   TRANSPORTER_PAYMENT_CANCELLED: 'error',
+  SUBTRIP_CANCELLED: 'error',
   UPDATED: 'grey',
   STATUS_CHANGED: 'grey',
   ADVANCE_ADDED: 'info',
@@ -113,7 +115,7 @@ export function SubtripTimeline({ events = [], sx, ...other }) {
                 <TimelineItem key={event._id}>
                   <TimelineSeparator>
                     <TimelineDot color={eventColor}>
-                      <Iconify icon={EVENT_ICONS[event.eventType]} width={20} />
+                      <Iconify icon={EVENT_ICONS[event.eventType] || 'eva:activity-fill'} width={20} />
                     </TimelineDot>
                     {index === events.length - 1 ? null : <TimelineConnector />}
                   </TimelineSeparator>

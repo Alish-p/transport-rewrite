@@ -29,13 +29,17 @@ export default function SubtripTableRow({
 
   const status = row?.subtripStatus;
   const isOwn = row?.vehicleId?.isOwn;
+  const isCancelled = status === SUBTRIP_STATUS.CANCELLED;
 
-  // Lock edit & delete if any financial document has been generated for this subtrip
-  const isFinanciallyLocked = !!(row?.invoiceId || row?.driverSalaryId || row?.transporterPaymentReceiptId);
-  const financialLockReason = 'Disabled: financial documents have been generated for this subtrip';
+  // Lock edit & delete if any financial document has been generated for this subtrip, or if cancelled
+  const isLocked = isCancelled || !!(row?.invoiceId || row?.driverSalaryId || row?.transporterPaymentReceiptId);
+  const lockReason = isCancelled
+    ? 'Disabled: This job has been cancelled'
+    : 'Disabled: financial documents have been generated for this subtrip';
 
   const customActions = useMemo(() => {
     const actions = [];
+    if (isCancelled) return actions;
 
     // Receive action — only when status is "loaded"
     if (status === SUBTRIP_STATUS.LOADED) {
@@ -92,7 +96,7 @@ export default function SubtripTableRow({
     }
 
     return actions;
-  }, [status, isOwn, row._id, navigate]);
+  }, [status, isOwn, row._id, navigate, isCancelled]);
 
   return (
     <>
@@ -103,15 +107,18 @@ export default function SubtripTableRow({
         onSelectRow={onSelectRow}
         onViewRow={handleView}
         onEditRow={handleEdit}
-        editDisabled={isFinanciallyLocked}
-        editDisabledReason={isFinanciallyLocked ? financialLockReason : ''}
+        editDisabled={isLocked}
+        editDisabledReason={isLocked ? lockReason : ''}
         onDeleteRow={handleDelete}
-        deleteDisabled={isFinanciallyLocked}
-        deleteDisabledReason={isFinanciallyLocked ? financialLockReason : ''}
+        deleteDisabled={isLocked}
+        deleteDisabledReason={isLocked ? lockReason : ''}
         customActions={customActions}
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
         columnOrder={columnOrder}
+        rowProps={isCancelled ? {
+          sx: { textDecoration: 'line-through', opacity: 0.6 },
+        } : {}}
       />
 
       {status === SUBTRIP_STATUS.ERROR && (

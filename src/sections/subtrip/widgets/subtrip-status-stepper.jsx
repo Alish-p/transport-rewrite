@@ -1,10 +1,20 @@
 import { Box, Tooltip } from '@mui/material';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 import { SimpleStepper } from './subtrip-completion-stepper';
 
 export function SubtripStatusStepper({ status }) {
+  // Cancelled is a terminal state — show a badge instead of the stepper
+  if (status === 'cancelled') {
+    return (
+      <Label variant="soft" color="error" sx={{ fontSize: 14, py: 2, px: 3 }}>
+        Cancelled
+      </Label>
+    );
+  }
+
   const statusToStepIndex = {
     // 'in-queue': 0, // Commented out: Hide In-queue step
     loaded: 0,

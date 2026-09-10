@@ -10,14 +10,16 @@ import { paramCase } from 'src/utils/change-case';
 import { Label } from 'src/components/label';
 
 import { subtripConfig } from './basic-subtrip-table-config';
+import { SUBTRIP_STATUS, SUBTRIP_STATUS_COLORS } from '../subtrip/constants';
 
 // ----------------------------------------------------------------------
 
 export default function SubtripListRow({ row, index }) {
   const navigate = useNavigate();
+  const isCancelled = row?.subtripStatus === SUBTRIP_STATUS.CANCELLED;
 
   return (
-    <TableRow>
+    <TableRow sx={isCancelled ? { textDecoration: 'line-through', opacity: 0.6 } : undefined}>
       {subtripConfig.map((column) => (
         <TableCell key={column.id} align="start">
           {(() => {
@@ -49,14 +51,7 @@ export default function SubtripListRow({ row, index }) {
                 return (
                   <Label
                     variant="soft"
-                    color={
-                      (row[column.id] === 'In-queue' && 'primary') ||
-                      (row[column.id] === 'Loaded' && 'secondary') ||
-                      (row[column.id] === 'pending' && 'info') ||
-                      (row[column.id] === 'pending' && 'success') ||
-                      (row[column.id] === 'pending' && 'warning') ||
-                      'default'
-                    }
+                    color={SUBTRIP_STATUS_COLORS[row[column.id]] || 'default'}
                   >
                     {row[column.id]}
                   </Label>

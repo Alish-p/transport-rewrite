@@ -406,7 +406,7 @@ export default function SubtripFiltersDrawer({
                 }
                 MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
               >
-                {['loaded', 'received', 'error', 'billed'].map((status) => (
+                {['loaded', 'received', 'error', 'billed', 'cancelled'].map((status) => (
                   <MenuItem key={status} value={status}>
                     <Checkbox checked={(filters.subtripStatus || []).includes(status)} />
                     <ListItemText primary={status.charAt(0).toUpperCase() + status.slice(1)} />

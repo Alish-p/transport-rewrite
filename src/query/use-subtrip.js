@@ -66,8 +66,10 @@ const updateSubtripResolveInfo = async (id, subtripData) => {
   return data;
 };
 
-const deleteSubtrip = async (id) => {
-  const { data } = await axios.delete(`${ENDPOINT}/${id}`);
+const deleteSubtrip = async ({ id, cancellationRemarks }) => {
+  const { data } = await axios.delete(`${ENDPOINT}/${id}`, {
+    data: cancellationRemarks ? { cancellationRemarks } : undefined,
+  });
   return data;
 };
 
@@ -230,11 +232,13 @@ export function useUpdateSubtrip() {
 export function useDeleteSubtrip() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: (id) => deleteSubtrip(id),
-    onSuccess: (_, id) => {
+    mutationFn: deleteSubtrip,
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.invalidateQueries(['expenses']);
+      queryClient.invalidateQueries(['advances']);
       queryClient.removeQueries([QUERY_KEY, id]);
-      toast.success('Job deleted successfully!');
+      toast.success('Job cancelled successfully!');
     },
     onError: (error) => {
       console.log({ error });

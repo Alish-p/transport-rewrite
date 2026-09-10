@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Stack, Button, Dialog, DialogActions } from '@mui/material';
+import { Box, Grid, Stack, Button, Dialog, TextField, Typography, DialogActions } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -18,11 +18,13 @@ import { generateStaticMapImage } from 'src/utils/generate-static-map';
 
 import IndentPdf from 'src/pdfs/petrol-pump-indent';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { useDeleteSubtrip } from 'src/query/use-subtrip';
 import { useEwaybillByNumber } from 'src/query/use-ewaybill';
 import { useSubtripEvents } from 'src/query/use-subtrip-events';
 
 import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 import { calculateInvoicePerSubtrip } from 'src/sections/invoice/utills/invoice-calculation';
 
@@ -154,9 +156,37 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   const [showResolveDialog, setShowResolveDialog] = useState(false);
   // Close dialog removed
 
+  // Cancel subtrip state
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancellationRemarks, setCancellationRemarks] = useState('');
+  const cancelSubtrip = useDeleteSubtrip();
+
+  const isCancellable = () => {
+    if (subtrip.subtripStatus === SUBTRIP_STATUS.BILLED) return false;
+    if (subtrip.subtripStatus === SUBTRIP_STATUS.CANCELLED) return false;
+    if (subtrip.invoiceId || subtrip.driverSalaryId || subtrip.transporterPaymentReceiptId)
+      return false;
+    return true;
+  };
+
+  const handleCloseCancelDialog = () => {
+    setShowCancelDialog(false);
+    setCancellationRemarks('');
+  };
+
+  const handleCancelSubtrip = async () => {
+    try {
+      cancelSubtrip({ id: subtrip._id, cancellationRemarks: cancellationRemarks.trim() || undefined });
+      handleCloseCancelDialog();
+      navigate(paths.dashboard.subtrip.root);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // Function to check if editing is allowed based on status and financial documents
   const isEditingAllowed = () => {
-    const restrictedStatuses = [SUBTRIP_STATUS.BILLED];
+    const restrictedStatuses = [SUBTRIP_STATUS.BILLED, SUBTRIP_STATUS.CANCELLED];
     if (restrictedStatuses.includes(subtrip.subtripStatus)) return false;
     if (subtrip.invoiceId || subtrip.driverSalaryId || subtrip.transporterPaymentReceiptId)
       return false;
@@ -540,6 +570,13 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
                   disabled: !isEditingAllowed(),
                 },
+                {
+                  label: 'Cancel Job',
+                  icon: 'material-symbols:cancel-outline',
+                  onClick: () => setShowCancelDialog(true),
+                  disabled: !isCancellable(),
+                  color: 'error',
+                },
               ]
               : undefined
           }
@@ -760,6 +797,38 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
       {/* Close Subtrip Dialogue removed */}
 
       {/* Empty job close flow has been removed */}
+
+      {/* Cancel Subtrip Confirmation Dialog */}
+      {!publicMode && (
+        <ConfirmDialog
+          open={showCancelDialog}
+          onClose={handleCloseCancelDialog}
+          title="Cancel Job"
+          content={
+            <>
+              <Typography sx={{ mb: 2 }}>
+                Are you sure you want to cancel this job? All linked expenses and advances will also
+                be cancelled. This action cannot be undone.
+              </Typography>
+
+              <TextField
+                autoFocus
+                fullWidth
+                multiline
+                minRows={2}
+                label="Cancellation remarks (optional)"
+                value={cancellationRemarks}
+                onChange={(event) => setCancellationRemarks(event.target.value)}
+              />
+            </>
+          }
+          action={
+            <Button variant="contained" color="error" onClick={handleCancelSubtrip}>
+              Cancel Job
+            </Button>
+          }
+        />
+      )}
     </>
   );
 }

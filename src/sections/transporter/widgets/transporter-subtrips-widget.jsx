@@ -27,7 +27,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { SUBTRIP_STATUS_COLORS } from 'src/sections/subtrip/constants';
+import { SUBTRIP_STATUS, SUBTRIP_STATUS_COLORS } from 'src/sections/subtrip/constants';
 
 export function TransporterSubtripsWidget({ transporterId, title = 'Jobs', ...other }) {
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
@@ -94,7 +94,14 @@ export function TransporterSubtripsWidget({ transporterId, title = 'Jobs', ...ot
             ) : subtrips.length ? (
               <>
                 {subtrips.map((row, idx) => (
-                  <TableRow key={row._id}>
+                  <TableRow
+                    key={row._id}
+                    sx={
+                      row?.subtripStatus === SUBTRIP_STATUS.CANCELLED
+                        ? { textDecoration: 'line-through', opacity: 0.6 }
+                        : undefined
+                    }
+                  >
                     <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
                     <TableCell>
                       <Link

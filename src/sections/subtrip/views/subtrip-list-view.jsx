@@ -191,6 +191,7 @@ export function SubtripListView() {
     received: data?.totalReceived || 0,
     error: data?.totalError || 0,
     billed: data?.totalBilled || 0,
+    cancelled: data?.totalCancelled || 0,
   };
 
   const TABS = [
@@ -225,6 +226,12 @@ export function SubtripListView() {
       label: 'Billed',
       color: SUBTRIP_STATUS_COLORS.billed || 'success',
       count: statusCounts.billed,
+    },
+    {
+      value: 'cancelled',
+      label: 'Cancelled',
+      color: SUBTRIP_STATUS_COLORS.cancelled || 'error',
+      count: statusCounts.cancelled,
     },
   ];
 
@@ -643,7 +650,7 @@ export function SubtripListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => deleteSubtrip(row._id)}
+                        onDeleteRow={() => deleteSubtrip({ id: row._id })}
                         visibleColumns={visibleColumns}
                         disabledColumns={disabledColumns}
                         columnOrder={columnOrder}

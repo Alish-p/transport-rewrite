@@ -62,7 +62,14 @@ export function DriverSubtripsTable({ driver }) {
             ) : subtrips.length ? (
               <>
                 {subtrips.map((row, idx) => (
-                  <TableRow key={row._id}>
+                  <TableRow
+                    key={row._id}
+                    sx={
+                      row?.subtripStatus === 'cancelled'
+                        ? { textDecoration: 'line-through', opacity: 0.6 }
+                        : undefined
+                    }
+                  >
                     <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
                     <TableCell>
                       <Link

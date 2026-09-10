@@ -186,61 +186,57 @@ export function useCustomerInvoiceAmountSummary(id, year, options = {}) {
 
 export function useCreateCustomer() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createCustomer,
     onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       toast.success('Customer added successfully!');
     },
     onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateCustomer() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateCustomer(id, data),
-    onSuccess: (updatedCustomer) => {
-      // Update the specific customer in the cache
-      queryClient.setQueryData([QUERY_KEY, updatedCustomer._id], updatedCustomer);
-
-      // Update the customer in the customers list cache
-      queryClient.setQueryData([QUERY_KEY], (oldData) => {
-        if (!oldData) return [updatedCustomer];
-        return oldData.map((customer) =>
-          customer._id === updatedCustomer._id ? updatedCustomer : customer
+    onSuccess: (updatedCustomer, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      if (updatedCustomer?._id || variables?.id) {
+        queryClient.setQueryData(
+          [QUERY_KEY, updatedCustomer?._id || variables?.id],
+          updatedCustomer
         );
-      });
-
+      }
       toast.success('Customer edited successfully!');
     },
     onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteCustomer() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (id) => deleteCustomer(id),
     onSuccess: (_) => {
-      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       toast.success('Customer deleted successfully!');
     },
     onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
   });
-  return mutate;
+  return mutateAsync;
 }
 
 // Customer GST lookup mutation
