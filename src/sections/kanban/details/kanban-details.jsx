@@ -509,10 +509,10 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
 
           <Button
             size="small"
-            startIcon={<Iconify icon={selectedVehicles.length ? 'eva:edit-fill' : 'mingcute:add-line'} />}
+            startIcon={<Iconify icon="mingcute:add-line" />}
             onClick={vehicleDialog.onTrue}
           >
-            {selectedVehicles.length ? 'Manage' : 'Assign'}
+            Add Vehicle
           </Button>
 
           <KanbanVehicleDialog
