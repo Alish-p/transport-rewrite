@@ -10,7 +10,7 @@ export function SubtripReceiveView({ currentSubtrip }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading={currentSubtrip ? `Receive Job ${currentSubtrip._id}` : 'Receive Job'}
+        heading="Receive Job"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Job List', href: paths.dashboard.subtrip.list },

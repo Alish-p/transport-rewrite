@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import {
@@ -63,6 +63,63 @@ const defaultValues = {
   docs: [],
 };
 
+const getInitialReceiveValues = (subtrip, isRequired) => {
+  if (!subtrip) return defaultValues;
+
+  const freightModel = subtrip.freightDetails?.freightModel || 'per_ton';
+  const isOwn = subtrip.vehicleId?.isOwn ?? true;
+  const loadingWeight = Number(subtrip.loadingWeight || 0);
+  const unloadingWeight =
+    subtrip.unloadingWeight && Number(subtrip.unloadingWeight) > 0
+      ? Number(subtrip.unloadingWeight)
+      : loadingWeight;
+  const freightRate = Number(subtrip.freightDetails?.rate || 0);
+  const commissionRate = Number(subtrip.commissionDetails?.commissionRate || 0);
+
+  let freightAmount = Number(subtrip.freightDetails?.freightAmount || 0);
+  if (freightModel === 'per_ton' || freightModel === 'per_kl') {
+    freightAmount = loadingWeight * freightRate;
+  }
+
+  let commissionAmount = Number(subtrip.commissionDetails?.commissionAmount || 0);
+  if (!isOwn && (freightModel === 'per_ton' || freightModel === 'per_kl')) {
+    commissionAmount = commissionRate * loadingWeight;
+  }
+
+  return {
+    ...defaultValues,
+    subtripId: subtrip._id,
+    endDate: subtrip.endDate ? new Date(subtrip.endDate) : new Date(),
+    unloadingWeight,
+    commissionDetails: {
+      commissionRate,
+      commissionAmount,
+    },
+    freightDetails: {
+      freightAmount,
+      endKm: subtrip.freightDetails?.endKm ?? '',
+      endTime: subtrip.freightDetails?.endTime || null,
+    },
+    hasShortage: Boolean(
+      subtrip.hasShortage || (subtrip.shortageWeight && Number(subtrip.shortageWeight) > 0)
+    ),
+    hasError: Boolean(subtrip.hasError),
+    shortageWeight: Number(subtrip.shortageWeight || 0),
+    shortageAmount: Number(subtrip.shortageAmount || 0),
+    remarks: subtrip.remarks || '',
+    errorRemarks: subtrip.errorRemarks || '',
+    docs: subtrip.docs || [],
+
+    // Schema helper context fields
+    freightModel,
+    startKm: subtrip.freightDetails?.startKm || 0,
+    loadingWeight,
+    isOwn,
+    unloadingWeightRequired: isRequired ? isRequired('unloadingWeight') : false,
+    remarksRequired: isRequired ? isRequired('remarks') : false,
+  };
+};
+
 const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, isLoading }) => {
   const { watch, setValue } = methods;
   const {
@@ -81,48 +138,12 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
   const { getLabel, isRequired } = useFieldHelpers('subtrip', customerId);
 
-  // Initialize form fields and helper context fields when selectedSubtrip changes
+  // Sync configurable field flags if tenant config changes
   useEffect(() => {
     if (!selectedSubtrip) return;
-
-    if (selectedSubtrip.freightDetails) {
-      setValue(
-        'freightDetails',
-        {
-          freightAmount: selectedSubtrip.freightDetails.freightAmount || 0,
-          endKm: selectedSubtrip.freightDetails.endKm ?? undefined,
-          endTime: selectedSubtrip.freightDetails.endTime || null,
-        },
-        { shouldValidate: true }
-      );
-    }
-
-    if (selectedSubtrip.commissionDetails) {
-      setValue(
-        'commissionDetails',
-        {
-          commissionRate: selectedSubtrip.commissionDetails.commissionRate || 0,
-          commissionAmount: selectedSubtrip.commissionDetails.commissionAmount || 0,
-        },
-        { shouldValidate: true }
-      );
-    }
-
-    setValue('freightModel', selectedSubtrip.freightDetails?.freightModel || 'per_ton');
-    setValue('startKm', selectedSubtrip.freightDetails?.startKm || 0);
-    setValue('loadingWeight', selectedSubtrip.loadingWeight || 0);
-    setValue('isOwn', selectedSubtrip.vehicleId?.isOwn ?? true);
     setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
     setValue('remarksRequired', isRequired('remarks'));
-
-    const currentUnloading = watch('unloadingWeight');
-    if ((!currentUnloading || Number(currentUnloading) === 0) && selectedSubtrip.loadingWeight) {
-      setValue('unloadingWeight', selectedSubtrip.loadingWeight, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }, [selectedSubtrip, setValue, isRequired, watch]);
+  }, [selectedSubtrip, isRequired, setValue]);
 
   const loadingWeight = Number(selectedSubtrip?.loadingWeight || 0);
   const currentUnloading = Number(unloadingWeight || 0);
@@ -178,11 +199,8 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           setValue('freightDetails.freightAmount', diffInHours * rate, { shouldValidate: true });
         }
       }
-    } else if (freightModel === 'per_ton' || freightModel === 'per_kl') {
-      const weight = selectedSubtrip.loadingWeight || 0;
-      setValue('freightDetails.freightAmount', weight * rate, { shouldValidate: true });
     }
-  }, [freightDetails?.endKm, endDate, selectedSubtrip, freightModel, isOwn, setValue]);
+  }, [freightDetails?.endKm, endDate, selectedSubtrip, freightModel, setValue]);
 
   const handleDropMultiFile = useCallback(
     (acceptedFiles) => {
@@ -448,10 +466,12 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
   );
 };
 
-export function SubtripReceiveForm() {
+export function SubtripReceiveForm({ currentSubtrip: currentSubtripProp }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const currentSubtripId = searchParams.get('currentSubtrip');
+  const currentSubtripId =
+    (typeof currentSubtripProp === 'object' ? currentSubtripProp?._id : currentSubtripProp) ||
+    searchParams.get('currentSubtrip');
   const redirectTo = searchParams.get('redirectTo');
 
   const subtripDialog = useBoolean();
@@ -459,6 +479,9 @@ export function SubtripReceiveForm() {
 
   const { data: selectedSubtripData, isLoading: isLoadingSelectedSubtrip } =
     useSubtrip(selectedSubtripId);
+
+  const customerId = selectedSubtripData?.customerId?._id || selectedSubtripData?.customerId;
+  const { isRequired } = useFieldHelpers('subtrip', customerId);
 
   const receiveSubtrip = useUpdateSubtripReceiveInfo();
 
@@ -475,20 +498,38 @@ export function SubtripReceiveForm() {
     formState: { errors, isSubmitting, isValid },
   } = methods;
 
+  const lastLoadedSubtripIdRef = useRef(null);
+
+  // Sync selectedSubtripId when currentSubtripId URL parameter changes
+  useEffect(() => {
+    if (currentSubtripId && currentSubtripId !== selectedSubtripId) {
+      lastLoadedSubtripIdRef.current = null;
+      setSelectedSubtripId(currentSubtripId);
+    }
+  }, [currentSubtripId, selectedSubtripId]);
+
+  // Populate form whenever selectedSubtripData is loaded or changes to a new subtrip
+  useEffect(() => {
+    if (selectedSubtripData && selectedSubtripData._id !== lastLoadedSubtripIdRef.current) {
+      lastLoadedSubtripIdRef.current = selectedSubtripData._id;
+      reset(getInitialReceiveValues(selectedSubtripData, isRequired));
+    }
+  }, [selectedSubtripData, reset, isRequired]);
+
   const { unloadingWeight, commissionDetails } = watch();
   const { isOwn } = selectedSubtripData?.vehicleId || {};
-  const handleSubtripChange = useCallback(
-    (subtrip) => {
-      setSelectedSubtripId(subtrip._id);
 
-      reset({
-        ...defaultValues,
-        subtripId: subtrip._id,
-        unloadingWeight: subtrip.loadingWeight || 0,
-      });
-    },
-    [reset]
-  );
+  const handleSubtripChange = useCallback((subtrip) => {
+    if (!subtrip?._id) return;
+    lastLoadedSubtripIdRef.current = null;
+    setSelectedSubtripId(subtrip._id);
+  }, []);
+
+  const handleResetForm = useCallback(() => {
+    lastLoadedSubtripIdRef.current = null;
+    setSelectedSubtripId(null);
+    reset(defaultValues);
+  }, [reset]);
 
   const onSubmit = async (data) => {
     try {
@@ -514,20 +555,14 @@ export function SubtripReceiveForm() {
       const submissionData = { ...data, docs: uploadedDocs };
 
       await receiveSubtrip({ id: selectedSubtripData._id, data: submissionData });
-      reset(defaultValues);
+      lastLoadedSubtripIdRef.current = null;
       setSelectedSubtripId(null);
+      reset(defaultValues);
       if (redirectTo) navigate(redirectTo);
     } catch (err) {
       console.error('Submit failed:', err);
     }
   };
-
-  // effects to fetch data
-  useEffect(() => {
-    if (currentSubtripId) {
-      handleSubtripChange({ _id: currentSubtripId });
-    }
-  }, [currentSubtripId, handleSubtripChange]);
 
   // Removed endKm auto-fill via GPS as endKm is no longer captured
 
@@ -559,10 +594,7 @@ export function SubtripReceiveForm() {
             <Stack direction="row" justifyContent="flex-end" spacing={2} sx={{ mt: 2 }}>
               <Button
                 variant="outlined"
-                onClick={() => {
-                  reset(defaultValues);
-                  setSelectedSubtripId(null);
-                }}
+                onClick={handleResetForm}
                 disabled={isSubmitting}
               >
                 Reset
