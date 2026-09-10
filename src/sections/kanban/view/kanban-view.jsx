@@ -436,21 +436,14 @@ export function KanbanView({ tasks = {} }) {
         >
           <MenuItem value="">All</MenuItem>
           <Divider sx={{ borderStyle: 'dashed' }} />
-          {DEPARTMENTS.map((dept) => {
-            const colors = {
-              sales: 'primary',
-              marketing: 'secondary',
-              dispatch: 'info',
-              warehouse: 'success',
-            };
-            return (
-              <MenuItem key={dept.id} value={dept.id}>
-                <Label variant="soft" color={colors[dept.id] || 'default'}>
-                  {dept.name}
-                </Label>
-              </MenuItem>
-            );
-          })}
+          {DEPARTMENTS.map((dept) => (
+            <MenuItem key={dept.id} value={dept.id}>
+              <Label variant="soft" color={dept.color || 'default'}>
+                {dept.name}
+              </Label>
+            </MenuItem>
+          ))}
+
         </Select>
       </FormControl>
     </Box>

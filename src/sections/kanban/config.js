@@ -18,19 +18,34 @@ export const COLUMNS = [
 
 export const DEPARTMENTS = [
   {
-    id: 'sales',
-    name: 'Sales',
+    id: 'accounts',
+    name: 'Accounts',
+    color: 'primary',
   },
   {
-    id: 'marketing',
-    name: 'Marketing',
+    id: 'stores',
+    name: 'Stores',
+    color: 'secondary',
   },
   {
-    id: 'dispatch',
-    name: 'Dispatch',
+    id: 'receivables',
+    name: 'Receivables',
+    color: 'info',
   },
   {
-    id: 'warehouse',
-    name: 'Warehouse',
+    id: 'payables',
+    name: 'Payables',
+    color: 'warning',
+  },
+  {
+    id: 'admin',
+    name: 'Admin',
+    color: 'error',
+  },
+  {
+    id: 'maintenance',
+    name: 'Maintenance',
+    color: 'success',
   },
 ];
+

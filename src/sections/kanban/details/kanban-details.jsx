@@ -438,15 +438,9 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {selected.map((value) => {
-                const colors = {
-                  sales: 'primary',
-                  marketing: 'secondary',
-                  dispatch: 'info',
-                  warehouse: 'success',
-                };
                 const dept = DEPARTMENTS.find((d) => d.id === value);
                 return (
-                  <Label key={value} variant="soft" color={colors[value] || 'default'}>
+                  <Label key={value} variant="soft" color={dept?.color || 'default'}>
                     {dept ? dept.name : value}
                   </Label>
                 );
@@ -455,21 +449,13 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
           )}
           sx={{ minWidth: 200 }}
         >
-          {DEPARTMENTS.map(({ id, name }) => {
-            const colors = {
-              sales: 'primary',
-              marketing: 'secondary',
-              dispatch: 'info',
-              warehouse: 'success',
-            };
-            return (
-              <MenuItem key={id} value={id}>
-                <Label variant="soft" color={colors[id] || 'default'}>
-                  {name}
-                </Label>
-              </MenuItem>
-            );
-          })}
+          {DEPARTMENTS.map(({ id, name, color }) => (
+            <MenuItem key={id} value={id}>
+              <Label variant="soft" color={color || 'default'}>
+                {name}
+              </Label>
+            </MenuItem>
+          ))}
         </Select>
       </Box>
 
