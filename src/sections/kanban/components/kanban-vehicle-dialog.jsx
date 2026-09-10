@@ -459,14 +459,6 @@ export function KanbanVehicleDialog({
           </Scrollbar>
         )}
       </DialogContent>
-
-      {multiple && !showQuickCreate && (
-        <DialogActions sx={{ px: 2.5, py: 1.5 }}>
-          <Button variant="contained" onClick={onClose}>
-            Done {selectedVehicles.length > 0 && `(${selectedVehicles.length})`}
-          </Button>
-        </DialogActions>
-      )}
     </Dialog>
   );
 }
