@@ -215,6 +215,8 @@ const NotFoundWithQuickCreate = ({
 // ----------------------------------------------------------------------
 export function KanbanVehicleDialog({
   selectedVehicle = null,
+  selectedVehicles = [],
+  multiple = false,
   open,
   onClose,
   onVehicleChange,
@@ -248,6 +250,14 @@ export function KanbanVehicleDialog({
   }, [open]);
 
   const handleSelectVehicle = (vehicle) => {
+    if (multiple) {
+      const isSelected = selectedVehicles.some((v) => v._id === vehicle._id);
+      const updated = isSelected
+        ? selectedVehicles.filter((v) => v._id !== vehicle._id)
+        : [...selectedVehicles, vehicle];
+      onVehicleChange(updated);
+      return;
+    }
     onVehicleChange(vehicle);
     onClose();
   };
@@ -272,8 +282,13 @@ export function KanbanVehicleDialog({
       };
 
       const created = await createVehicle(newVehicle);
-      onVehicleChange(created);
-      onClose();
+      if (multiple) {
+        onVehicleChange([...selectedVehicles, created]);
+        setShowQuickCreate(false);
+      } else {
+        onVehicleChange(created);
+        onClose();
+      }
     } catch (err) {
       setError(err.message || 'Failed to create vehicle. Please try again.');
     } finally {
@@ -383,7 +398,9 @@ export function KanbanVehicleDialog({
           <Scrollbar sx={{ height: ITEM_HEIGHT * 6, px: 2.5 }}>
             <Box component="ul">
               {vehicles.map((vehicle) => {
-                const isSelected = selectedVehicle?._id === vehicle._id;
+                const isSelected = multiple
+                  ? selectedVehicles.some((v) => v._id === vehicle._id)
+                  : selectedVehicle?._id === vehicle._id;
                 return (
                   <Box
                     component="li"
@@ -442,6 +459,14 @@ export function KanbanVehicleDialog({
           </Scrollbar>
         )}
       </DialogContent>
+
+      {multiple && !showQuickCreate && (
+        <DialogActions sx={{ px: 2.5, py: 1.5 }}>
+          <Button variant="contained" onClick={onClose}>
+            Done {selectedVehicles.length > 0 && `(${selectedVehicles.length})`}
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 }

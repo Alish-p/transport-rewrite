@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
+import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -86,7 +87,9 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
   const [selectedDriver, setSelectedDriver] = useState(task?.driver || null);
   const driverDialog = useBoolean();
 
-  const [selectedVehicle, setSelectedVehicle] = useState(task?.vehicle || null);
+  const [selectedVehicles, setSelectedVehicles] = useState(
+    task?.vehicles || (task?.vehicle ? [task.vehicle] : [])
+  );
   const vehicleDialog = useBoolean();
 
   const [newSubtask, setNewSubtask] = useState('');
@@ -106,7 +109,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     setLocation(task?.location || '');
     setSelectedAssignees(task?.assignees || []);
     setSelectedDriver(task?.driver || null);
-    setSelectedVehicle(task?.vehicle || null);
+    setSelectedVehicles(task?.vehicles || (task?.vehicle ? [task.vehicle] : []));
     setDueDate(getInitialDueDate(task?.due));
   }, [getInitialDueDate, task]);
 
@@ -122,7 +125,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
         location,
         assignees: selectedAssignees,
         driver: selectedDriver,
-        vehicle: selectedVehicle,
+        vehicles: selectedVehicles,
         ...partialChanges,
       };
 
@@ -144,7 +147,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       selectedAssignees,
       selectedDepartments,
       selectedDriver,
-      selectedVehicle,
+      selectedVehicles,
       task,
       taskDescription,
       taskName,
@@ -243,12 +246,21 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     [saveTask]
   );
 
-  const handleVehicleChange = useCallback(
-    (vehicle) => {
-      setSelectedVehicle(vehicle);
-      saveTask({ vehicle });
+  const handleVehiclesChange = useCallback(
+    (vehicles) => {
+      setSelectedVehicles(vehicles);
+      saveTask({ vehicles });
     },
     [saveTask]
+  );
+
+  const handleRemoveVehicle = useCallback(
+    (vehicleId) => {
+      const updated = selectedVehicles.filter((v) => (v._id || v.id) !== vehicleId);
+      setSelectedVehicles(updated);
+      saveTask({ vehicles: updated });
+    },
+    [selectedVehicles, saveTask]
   );
 
   const handleClose = useCallback(() => {
@@ -477,28 +489,38 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       <Box sx={{ display: 'flex' }}>
         <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Vehicle</StyledLabel>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {selectedVehicle ? (
-            <Typography variant="body2">{selectedVehicle.vehicleNo}</Typography>
-          ) : (
-            <Typography variant="body2" sx={{ color: 'text.success' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+          {selectedVehicles.length === 0 && (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               No vehicle assigned
             </Typography>
           )}
 
+          {selectedVehicles.map((v) => (
+            <Chip
+              key={v._id || v.id}
+              label={v.vehicleNo}
+              size="small"
+              variant="soft"
+              color="default"
+              onDelete={() => handleRemoveVehicle(v._id || v.id)}
+            />
+          ))}
+
           <Button
             size="small"
-            startIcon={<Iconify icon={selectedVehicle ? 'eva:edit-fill' : 'mingcute:add-line'} />}
+            startIcon={<Iconify icon={selectedVehicles.length ? 'eva:edit-fill' : 'mingcute:add-line'} />}
             onClick={vehicleDialog.onTrue}
           >
-            {selectedVehicle ? 'Change' : 'Assign'}
+            {selectedVehicles.length ? 'Manage' : 'Assign'}
           </Button>
 
           <KanbanVehicleDialog
-            selectedVehicle={selectedVehicle}
+            multiple
+            selectedVehicles={selectedVehicles}
             open={vehicleDialog.value}
             onClose={vehicleDialog.onFalse}
-            onVehicleChange={handleVehicleChange}
+            onVehicleChange={handleVehiclesChange}
           />
         </Box>
       </Box>
