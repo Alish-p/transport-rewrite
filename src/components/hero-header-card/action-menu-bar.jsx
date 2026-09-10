@@ -74,7 +74,11 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
         >
           {activeMenu && (
             <MenuList>
-              {activeMenu.items.map((item) => {
+              {activeMenu.items.map((item, i) => {
+                if (item.divider || item.type === 'divider') {
+                  return <Divider key={item.key || `divider-${i}`} sx={{ my: 0.5, ...item.sx }} />;
+                }
+
                 const content = item.render ? null : (
                   <>
                     {item.icon && <Iconify icon={item.icon} sx={{ mr: 1.5 }} />}
@@ -90,9 +94,13 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
 
                 const node = (
                   <MenuItem
-                    key={item.label}
+                    key={item.label || i}
                     disabled={item.disabled}
                     onClick={item.render ? undefined : handleClick}
+                    sx={{
+                      ...(item.color === 'error' && { color: 'error.main' }),
+                      ...item.sx,
+                    }}
                   >
                     {item.render
                       ? item.render({
@@ -107,7 +115,7 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
 
                 return item.tooltip ? (
                   <Tooltip
-                    key={item.label}
+                    key={item.label || i}
                     title={item.tooltip}
                     disableHoverListener={!item.disabled}
                     disableFocusListener={!item.disabled}
@@ -149,7 +157,11 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                 {menu.icon && <Iconify icon={menu.icon} sx={{ mr: 1.5 }} />}
                 {menu.label}
               </MenuItem>
-              {menu.items.map((item) => {
+              {menu.items.map((item, i) => {
+                if (item.divider || item.type === 'divider') {
+                  return <Divider key={item.key || `m-divider-${i}`} sx={{ my: 0.5, ...item.sx }} />;
+                }
+
                 const content = item.render ? null : (
                   <>
                     {item.icon && <Iconify icon={item.icon} sx={{ mr: 1.5 }} />}
@@ -165,9 +177,13 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
 
                 const node = (
                   <MenuItem
-                    key={item.label}
+                    key={item.label || i}
                     disabled={item.disabled}
                     onClick={item.render ? undefined : handleClick}
+                    sx={{
+                      ...(item.color === 'error' && { color: 'error.main' }),
+                      ...item.sx,
+                    }}
                   >
                     {item.render
                       ? item.render({
@@ -182,7 +198,7 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
 
                 return item.tooltip ? (
                   <Tooltip
-                    key={item.label}
+                    key={item.label || i}
                     title={item.tooltip}
                     disableHoverListener={!item.disabled}
                     disableFocusListener={!item.disabled}

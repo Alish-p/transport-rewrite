@@ -251,41 +251,66 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   }, [subtrip?.podGeoLocation?.latitude, subtrip?.podGeoLocation?.longitude]);
 
   const getActions = () => {
-    if (subtrip.isEmpty) {
-      return [];
-    }
     if (publicMode) {
       return [];
     }
 
-    const actions = [
-      {
+    const lifecycleActions = [];
+
+    if (!subtrip.isEmpty) {
+      lifecycleActions.push({
         label: 'Receive',
+        icon: 'material-symbols:call-received',
         action: () =>
           navigate(
             `${paths.dashboard.subtrip.receive}?currentSubtrip=${subtrip._id}&redirectTo=${encodeURIComponent(window.location.pathname)}`
           ),
         disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.LOADED,
-      },
-      {
+      });
+
+      lifecycleActions.push({
         label: 'Resolve',
+        icon: 'mdi:check-circle-outline',
         action: () => setShowResolveDialog(true),
         disabled: subtrip.subtripStatus !== SUBTRIP_STATUS.ERROR,
+      });
+
+      // EPOD: only show when tenant has EPOD enabled and job is loaded
+      if (tenant?.integrations?.epod?.enabled && subtrip.subtripStatus === SUBTRIP_STATUS.LOADED) {
+        lifecycleActions.push({
+          label: subtrip.podSignature ? 'EPOD ✅ Signed' : 'Share EPOD Link',
+          icon: subtrip.podSignature ? 'mdi:file-check-outline' : 'mdi:share-variant-outline',
+          action: () => {
+            const epodUrl = `${window.location.origin}${paths.public.epod(subtrip._id)}`;
+            navigator.clipboard.writeText(epodUrl);
+            toast.success('EPOD link copied to clipboard!');
+          },
+          disabled: false,
+        });
+      }
+    }
+
+    const managementActions = [
+      {
+        label: 'Edit',
+        icon: 'solar:pen-bold',
+        action: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
+        disabled: !isEditingAllowed(),
+      },
+      {
+        label: 'Cancel Job',
+        icon: 'material-symbols:cancel-outline',
+        action: () => setShowCancelDialog(true),
+        disabled: !isCancellable(),
+        color: 'error',
       },
     ];
 
-    // EPOD: only show when tenant has EPOD enabled and job is loaded
-    if (tenant?.integrations?.epod?.enabled && subtrip.subtripStatus === SUBTRIP_STATUS.LOADED) {
-      actions.push({
-        label: subtrip.podSignature ? 'EPOD ✅ Signed' : 'Share EPOD Link',
-        action: () => {
-          const epodUrl = `${window.location.origin}${paths.public.epod(subtrip._id)}`;
-          navigator.clipboard.writeText(epodUrl);
-          toast.success('EPOD link copied to clipboard!');
-        },
-        disabled: false,
-      });
+    const actions = [...lifecycleActions];
+    if (lifecycleActions.length > 0) {
+      actions.push({ divider: true });
     }
+    actions.push(...managementActions);
 
     return actions;
   };
@@ -326,11 +351,17 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             {
               label: 'Actions',
               icon: 'eva:settings-2-fill',
-              items: getActions().map((a) => ({
-                label: a.label,
-                onClick: a.action,
-                disabled: a.disabled,
-              })),
+              items: getActions().map((a, idx) =>
+                a.divider
+                  ? { divider: true, key: `action-divider-${idx}` }
+                  : {
+                      label: a.label,
+                      icon: a.icon,
+                      onClick: a.action,
+                      disabled: a.disabled,
+                      color: a.color,
+                    }
+              ),
             },
             {
               label: 'View',
@@ -561,25 +592,6 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
               ].filter(Boolean),
             },
           ]}
-          actions={
-            !publicMode
-              ? [
-                {
-                  label: 'Edit',
-                  icon: 'solar:pen-bold',
-                  onClick: () => navigate(paths.dashboard.subtrip.edit(subtrip._id)),
-                  disabled: !isEditingAllowed(),
-                },
-                {
-                  label: 'Cancel Job',
-                  icon: 'material-symbols:cancel-outline',
-                  onClick: () => setShowCancelDialog(true),
-                  disabled: !isCancellable(),
-                  color: 'error',
-                },
-              ]
-              : undefined
-          }
         />
 
         {/* PDF Viewers */}

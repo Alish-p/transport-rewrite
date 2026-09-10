@@ -104,7 +104,7 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
           }
         />
 
-        {consignee && <InfoRow icon="mdi:account-tie" label="Consignee" value={consignee} />}
+        {consignee ? <InfoRow icon="mdi:account-tie" label="Consignee" value={consignee} /> : null}
 
         <InfoRow
           icon="mdi:truck-outline"
@@ -146,7 +146,7 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
           }
         />
 
-        {tripNo && (
+        {tripNo ? (
           <InfoRow
             icon="mdi:routes"
             label="Trip No"
@@ -166,21 +166,21 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
               )
             }
           />
-        )}
+        ) : null}
 
-        {vehicleAssignment && (
+        {vehicleAssignment ? (
           <InfoRow
             icon="mdi:truck-check-outline"
             label="Assignment"
             value={vehicleAssignment === 'schedule' ? 'Schedule Vehicle' : 'Adhoc Vehicle'}
           />
-        )}
+        ) : null}
 
-        {startDate && (
+        {startDate ? (
           <InfoRow icon="mdi:calendar-start" label="Start Date" value={fDateTime(startDate)} />
-        )}
+        ) : null}
 
-        {endDate && <InfoRow icon="mdi:calendar-end" label="End Date" value={fDateTime(endDate)} />}
+        {endDate ? <InfoRow icon="mdi:calendar-end" label="End Date" value={fDateTime(endDate)} /> : null}
       </Stack>
 
       <Divider sx={{ borderStyle: 'dashed' }} />
@@ -198,8 +198,8 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
       <SectionHeader icon="solar:box-bold" title="Material & Freight" />
       <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
         <InfoRow icon="mdi:cube" label="Material" value={materialType} />
-        {grade && <InfoRow icon="mdi:star" label="Grade" value={grade} />}
-        {quantity && <InfoRow icon="mdi:scale" label="Quantity" value={quantity} />}
+        {grade ? <InfoRow icon="mdi:star" label="Grade" value={grade} /> : null}
+        {quantity ? <InfoRow icon="mdi:scale" label="Quantity" value={quantity} /> : null}
         {rate ? <InfoRow icon="mdi:currency-inr" label="Freight Rate" value={fCurrency(rate)} /> : null}
         {commissionRate ? (
           <InfoRow
@@ -211,54 +211,54 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
       </Stack>
 
       {/* 4. Documents & References Section */}
-      {(invoiceNo || orderNo || shipmentNo || diNumber || ewayBill || referenceSubtripNo) && (
+      {Boolean(invoiceNo || orderNo || shipmentNo || diNumber || ewayBill || referenceSubtripNo) && (
         <>
           <Divider sx={{ borderStyle: 'dashed' }} />
           <SectionHeader icon="solar:file-check-bold" title="Documents & References" />
           <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
-            {referenceSubtripNo && (
+            {referenceSubtripNo ? (
               <InfoRow icon="mdi:link-variant" label="Reference Job" value={referenceSubtripNo} />
-            )}
-            {shipmentNo && (
+            ) : null}
+            {shipmentNo ? (
               <InfoRow icon="mdi:truck-delivery" label="Shipment No" value={shipmentNo} />
-            )}
-            {invoiceNo && (
+            ) : null}
+            {invoiceNo ? (
               <InfoRow icon="mdi:file-document-outline" label="Invoice No" value={invoiceNo} />
-            )}
-            {orderNo && <InfoRow icon="mdi:numeric" label="Order No" value={orderNo} />}
-            {diNumber && <InfoRow icon="mdi:ticket" label="DI No" value={diNumber} />}
-            {ewayBill && <InfoRow icon="mdi:barcode" label="E-Way Bill" value={ewayBill} />}
-            {ewayExpiryDate && (
+            ) : null}
+            {orderNo ? <InfoRow icon="mdi:numeric" label="Order No" value={orderNo} /> : null}
+            {diNumber ? <InfoRow icon="mdi:ticket" label="DI No" value={diNumber} /> : null}
+            {ewayBill ? <InfoRow icon="mdi:barcode" label="E-Way Bill" value={ewayBill} /> : null}
+            {ewayExpiryDate ? (
               <InfoRow
                 icon="mdi:calendar"
                 label="E-Way Expiry"
                 value={fDateTime(ewayExpiryDate)}
               />
-            )}
+            ) : null}
           </Stack>
         </>
       )}
 
       {/* 5. Weight & Shortage Section */}
-      {(loadingWeight || unloadingWeight || shortageWeight || shortageAmount) && (
+      {Boolean(loadingWeight || unloadingWeight || shortageWeight || shortageAmount) && (
         <>
           <Divider sx={{ borderStyle: 'dashed' }} />
           <SectionHeader icon="solar:scale-bold" title="Weight & Shortage" />
           <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
-            {loadingWeight && (
+            {loadingWeight ? (
               <InfoRow icon="mdi:weight-kilogram" label="Loading Wt" value={loadingWeight} />
-            )}
-            {unloadingWeight && (
+            ) : null}
+            {unloadingWeight ? (
               <InfoRow icon="mdi:weight-kilogram" label="Unloading Wt" value={unloadingWeight} />
-            )}
-            {shortageWeight && (
+            ) : null}
+            {shortageWeight ? (
               <InfoRow
                 icon="mdi:scale-unbalanced"
                 label="Shortage Wt"
                 value={shortageWeight}
               />
-            )}
-            {shortageAmount && (
+            ) : null}
+            {shortageAmount ? (
               <InfoRow
                 icon="mdi:currency-inr"
                 label="Shortage Amt"
@@ -268,7 +268,7 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
                     : shortageAmount
                 }
               />
-            )}
+            ) : null}
           </Stack>
         </>
       )}
@@ -311,7 +311,7 @@ function InfoRow({ icon, label, value }) {
       sx={{ typography: 'body2', minHeight: 24 }}
     >
       <Stack direction="row" alignItems="center" spacing={0.75} sx={{ minWidth: 0, flexShrink: 0 }}>
-        {icon && <Iconify icon={icon} width={16} sx={{ color: 'text.disabled', flexShrink: 0 }} />}
+        {icon ? <Iconify icon={icon} width={16} sx={{ color: 'text.disabled', flexShrink: 0 }} /> : null}
         <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
           {label}
         </Typography>
