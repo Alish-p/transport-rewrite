@@ -78,6 +78,29 @@ export const TABLE_COLUMNS = [
     disabled: false,
     align: 'center',
     getter: (row) => row.transporter?.transportName || '-',
+    render: (row) => {
+      const { transporter } = row;
+      const transporterId = transporter?._id;
+      const transportName = transporter?.transportName;
+
+      if (!transporterId) return transportName || '-';
+
+      return (
+        <Link
+          component={RouterLink}
+          href={paths.dashboard.transporter.details(transporterId)}
+          variant="body2"
+          noWrap
+          sx={{
+            color: 'primary.main',
+            cursor: 'pointer',
+            '&:hover': { textDecoration: 'underline' },
+          }}
+        >
+          {transportName}
+        </Link>
+      );
+    },
   },
   {
     id: 'noOfTyres',
