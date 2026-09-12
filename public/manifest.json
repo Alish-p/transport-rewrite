@@ -1,25 +1,30 @@
 {
-  "short_name": "tranzit",
-  "name": "tranzit",
+  "id": "/",
+  "name": "Tranzit",
+  "short_name": "Tranzit",
+  "description": "Smart fleet, trips, and logistics management platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/favicon.ico",
       "sizes": "64x64",
       "type": "image/x-icon"
     },
     {
-      "src": "./logo/company-logo-main.png",
+      "src": "/logo/logo-single.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "sizes": "192x192"
+      "purpose": "any"
     },
     {
-      "src": "./logo/company-logo-main.png",
+      "src": "/logo/logo-single.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "sizes": "512x512"
+      "purpose": "any maskable"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
-} 
+  ]
+}

@@ -12,6 +12,8 @@ import IconButton from '@mui/material/IconButton';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { usePwaInstall } from 'src/hooks/use-pwa-install';
+
 import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
@@ -25,6 +27,7 @@ import { paths } from '../../routes/paths';
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
+import { InstallAppDialog } from './install-app-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +41,10 @@ export function AccountDrawer({ sx, ...other }) {
   const { user } = useAuthContext();
 
   const [open, setOpen] = useState(false);
+
+  const [installDialogOpen, setInstallDialogOpen] = useState(false);
+
+  const { isInstallable, isIos, isMacSafari, canInstall, promptInstall } = usePwaInstall();
 
   const handleOpenDrawer = useCallback(() => {
     setOpen(true);
@@ -54,6 +61,15 @@ export function AccountDrawer({ sx, ...other }) {
     },
     [handleCloseDrawer, router]
   );
+
+  const handleInstallClick = useCallback(() => {
+    if (isInstallable) {
+      promptInstall();
+    } else if (isIos || isMacSafari) {
+      setInstallDialogOpen(true);
+    }
+    handleCloseDrawer();
+  }, [isInstallable, isIos, isMacSafari, promptInstall, handleCloseDrawer]);
 
   const userName = user?.name || user?.displayName;
 
@@ -221,9 +237,33 @@ export function AccountDrawer({ sx, ...other }) {
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>
+          {canInstall && (
+            <MenuItem
+              onClick={handleInstallClick}
+              sx={{
+                mb: 1.5,
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="solar:download-minimalistic-bold-duotone" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Install App
+              </Box>
+            </MenuItem>
+          )}
+
           <SignOutButton onClose={handleCloseDrawer} />
         </Box>
       </Drawer>
+
+      <InstallAppDialog
+        open={installDialogOpen}
+        onClose={() => setInstallDialogOpen(false)}
+        isIos={isIos}
+      />
     </>
   );
 }
