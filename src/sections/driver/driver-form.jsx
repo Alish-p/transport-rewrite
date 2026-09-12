@@ -184,7 +184,6 @@ export default function DriverForm({ currentDriver }) {
       if (!currentDriver) {
         await createDriver(sanitized);
       } else {
-        console.log({ dataInOnSubmit: sanitized });
         await updateDriver({ id: currentDriver._id, data: sanitized });
       }
       reset();

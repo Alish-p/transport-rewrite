@@ -28,7 +28,6 @@ const createDriver = async (driver) => {
 };
 
 const updateDriver = async (id, driverData) => {
-  console.log({ driverDataInAPICAll: driverData });
   const { data } = await axios.put(`${ENDPOINT}/${id}`, driverData);
   return data;
 };
@@ -102,6 +101,8 @@ export function useCreateQuickDriver() {
   return useMutation({
     mutationFn: createDriver,
     onSuccess: (newDriver) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
       // Update the drivers list in the cache
       queryClient.setQueryData([QUERY_KEY], (oldData) => {
         if (!oldData) return [newDriver];
@@ -124,9 +125,11 @@ export function useCreateQuickDriver() {
 export function useCreateFullDriver() {
   const queryClient = useQueryClient();
 
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: createDriver,
     onSuccess: (newDriver) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
       // Update the drivers list in the cache
       queryClient.setQueryData([QUERY_KEY], (oldData) => {
         if (!oldData) return [newDriver];
@@ -144,21 +147,20 @@ export function useCreateFullDriver() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useUpdateDriver() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateDriver(id, data),
-    onSuccess: (updatedDriver) => {
-      queryClient.setQueryData([QUERY_KEY], (oldData) => {
-        if (!oldData) return [updatedDriver];
+    onSuccess: (updatedDriver, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
 
-        return oldData.map((driver) => (driver._id === updatedDriver._id ? updatedDriver : driver));
-      });
-
-      queryClient.setQueryData([QUERY_KEY, updatedDriver._id], updatedDriver);
+      const driverId = updatedDriver?._id || variables?.id;
+      if (driverId) {
+        queryClient.setQueryData([QUERY_KEY, driverId], updatedDriver);
+      }
 
       toast.success('Driver edited successfully!');
     },
@@ -168,7 +170,7 @@ export function useUpdateDriver() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteDriver() {
@@ -176,18 +178,19 @@ export function useDeleteDriver() {
   const { mutate } = useMutation({
     mutationFn: (id) => deleteDriver(id),
     onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
       queryClient.setQueryData([QUERY_KEY], (oldData) => {
         if (!oldData) return [];
 
         return oldData.filter((driver) => driver._id !== id);
       });
 
-      queryClient.removeQueries([QUERY_KEY, id]);
+      queryClient.removeQueries({ queryKey: [QUERY_KEY, id] });
 
       toast.success('Driver deleted successfully!');
     },
     onError: (error) => {
-      console.log({ error });
       const errorMessage = error?.message || 'An error occurred';
       toast.error(errorMessage);
     },
@@ -212,11 +215,11 @@ export function useCleanupDrivers() {
     mutationFn: cleanupDriversApi,
     onSuccess: (result) => {
       // Invalidate orphan drivers query to refetch
-      queryClient.invalidateQueries([QUERY_KEY, 'orphans']);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'orphans'] });
       // Invalidate paginated drivers list
-      queryClient.invalidateQueries([QUERY_KEY, 'paginated']);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'paginated'] });
       // Invalidate all drivers
-      queryClient.invalidateQueries([QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
 
       toast.success(result.message || 'Drivers cleaned up successfully!');
     },
