@@ -37,11 +37,27 @@ const MAC_SAFARI_STEPS = [
   },
 ];
 
+const CHROME_DESKTOP_STEPS = [
+  {
+    icon: 'solar:menu-dots-bold',
+    text: 'Click the browser menu (⋮) in the top-right corner',
+  },
+  {
+    icon: 'solar:download-minimalistic-bold',
+    text: 'Click "Install Tranzit" or "Install app"',
+  },
+];
+
 // ----------------------------------------------------------------------
 
-export function InstallAppDialog({ open, onClose, isIos }) {
-  const steps = isIos ? IOS_STEPS : MAC_SAFARI_STEPS;
-  const platformLabel = isIos ? 'iPhone / iPad' : 'Mac';
+function getStepsAndLabel(isIos, isMacSafari) {
+  if (isIos) return { steps: IOS_STEPS, platformLabel: 'iPhone / iPad', target: 'home screen' };
+  if (isMacSafari) return { steps: MAC_SAFARI_STEPS, platformLabel: 'Mac', target: 'dock' };
+  return { steps: CHROME_DESKTOP_STEPS, platformLabel: 'your device', target: 'desktop' };
+}
+
+export function InstallAppDialog({ open, onClose, isIos, isMacSafari }) {
+  const { steps, platformLabel, target } = getStepsAndLabel(isIos, isMacSafari);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -49,7 +65,7 @@ export function InstallAppDialog({ open, onClose, isIos }) {
 
       <DialogContent>
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
-          Follow these steps to add Tranzit to your {isIos ? 'home screen' : 'dock'}:
+          Follow these steps to add Tranzit to your {target}:
         </Typography>
 
         <Stack spacing={2.5}>

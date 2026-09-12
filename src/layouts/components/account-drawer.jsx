@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { SvgIcon } from '@mui/material';
 import Badge from '@mui/material/Badge';
+import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
@@ -44,7 +45,7 @@ export function AccountDrawer({ sx, ...other }) {
 
   const [installDialogOpen, setInstallDialogOpen] = useState(false);
 
-  const { isInstallable, isIos, isMacSafari, canInstall, promptInstall } = usePwaInstall();
+  const { isInstallable, isIos, isMacSafari, promptInstall } = usePwaInstall();
 
   const handleOpenDrawer = useCallback(() => {
     setOpen(true);
@@ -65,11 +66,11 @@ export function AccountDrawer({ sx, ...other }) {
   const handleInstallClick = useCallback(() => {
     if (isInstallable) {
       promptInstall();
-    } else if (isIos || isMacSafari) {
+    } else {
       setInstallDialogOpen(true);
     }
     handleCloseDrawer();
-  }, [isInstallable, isIos, isMacSafari, promptInstall, handleCloseDrawer]);
+  }, [isInstallable, promptInstall, handleCloseDrawer]);
 
   const userName = user?.name || user?.displayName;
 
@@ -231,29 +232,23 @@ export function AccountDrawer({ sx, ...other }) {
             </MenuItem>
           </Stack>
 
-          <Box sx={{ px: 2.5, py: 3, mt: 30 }}>
+          <Box sx={{ px: 2.5, py: 3, mt: 3 }}>
             <UpgradeBlock />
           </Box>
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>
-          {canInstall && (
-            <MenuItem
-              onClick={handleInstallClick}
-              sx={{
-                mb: 1.5,
-                py: 1,
-                color: 'text.secondary',
-                '& svg': { width: 24, height: 24 },
-                '&:hover': { color: 'text.primary' },
-              }}
-            >
-              <Iconify icon="solar:download-minimalistic-bold-duotone" />
-              <Box component="span" sx={{ ml: 2 }}>
-                Install App
-              </Box>
-            </MenuItem>
-          )}
+          <Button
+            fullWidth
+            variant="soft"
+            size="large"
+            color="primary"
+            onClick={handleInstallClick}
+            startIcon={<Iconify icon="solar:download-minimalistic-bold-duotone" />}
+            sx={{ mb: 1.5 }}
+          >
+            Install App
+          </Button>
 
           <SignOutButton onClose={handleCloseDrawer} />
         </Box>
@@ -263,6 +258,7 @@ export function AccountDrawer({ sx, ...other }) {
         open={installDialogOpen}
         onClose={() => setInstallDialogOpen(false)}
         isIos={isIos}
+        isMacSafari={isMacSafari}
       />
     </>
   );
