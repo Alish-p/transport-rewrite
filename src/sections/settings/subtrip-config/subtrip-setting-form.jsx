@@ -68,6 +68,7 @@ const SubtripSettingSchema = zod.object({
         });
       }
     }),
+  lrTemplate: zod.string().optional(),
   fields: zod.record(
     zod.string(),
     zod.object({
@@ -99,6 +100,7 @@ export default function SubtripSettingForm() {
         allowedModels: subtripConfig?.allowedFreightModels || ['per_ton'],
         defaultModel: subtripConfig?.defaultFreightModel || 'per_ton',
       },
+      lrTemplate: subtripConfig?.lrTemplate || 'standard',
       fields: fieldsInit,
     };
   }, [currentTenant, globalMaterialOptions]);
@@ -130,6 +132,7 @@ export default function SubtripSettingForm() {
           materialOptions: formData.materialOptions,
           allowedFreightModels: formData.freightConfig.allowedModels,
           defaultFreightModel: formData.freightConfig.defaultModel,
+          lrTemplate: formData.lrTemplate,
           fields: formData.fields,
         },
       },
@@ -205,6 +208,29 @@ export default function SubtripSettingForm() {
                       {model.label}
                     </MenuItem>
                   ))}
+                </Field.Select>
+              </Grid>
+            </Grid>
+          </Card>
+
+          {/* LR Template Configuration */}
+          <Card sx={{ p: 3 }}>
+            <CardHeader
+              title="LR Template"
+              subheader="Choose the default Lorry Receipt (LR) PDF layout for downloads and prints."
+              sx={{ px: 0, pt: 0, mb: 3 }}
+            />
+            <Divider sx={{ mb: 3 }} />
+
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Field.Select
+                  name="lrTemplate"
+                  label="LR Template"
+                  fullWidth
+                >
+                  <MenuItem value="standard">Standard (A5 Landscape)</MenuItem>
+                  <MenuItem value="template-1">Template 1 (A4 Portrait)</MenuItem>
                 </Field.Select>
               </Grid>
             </Grid>
