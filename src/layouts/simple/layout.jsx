@@ -32,6 +32,7 @@ export function SimpleLayout({ sx, children }) {
             menuButton: false,
             localization: false,
             notifications: false,
+            assignedIssues: false,
           }}
           slots={{
             topArea: (

@@ -65,7 +65,7 @@ export function HeaderBase({
     workspaces = true,
     menuButton = true,
     localization = true,
-    assignedIssues = true,
+    assignedIssues = false,
     contacts = true,
   } = {},
 

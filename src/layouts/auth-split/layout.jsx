@@ -38,6 +38,7 @@ export function AuthSplitLayout({ sx, section, children }) {
             menuButton: false,
             localization: false,
             notifications: false,
+            assignedIssues: false,
           }}
           slots={{
             topArea: (
