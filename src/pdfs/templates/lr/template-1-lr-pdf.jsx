@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Svg, Font, Page, Path, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
+import { Svg, Font, Page, Path, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
 
@@ -34,15 +34,13 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
   },
 
-  // Header styles
+  // Header styles (outside borderContainer)
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '4px 6px',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000000',
-    borderBottomStyle: 'solid',
+    paddingBottom: 6,
+    paddingHorizontal: 2,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -92,8 +90,8 @@ const styles = StyleSheet.create({
     borderBottomStyle: 'solid',
   },
   noticeCol: {
-    width: '42%',
-    padding: 4,
+    width: '39%',
+    padding: 3,
     borderRightWidth: 1,
     borderRightColor: '#000000',
     borderRightStyle: 'solid',
@@ -106,12 +104,12 @@ const styles = StyleSheet.create({
   },
   noticeText: {
     fontSize: 5.8,
-    lineHeight: 1.25,
+    lineHeight: 1.2,
     textAlign: 'left',
   },
   carrierRiskCol: {
-    width: '24%',
-    padding: 4,
+    width: '27%',
+    padding: 3,
     borderRightWidth: 1,
     borderRightColor: '#000000',
     borderRightStyle: 'solid',
@@ -121,18 +119,29 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     marginBottom: 2,
   },
-  legalText: {
+  legalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    lineHeight: 1.2,
+    marginBottom: 1,
+  },
+  legalLabel: {
     fontSize: 6,
-    lineHeight: 1.25,
+    color: '#000000',
+  },
+  legalValue: {
+    fontSize: 6,
+    fontWeight: 700,
+    color: '#000000',
   },
   lrMetaCol: {
     width: '34%',
-    padding: 4,
+    padding: 3,
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    lineHeight: 1.22,
+    lineHeight: 1.2,
     marginBottom: 1,
   },
   metaLabel: {
@@ -143,6 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 6,
     fontWeight: 700,
     color: '#000000',
+    textAlign: 'right',
   },
 
   // Consignor / Consignee / Insurance Bar
@@ -153,25 +163,35 @@ const styles = StyleSheet.create({
     borderBottomStyle: 'solid',
   },
   partyCol: {
-    width: '38%',
-    padding: 4,
+    width: '33%',
+    padding: 3,
     borderRightWidth: 1,
     borderRightColor: '#000000',
     borderRightStyle: 'solid',
   },
   insuranceCol: {
-    width: '24%',
-    padding: 6,
+    width: '34%',
+    padding: 3,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  partyText: {
-    fontSize: 6,
-    lineHeight: 1.25,
+  partyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 1,
   },
-  partyTitle: {
-    fontSize: 6.2,
+  partyLabel: {
+    fontSize: 6,
+    color: '#000000',
+    width: '24%',
+  },
+  partyValue: {
+    fontSize: 6,
     fontWeight: 700,
+    color: '#000000',
+    textAlign: 'right',
+    width: '76%',
+    lineHeight: 1.2,
   },
   insuranceText: {
     fontSize: 6.2,
@@ -187,14 +207,14 @@ const styles = StyleSheet.create({
     borderBottomStyle: 'solid',
   },
   tableLeftCol: {
-    width: '78%',
+    width: '66%',
     borderRightWidth: 1,
     borderRightColor: '#000000',
     borderRightStyle: 'solid',
   },
   tableHeaderRowLeft: {
     flexDirection: 'row',
-    height: 24,
+    height: 18,
     borderBottomWidth: 1,
     borderBottomColor: '#000000',
     borderBottomStyle: 'solid',
@@ -202,11 +222,11 @@ const styles = StyleSheet.create({
   },
   tableBodyRowLeft: {
     flexDirection: 'row',
-    height: 180,
+    height: 90,
   },
   tableTotalRowLeft: {
     flexDirection: 'row',
-    height: 26,
+    height: 20,
     borderTopWidth: 1,
     borderTopColor: '#000000',
     borderTopStyle: 'solid',
@@ -217,10 +237,10 @@ const styles = StyleSheet.create({
     borderRightStyle: 'solid',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '2px 2px',
+    padding: '1px 2px',
   },
   thText: {
-    fontSize: 6.2,
+    fontSize: 6,
     fontWeight: 700,
     textAlign: 'center',
     lineHeight: 1.15,
@@ -230,26 +250,13 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: '#000000',
     borderRightStyle: 'solid',
-    paddingTop: 5,
+    paddingTop: 3,
     paddingHorizontal: 2,
   },
   tdText: {
-    fontSize: 6.2,
+    fontSize: 6,
     textAlign: 'center',
-    lineHeight: 1.25,
-  },
-  remarkCell: {
-    width: '62%',
-    height: '100%',
-    borderRightWidth: 1,
-    borderRightColor: '#000000',
-    borderRightStyle: 'solid',
-    padding: '2px 4px',
-    justifyContent: 'center',
-  },
-  remarkText: {
-    fontSize: 6.2,
-    fontWeight: 700,
+    lineHeight: 1.2,
   },
   totalCellBox: {
     height: '100%',
@@ -261,71 +268,88 @@ const styles = StyleSheet.create({
     padding: '1px 2px',
   },
   totalText: {
-    fontSize: 6,
+    fontSize: 5.8,
     fontWeight: 700,
     textAlign: 'center',
     lineHeight: 1.15,
   },
 
-  // Freight & Signatory Column (Right side of table)
+  // Freight Card (Right side of table)
   tableRightCol: {
-    width: '22%',
-    flexDirection: 'column',
-  },
-  tableHeaderRight: {
-    height: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#000000',
-    borderBottomStyle: 'solid',
+    width: '34%',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '2px 2px',
+    padding: 6,
   },
-  tableBodyRight: {
-    height: 206, // 180 + 26 = 206
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '4px 3px 6px 3px',
-  },
-  freightStatusText: {
-    fontSize: 7,
+  freightCardText: {
+    fontSize: 7.5,
     fontWeight: 700,
     textAlign: 'center',
   },
-  signatoryContainer: {
+
+  // Middle 3-card Grid: Empty | Other Remark | Tenant Signature
+  middleBar: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000000',
+    borderBottomStyle: 'solid',
+    minHeight: 46,
+  },
+  middleCol1: {
+    width: '33%',
+    borderRightWidth: 1,
+    borderRightColor: '#000000',
+    borderRightStyle: 'solid',
+    padding: 4,
+  },
+  middleCol2: {
+    width: '33%',
+    borderRightWidth: 1,
+    borderRightColor: '#000000',
+    borderRightStyle: 'solid',
+    padding: 4,
+  },
+  middleCol3: {
+    width: '34%',
+    padding: '3px 4px',
     alignItems: 'center',
-    marginBottom: 2,
+    justifyContent: 'center',
+  },
+  remarkTitle: {
+    fontSize: 6,
+    fontWeight: 700,
+  },
+  remarkText: {
+    fontSize: 6,
+    lineHeight: 1.25,
   },
   signatoryCompany: {
     fontSize: 6,
     fontWeight: 700,
     textAlign: 'center',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   signatoryText: {
     fontSize: 6,
     fontWeight: 700,
     textAlign: 'center',
+    marginTop: 1,
   },
 
   // Bottom 3-box Grid
   bottomBar: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000000',
-    borderBottomStyle: 'solid',
   },
   bankCol: {
-    width: '35%',
-    padding: 4,
+    width: '33%',
+    padding: 3,
     borderRightWidth: 1,
     borderRightColor: '#000000',
     borderRightStyle: 'solid',
   },
   centerNoteCol: {
-    width: '35%',
-    padding: 4,
+    width: '33%',
+    padding: 3,
     justifyContent: 'center',
     alignItems: 'center',
     borderRightWidth: 1,
@@ -333,17 +357,29 @@ const styles = StyleSheet.create({
     borderRightStyle: 'solid',
   },
   demurrageCol: {
-    width: '30%',
-    padding: 4,
+    width: '34%',
+    padding: 3,
   },
-  bankText: {
+  bankRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    lineHeight: 1.2,
+    marginBottom: 1,
+  },
+  bankLabel: {
     fontSize: 6,
-    lineHeight: 1.25,
+    color: '#000000',
+  },
+  bankValue: {
+    fontSize: 6,
+    fontWeight: 700,
+    color: '#000000',
+    textAlign: 'right',
   },
   centerNoteText: {
     fontSize: 6,
     textAlign: 'center',
-    lineHeight: 1.25,
+    lineHeight: 1.2,
   },
   demurrageTitle: {
     fontSize: 6.2,
@@ -353,18 +389,24 @@ const styles = StyleSheet.create({
   },
   demurrageText: {
     fontSize: 5.8,
-    lineHeight: 1.25,
+    lineHeight: 1.2,
   },
 
-  // Footer text
+  // Footer text (outside borderContainer)
   footerBar: {
-    padding: '4px 6px',
-    minHeight: 28,
+    paddingTop: 3,
+    paddingHorizontal: 1,
   },
   footerText: {
     fontSize: 6,
     fontWeight: 700,
     lineHeight: 1.3,
+  },
+  footerUnderlineText: {
+    fontSize: 6,
+    fontWeight: 700,
+    lineHeight: 1.3,
+    textDecoration: 'underline',
   },
 
   // Page 2 styles
@@ -422,7 +464,6 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     quantity,
     vehicleId = {},
     freightDetails = {},
-    podSignature = '',
     remarks = '',
   } = subtrip;
 
@@ -445,13 +486,13 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const cityStatePin =
     tenant?.address?.city || tenant?.address?.state
       ? [
-          tenant?.address?.city,
-          tenant?.address?.state
-            ? `${tenant.address.state}${tenant?.address?.pincode ? ` - ${tenant.address.pincode}` : ''}`
-            : tenant?.address?.pincode,
-        ]
-          .filter(Boolean)
-          .join(', ')
+        tenant?.address?.city,
+        tenant?.address?.state
+          ? `${tenant.address.state}${tenant?.address?.pincode ? ` - ${tenant.address.pincode}` : ''}`
+          : tenant?.address?.pincode,
+      ]
+        .filter(Boolean)
+        .join(', ')
       : 'Jharkhand - 828202';
 
   // Legal Numbers
@@ -462,12 +503,14 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   // Consignor
   const consignorName = customerId?.customerName || 'MAA KALYANESHWARI ENTERPRISES';
   const consignorGst = customerId?.GSTNo || '20AAXFM7326C1ZC';
-  const consignorMobile = customerId?.cellNo || '';
+  const consignorMobile = customerId?.cellNo || '-';
   const consignorAddress =
     customerId?.address || 'CHIRKUNDA, DHANBAD, JHARKHAND, DHANBAD - 828202, Chirkunda, Jharkhand, India - 828202';
 
   // Consignee
   const consigneeName = consignee || 'M/S MAA JWALA ENTERPRISES';
+  const consigneeGst = subtrip?.consigneeGst || customerId?.consigneeGst || '-';
+  const consigneeMobile = subtrip?.consigneeMobile || subtrip?.consigneePhone || '-';
   const consigneeAddress =
     unloadingPoint || 'SHAKTINAGAR, SONEBHADRA, UTTAR PRADESH - 231222, SONEBHADRA, UTTAR PRADESH, India - 231222';
 
@@ -496,44 +539,44 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     <Document>
       {/* PAGE 1: LORRY RECEIPT DETAILS */}
       <Page size="A4" style={styles.page} orientation="portrait">
-        <View style={styles.borderContainer}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <TenantLogo tenant={tenant} size={40} />
-              <View style={styles.headerAddress}>
-                {addressLine1 ? <Text>{addressLine1}</Text> : null}
-                {addressLine2 ? <Text>{addressLine2}</Text> : null}
-                {cityStatePin ? <Text>{cityStatePin}</Text> : null}
-              </View>
-            </View>
-
-            <View style={styles.headerCenter}>
-              <Text style={styles.companyName}>{companyName}</Text>
-            </View>
-
-            <View style={styles.headerRight}>
-              <View style={styles.contactItem}>
-                <Svg width={7} height={7} viewBox="0 0 24 24">
-                  <Path
-                    fill="#000000"
-                    d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.28-.28.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
-                  />
-                </Svg>
-                <Text style={styles.contactText}>{companyPhone}</Text>
-              </View>
-              <View style={styles.contactItem}>
-                <Svg width={7} height={7} viewBox="0 0 24 24">
-                  <Path
-                    fill="#000000"
-                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
-                  />
-                </Svg>
-                <Text style={styles.contactText}>{companyEmail}</Text>
-              </View>
+        {/* Header (outside borderContainer) */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TenantLogo tenant={tenant} size={40} />
+            <View style={styles.headerAddress}>
+              {addressLine1 ? <Text>{addressLine1}</Text> : null}
+              {addressLine2 ? <Text>{addressLine2}</Text> : null}
+              {cityStatePin ? <Text>{cityStatePin}</Text> : null}
             </View>
           </View>
 
+          <View style={styles.headerCenter}>
+            <Text style={styles.companyName}>{companyName}</Text>
+          </View>
+
+          <View style={styles.headerRight}>
+            <View style={styles.contactItem}>
+              <Svg width={7} height={7} viewBox="0 0 24 24">
+                <Path
+                  fill="#000000"
+                  d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.28-.28.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+                />
+              </Svg>
+              <Text style={styles.contactText}>{companyPhone}</Text>
+            </View>
+            <View style={styles.contactItem}>
+              <Svg width={7} height={7} viewBox="0 0 24 24">
+                <Path
+                  fill="#000000"
+                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                />
+              </Svg>
+              <Text style={styles.contactText}>{companyEmail}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.borderContainer}>
           {/* Notice & Meta Bar */}
           <View style={styles.noticeBar}>
             {/* Box 1: Notice */}
@@ -550,41 +593,41 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
             {/* Box 2: AT CARRIER'S RISK */}
             <View style={styles.carrierRiskCol}>
               <Text style={styles.carrierRiskTitle}>AT CARRIER&apos;S RISK</Text>
-              <Text style={styles.legalText}>GST No.: {gstNo}</Text>
-              <Text style={styles.legalText}>PAN No.: {panNo}</Text>
-              <Text style={styles.legalText}>UDYAM Reg. No. : {udyamNo}</Text>
+              <View style={styles.legalRow}>
+                <Text style={styles.legalLabel}>GST No.</Text>
+                <Text style={styles.legalValue}>{gstNo}</Text>
+              </View>
+              <View style={styles.legalRow}>
+                <Text style={styles.legalLabel}>PAN No.</Text>
+                <Text style={styles.legalValue}>{panNo}</Text>
+              </View>
+              <View style={styles.legalRow}>
+                <Text style={styles.legalLabel}>UDYAM Reg. No.</Text>
+                <Text style={styles.legalValue}>{udyamNo}</Text>
+              </View>
             </View>
 
             {/* Box 3: LR Meta */}
             <View style={styles.lrMetaCol}>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>
-                  LR Date: <Text style={styles.metaValue}>{fDate(startDate, 'DD-MM-YYYY') || '09-09-2026'}</Text>
-                </Text>
-                <Text style={styles.metaLabel}>
-                  LR No: <Text style={styles.metaValue}>{subtripNo}</Text>
-                </Text>
+                <Text style={styles.metaLabel}>LR Date</Text>
+                <Text style={styles.metaValue}>{fDate(startDate, 'DD-MM-YYYY') || '09-09-2026'}</Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>
-                  Truck/Vehicle No.:{' '}
-                  <Text style={styles.metaValue}>{vehicleId?.vehicleNo || 'JH-10DD-1612'}</Text>
-                </Text>
+                <Text style={styles.metaLabel}>LR No</Text>
+                <Text style={styles.metaValue}>{subtripNo}</Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Transport Mode: By Road</Text>
+                <Text style={styles.metaLabel}>Vehicle No</Text>
+                <Text style={styles.metaValue}>{vehicleId?.vehicleNo || 'JH-10DD-1612'}</Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={[styles.metaLabel, { maxWidth: '50%' }]} numberOfLines={1}>
-                  From: &ldquo;{fromDisplay}&rdquo;
-                </Text>
-                <Text style={[styles.metaLabel, { maxWidth: '50%', textAlign: 'right' }]} numberOfLines={1}>
-                  To: &ldquo;{toDisplay}&rdquo;
-                </Text>
+                <Text style={styles.metaLabel}>From</Text>
+                <Text style={styles.metaValue}>{fromDisplay}</Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Delivery Type: Warehouse</Text>
-                <Text style={styles.metaLabel}>Payment Status: To be billed</Text>
+                <Text style={styles.metaLabel}>To</Text>
+                <Text style={styles.metaValue}>{toDisplay}</Text>
               </View>
             </View>
           </View>
@@ -593,32 +636,42 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
           <View style={styles.partyBar}>
             {/* Consignor */}
             <View style={styles.partyCol}>
-              <Text style={styles.partyText}>
-                <Text style={styles.partyTitle}>Consignor: </Text>
-                {consignorName}
-              </Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={styles.partyText}>GST No: {consignorGst}</Text>
-                <Text style={styles.partyText}>Mobile: {consignorMobile}</Text>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>Consignor</Text>
+                <Text style={styles.partyValue}>{consignorName}</Text>
               </View>
-              <Text style={styles.partyText}>
-                Address: {consignorAddress}
-              </Text>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>GST No</Text>
+                <Text style={styles.partyValue}>{consignorGst}</Text>
+              </View>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>Mobile</Text>
+                <Text style={styles.partyValue}>{consignorMobile}</Text>
+              </View>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>Address</Text>
+                <Text style={styles.partyValue}>{consignorAddress}</Text>
+              </View>
             </View>
 
             {/* Consignee */}
             <View style={styles.partyCol}>
-              <Text style={styles.partyText}>
-                <Text style={styles.partyTitle}>Consignee: </Text>
-                {consigneeName}
-              </Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={styles.partyText}>GST No: -</Text>
-                <Text style={styles.partyText}>Mobile: </Text>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>Consignee</Text>
+                <Text style={styles.partyValue}>{consigneeName}</Text>
               </View>
-              <Text style={styles.partyText}>
-                Address: {consigneeAddress}
-              </Text>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>GST No</Text>
+                <Text style={styles.partyValue}>{consigneeGst}</Text>
+              </View>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>Mobile</Text>
+                <Text style={styles.partyValue}>{consigneeMobile}</Text>
+              </View>
+              <View style={styles.partyRow}>
+                <Text style={styles.partyLabel}>Address</Text>
+                <Text style={styles.partyValue}>{consigneeAddress}</Text>
+              </View>
             </View>
 
             {/* Insurance */}
@@ -631,109 +684,115 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
 
           {/* Goods Table & Freight Box Section */}
           <View style={styles.tableContainer}>
-            {/* Left Section: Columns 1 to 7 */}
+            {/* Left Section: Columns 1 to 8 */}
             <View style={styles.tableLeftCol}>
               {/* Header Row (Left) */}
               <View style={styles.tableHeaderRowLeft}>
-                <View style={[styles.thCell, { width: '6.5%' }]}>
+                <View style={[styles.thCell, { width: '6%' }]}>
                   <Text style={styles.thText}>Sr no.</Text>
                 </View>
-                <View style={[styles.thCell, { width: '28.5%' }]}>
+                <View style={[styles.thCell, { width: '24%' }]}>
                   <Text style={styles.thText}>Product / Material</Text>
                 </View>
-                <View style={[styles.thCell, { width: '16%' }]}>
+                <View style={[styles.thCell, { width: '14%' }]}>
                   <Text style={styles.thText}>Packaging Type</Text>
                   <Text style={styles.thText}>(LxBxH)</Text>
                 </View>
-                <View style={[styles.thCell, { width: '11%' }]}>
+                <View style={[styles.thCell, { width: '10%' }]}>
                   <Text style={styles.thText}>HSN Code</Text>
                 </View>
-                <View style={[styles.thCell, { width: '12.5%' }]}>
+                <View style={[styles.thCell, { width: '11%' }]}>
                   <Text style={styles.thText}>Articles</Text>
                   <Text style={styles.thText}>Packages</Text>
                 </View>
-                <View style={[styles.thCell, { width: '12.75%' }]}>
+                <View style={[styles.thCell, { width: '11.5%' }]}>
                   <Text style={styles.thText}>Actual</Text>
                   <Text style={styles.thText}>Weight</Text>
                 </View>
-                <View style={[styles.thCell, { width: '12.75%', borderRightWidth: 0 }]}>
+                <View style={[styles.thCell, { width: '11.5%' }]}>
                   <Text style={styles.thText}>Charge</Text>
                   <Text style={styles.thText}>Weight</Text>
+                </View>
+                <View style={[styles.thCell, { width: '12%', borderRightWidth: 0 }]}>
+                  <Text style={styles.thText}>Freight Rate</Text>
                 </View>
               </View>
 
               {/* Body Row (Left) */}
               <View style={styles.tableBodyRowLeft}>
-                <View style={[styles.tdCol, { width: '6.5%' }]}>
+                <View style={[styles.tdCol, { width: '6%' }]}>
                   <Text style={styles.tdText}>1</Text>
                 </View>
-                <View style={[styles.tdCol, { width: '28.5%', alignItems: 'flex-start' }]}>
+                <View style={[styles.tdCol, { width: '24%', alignItems: 'flex-start' }]}>
                   <Text style={[styles.tdText, { textAlign: 'left' }]}>{displayMaterial}</Text>
                 </View>
-                <View style={[styles.tdCol, { width: '16%' }]}>
+                <View style={[styles.tdCol, { width: '14%' }]}>
                   <Text style={styles.tdText}>{displayPackaging}</Text>
                 </View>
-                <View style={[styles.tdCol, { width: '11%' }]}>
-                  <Text style={styles.tdText}>{hsnCode || '-'}</Text>
+                <View style={[styles.tdCol, { width: '10%' }]}>
+                  <Text style={styles.tdText}>{hsnCode || ''}</Text>
                 </View>
-                <View style={[styles.tdCol, { width: '12.5%' }]}>
+                <View style={[styles.tdCol, { width: '11%' }]}>
                   <Text style={styles.tdText}>{displayQuantity}</Text>
                 </View>
-                <View style={[styles.tdCol, { width: '12.75%' }]}>
+                <View style={[styles.tdCol, { width: '11.5%' }]}>
                   <Text style={styles.tdText}>{formattedActualWeight}</Text>
                 </View>
-                <View style={[styles.tdCol, { width: '12.75%', borderRightWidth: 0 }]}>
+                <View style={[styles.tdCol, { width: '11.5%' }]}>
                   <Text style={styles.tdText}>{formattedChargeWeight}</Text>
+                </View>
+                <View style={[styles.tdCol, { width: '12%', borderRightWidth: 0 }]}>
+                  <Text style={styles.tdText}>
+                    {freightDetails?.rate ? `₹ ${freightDetails.rate}` : '-'}
+                  </Text>
                 </View>
               </View>
 
-              {/* Total & Remarks Row (Left) */}
+              {/* Total Row (Left) */}
               <View style={styles.tableTotalRowLeft}>
-                <View style={styles.remarkCell}>
-                  <Text style={styles.remarkText}>
-                    Other Remark: {remarks || (orderNo ? `Order No: ${orderNo}` : '')}
-                  </Text>
-                </View>
-                <View style={[styles.totalCellBox, { width: '12.5%' }]}>
+                <View style={[styles.totalCellBox, { width: '6%' }]} />
+                <View style={[styles.totalCellBox, { width: '24%' }]} />
+                <View style={[styles.totalCellBox, { width: '14%' }]} />
+                <View style={[styles.totalCellBox, { width: '10%' }]} />
+                <View style={[styles.totalCellBox, { width: '11%' }]}>
                   <Text style={styles.totalText}>Total: {totalQuantity}</Text>
                 </View>
-                <View style={[styles.totalCellBox, { width: '12.75%' }]}>
+                <View style={[styles.totalCellBox, { width: '11.5%' }]}>
                   <Text style={styles.totalText}>Total:</Text>
                   <Text style={styles.totalText}>{formattedActualWeight}</Text>
                 </View>
-                <View style={[styles.totalCellBox, { width: '12.75%', borderRightWidth: 0 }]}>
+                <View style={[styles.totalCellBox, { width: '11.5%' }]}>
                   <Text style={styles.totalText}>Total:</Text>
                   <Text style={styles.totalText}>{formattedChargeWeight}</Text>
                 </View>
+                <View style={[styles.totalCellBox, { width: '12%', borderRightWidth: 0 }]} />
               </View>
             </View>
 
-            {/* Right Section: Column 8 (Freight Rate & Authorized Signatory) */}
+            {/* Right Section: Freight Card */}
             <View style={styles.tableRightCol}>
-              <View style={styles.tableHeaderRight}>
-                <Text style={styles.thText}>Freight Rate</Text>
-              </View>
+              <Text style={styles.freightCardText}>Freight: To be billed</Text>
+            </View>
+          </View>
 
-              <View style={styles.tableBodyRight}>
-                <Text style={styles.tdText}>
-                  {freightDetails?.rate ? `₹ ${freightDetails.rate}` : '-'}
-                </Text>
+          {/* Middle 3-box Grid: Empty | Other Remark | Tenant Signature */}
+          <View style={styles.middleBar}>
+            {/* Box 1: Empty */}
+            <View style={styles.middleCol1} />
 
-                <Text style={styles.freightStatusText}>Freight: To be billed</Text>
+            {/* Box 2: Other Remark */}
+            <View style={styles.middleCol2}>
+              <Text style={styles.remarkText}>
+                <Text style={styles.remarkTitle}>Other Remark: </Text>
+                {remarks || (orderNo ? `Order No: ${orderNo}` : '')}
+              </Text>
+            </View>
 
-                <View style={styles.signatoryContainer}>
-                  <Text style={styles.signatoryCompany}>For {companyName}</Text>
-                  {podSignature ? (
-                    <Image
-                      src={podSignature}
-                      style={{ width: 65, height: 26, objectFit: 'contain', marginVertical: 2 }}
-                    />
-                  ) : (
-                    <View style={{ height: 26 }} />
-                  )}
-                  <Text style={styles.signatoryText}>Authorized Signatory</Text>
-                </View>
-              </View>
+            {/* Box 3: Tenant's Signature */}
+            <View style={styles.middleCol3}>
+              <Text style={styles.signatoryCompany}>For {companyName}</Text>
+              <View style={{ height: 22 }} />
+              <Text style={styles.signatoryText}>Authorized Signatory</Text>
             </View>
           </View>
 
@@ -741,15 +800,24 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
           <View style={styles.bottomBar}>
             {/* Box 1: Bank Details */}
             <View style={styles.bankCol}>
-              <Text style={styles.bankText}>Bank Name: {bankName}</Text>
-              <Text style={styles.bankText}>Bank A/C No.: {bankAccNo}</Text>
-              <Text style={styles.bankText}>IFSC: {bankIfsc}</Text>
+              <View style={styles.bankRow}>
+                <Text style={styles.bankLabel}>Bank Name</Text>
+                <Text style={styles.bankValue}>{bankName}</Text>
+              </View>
+              <View style={styles.bankRow}>
+                <Text style={styles.bankLabel}>Bank A/C No.</Text>
+                <Text style={styles.bankValue}>{bankAccNo}</Text>
+              </View>
+              <View style={styles.bankRow}>
+                <Text style={styles.bankLabel}>IFSC</Text>
+                <Text style={styles.bankValue}>{bankIfsc}</Text>
+              </View>
             </View>
 
             {/* Box 2: Computer generated note */}
             <View style={styles.centerNoteCol}>
               <Text style={styles.centerNoteText}>
-                &ldquo;Total amount of goods as per the invoice&rdquo;
+                &ldquo;Total amount of goods as <Text style={{ fontWeight: 700 }}>per the invoice</Text>&rdquo;
               </Text>
               <Text style={styles.centerNoteText}>This is computer generated LR/ Bilty.</Text>
             </View>
@@ -763,12 +831,12 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
               <Text style={styles.demurrageText}>Applicable Charge : ₹ 0 Per Hour</Text>
             </View>
           </View>
+        </View>
 
-          {/* Footer Bar */}
-          <View style={styles.footerBar}>
-            <Text style={styles.footerText}>Service Area: ALL INDIA</Text>
-            <Text style={styles.footerText}>Receiver&apos;s Comments:</Text>
-          </View>
+        {/* Footer Bar (outside borderContainer) */}
+        <View style={styles.footerBar}>
+          <Text style={styles.footerText}>Service Area: ALL INDIA</Text>
+          <Text style={styles.footerUnderlineText}>Receiver&apos;s Comments:</Text>
         </View>
       </Page>
 
