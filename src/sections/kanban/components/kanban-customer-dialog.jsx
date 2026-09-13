@@ -20,9 +20,11 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
+import { CUSTOMER_TYPE_LABELS } from '../../customer/customer.constant';
+
 const ITEM_HEIGHT = 64;
 
-export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, onCustomerChange }) {
+export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, onCustomerChange, customerType }) {
   const scrollRef = useRef(null);
   const [searchCustomer, setSearchCustomer] = useState('');
   const debouncedSearch = useDebounce(searchCustomer);
@@ -37,7 +39,7 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
       !blockedPrefixes.some((prefix) => debouncedSearch.startsWith(prefix)));
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteCustomers(
-    { customerName: debouncedSearch || undefined, rowsPerPage: 50 },
+    { customerName: debouncedSearch || undefined, rowsPerPage: 50, ...(customerType ? { customerType } : {}) },
     { enabled: shouldFetch }
   );
 
@@ -88,7 +90,7 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        Customers{' '}
+        {CUSTOMER_TYPE_LABELS[customerType] || 'Customers'}{' '}
         <Typography component="span" sx={{ color: 'text.secondary' }}>
           ({data?.pages?.[0]?.total || 0})
         </Typography>

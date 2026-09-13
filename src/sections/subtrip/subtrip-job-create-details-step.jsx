@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useFormContext } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -8,6 +9,8 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import StepContent from '@mui/material/StepContent';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { Field } from 'src/components/hook-form';
 import { APP_ICONS } from 'src/components/iconify/icons';
@@ -29,6 +32,15 @@ export function SubtripJobCreateDetailsStep({
   onPrevStep,
   onNextStep,
 }) {
+  const { watch, setValue } = useFormContext();
+  const billingParty = watch('billingParty');
+
+  const handleBillingPartyChange = (_, newValue) => {
+    if (newValue !== null) {
+      setValue('billingParty', newValue, { shouldDirty: true });
+    }
+  };
+
   return (
     <StepContent>
       <Box display="grid" gridTemplateColumns="repeat(1, 1fr)" rowGap={2}>
@@ -68,10 +80,29 @@ export function SubtripJobCreateDetailsStep({
         {isLoadedJob && (
           <DialogSelectButton
             onClick={onSelectCustomerClick}
-            placeholder="Select Customer *"
+            placeholder="Select Consignor *"
             selected={selectedCustomer?.customerName}
             iconName={APP_ICONS.customer}
           />
+        )}
+
+        {isLoadedJob && (
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Billing Party
+            </Typography>
+            <ToggleButtonGroup
+              value={billingParty}
+              exclusive
+              onChange={handleBillingPartyChange}
+              size="small"
+              color="primary"
+              fullWidth
+            >
+              <ToggleButton value="consignor">Consignor</ToggleButton>
+              <ToggleButton value="consignee">Consignee</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
         )}
 
         <Field.MobileDateTimePicker name="startDate" label="Start Date *" maxDate={dayjs()} />
@@ -108,7 +139,7 @@ export function getJobStepError(
   const isOwnVehicle = !!selectedVehicle?.isOwn;
   const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;
 
-  if (isLoaded && !selectedCustomer) return 'Please select a customer';
+  if (isLoaded && !selectedCustomer) return 'Please select a consignor';
 
   const isFieldRequired = (name) => fields?.[name]?.visibility === 'required';
 

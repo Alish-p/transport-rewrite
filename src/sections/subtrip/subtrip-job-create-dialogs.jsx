@@ -7,6 +7,7 @@ export function SubtripJobCreateDialogs({
   vehicleDialog,
   driverDialog,
   customerDialog,
+  consigneeDialog,
   pumpDialog,
   managesPumps,
   selectedVehicle,
@@ -15,6 +16,8 @@ export function SubtripJobCreateDialogs({
   handleDriverChange,
   selectedCustomer,
   handleCustomerChange,
+  selectedConsignee,
+  handleConsigneeChange,
   selectedPump,
   handlePumpChange,
 }) {
@@ -41,6 +44,15 @@ export function SubtripJobCreateDialogs({
         onClose={customerDialog.onFalse}
         selectedCustomer={selectedCustomer}
         onCustomerChange={handleCustomerChange}
+        customerType="consignor"
+      />
+
+      <KanbanCustomerDialog
+        open={consigneeDialog.value}
+        onClose={consigneeDialog.onFalse}
+        selectedCustomer={selectedConsignee}
+        onCustomerChange={handleConsigneeChange}
+        customerType="consignee"
       />
 
       {managesPumps && (

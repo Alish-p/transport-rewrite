@@ -83,6 +83,7 @@ export function SubtripJobCreateForm() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedConsignee, setSelectedConsignee] = useState(null);
   const [selectedPump, setSelectedPump] = useState(null);
 
   const { getLabel, fields, freightConfig } = useFieldHelpers('subtrip', selectedCustomer?._id);
@@ -92,6 +93,7 @@ export function SubtripJobCreateForm() {
   const vehicleDialog = useBoolean(false);
   const driverDialog = useBoolean(false);
   const customerDialog = useBoolean(false);
+  const consigneeDialog = useBoolean(false);
   const pumpDialog = useBoolean(false);
   const materialOptions = useMaterialOptions();
 
@@ -186,6 +188,7 @@ export function SubtripJobCreateForm() {
   const {
     tripDecision,
     loadType,
+    billingParty,
     driverAdvanceGivenBy,
     initialAdvanceDiesel,
     initialAdvanceDieselUnit,
@@ -265,9 +268,11 @@ export function SubtripJobCreateForm() {
       setSelectedVehicle(vehicle);
       setValue('tripDecision', 'attach');
       setValue('loadType', 'loaded');
+      setValue('billingParty', 'consignor');
       setValue('startKm', '');
       setValue('consignee', null);
       setSelectedCustomer(null);
+      setSelectedConsignee(null);
       setSelectedDriver(null);
       setValue('loadingWeight', '');
       setValue('freightModel', freightConfig?.defaultModel || 'per_ton');
@@ -293,6 +298,7 @@ export function SubtripJobCreateForm() {
     [
       setSelectedVehicle,
       setSelectedCustomer,
+      setSelectedConsignee,
       setSelectedDriver,
       setSelectedPump,
       setValue,
@@ -308,6 +314,11 @@ export function SubtripJobCreateForm() {
   const handleCustomerChange = useCallback(
     (customer) => setSelectedCustomer(customer),
     [setSelectedCustomer]
+  );
+
+  const handleConsigneeChange = useCallback(
+    (customer) => setSelectedConsignee(customer),
+    [setSelectedConsignee]
   );
 
   const handlePumpChange = useCallback(
@@ -370,6 +381,8 @@ export function SubtripJobCreateForm() {
       activeTrip,
       selectedDriver,
       selectedCustomer,
+      selectedConsignee,
+      billingParty,
       fields,
       isEwayIntegrationEnabled,
     }),
@@ -379,6 +392,8 @@ export function SubtripJobCreateForm() {
       activeTrip,
       selectedDriver,
       selectedCustomer,
+      selectedConsignee,
+      billingParty,
       fields,
       isEwayIntegrationEnabled,
     ]
@@ -421,7 +436,11 @@ export function SubtripJobCreateForm() {
     const loadedFields = !isEmpty
       ? {
           customerId: selectedCustomer?._id,
-          consignee: form.consignee?.value || form.consignee?.label,
+          billingParty: form.billingParty || 'consignor',
+          consigneeCustomerId: form.billingParty === 'consignee' ? selectedConsignee?._id : undefined,
+          consignee: form.billingParty === 'consignee'
+            ? selectedConsignee?.customerName
+            : (form.consignee?.value || form.consignee?.label),
           loadingPoint: form.loadingPoint,
           unloadingPoint: Array.isArray(form.unloadingPoint)
             ? form.unloadingPoint
@@ -516,9 +535,20 @@ export function SubtripJobCreateForm() {
     if (!selectedVehicle?.isOwn) return;
     if (loadType === 'empty') {
       setSelectedCustomer(null);
+      setSelectedConsignee(null);
+      setValue('consignee', null);
+      setValue('billingParty', 'consignor');
+    }
+  }, [loadType, selectedVehicle, setSelectedCustomer, setSelectedConsignee, setValue]);
+
+  // Clear consignee state when billing party changes
+  useEffect(() => {
+    if (billingParty === 'consignor') {
+      setSelectedConsignee(null);
+    } else {
       setValue('consignee', null);
     }
-  }, [loadType, selectedVehicle, setSelectedCustomer, setValue]);
+  }, [billingParty, setSelectedConsignee, setValue]);
 
   // Prepopulate driver from active trip when attaching
   useEffect(() => {
@@ -607,6 +637,9 @@ export function SubtripJobCreateForm() {
               canSubmit={canSubmit}
               onPrevStep={() => setActiveStep(1)}
               onNextStep={() => setActiveStep(3)}
+              billingParty={billingParty}
+              onSelectConsigneeClick={consigneeDialog.onTrue}
+              selectedConsignee={selectedConsignee}
             />
           </Step>
 
@@ -670,6 +703,7 @@ export function SubtripJobCreateForm() {
           vehicleDialog={vehicleDialog}
           driverDialog={driverDialog}
           customerDialog={customerDialog}
+          consigneeDialog={consigneeDialog}
           pumpDialog={pumpDialog}
           managesPumps={managesPumps}
           selectedVehicle={selectedVehicle}
@@ -678,6 +712,8 @@ export function SubtripJobCreateForm() {
           handleDriverChange={handleDriverChange}
           selectedCustomer={selectedCustomer}
           handleCustomerChange={handleCustomerChange}
+          selectedConsignee={selectedConsignee}
+          handleConsigneeChange={handleConsigneeChange}
           selectedPump={selectedPump}
           handlePumpChange={handlePumpChange}
         />

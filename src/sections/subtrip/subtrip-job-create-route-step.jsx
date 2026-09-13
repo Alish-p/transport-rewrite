@@ -5,6 +5,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import StepContent from '@mui/material/StepContent';
 
 import { Field } from 'src/components/hook-form';
+import { APP_ICONS } from 'src/components/iconify/icons';
+import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { getJobStepError } from './subtrip-job-create-details-step';
 
@@ -18,11 +20,16 @@ export function SubtripJobCreateRouteStep({
   canSubmit,
   onPrevStep,
   onNextStep,
+  billingParty,
+  onSelectConsigneeClick,
+  selectedConsignee,
 }) {
+  const isConsigneeBilling = billingParty === 'consignee';
+
   return (
     <StepContent>
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
-        {isLoadedJob && (
+        {isLoadedJob && !isConsigneeBilling && (
           <Field.Configurable entity="subtrip" name="consignee" customerId={selectedCustomer?._id}>
             <Field.AutocompleteFreeSolo
               name="consignee"
@@ -32,6 +39,16 @@ export function SubtripJobCreateRouteStep({
             />
           </Field.Configurable>
         )}
+
+        {isLoadedJob && isConsigneeBilling && (
+          <DialogSelectButton
+            onClick={onSelectConsigneeClick}
+            placeholder="Select Consignee *"
+            selected={selectedConsignee?.customerName}
+            iconName={APP_ICONS.customer}
+          />
+        )}
+
         <Field.Configurable entity="subtrip" name="loadingPoint" customerId={selectedCustomer?._id}>
           <Field.Text name="loadingPoint" label={getLabel('loadingPoint', 'Loading Point')} />
         </Field.Configurable>
@@ -75,7 +92,7 @@ export function SubtripJobCreateRouteStep({
 
 export function getRouteStepError(
   form,
-  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
+  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields, billingParty, selectedConsignee }
 ) {
   const jobStageError = getJobStepError(form, {
     selectedVehicle,
@@ -105,8 +122,11 @@ export function getRouteStepError(
   };
 
   if (isLoaded) {
-    if (!selectedCustomer) return 'Please select a customer';
-    if (isFieldRequired('consignee')) {
+    if (!selectedCustomer) return 'Please select a consignor';
+
+    if (billingParty === 'consignee') {
+      if (!selectedConsignee?._id) return 'Please select a consignee';
+    } else if (isFieldRequired('consignee')) {
       const hasConsignee = !!(form.consignee && (form.consignee.value || form.consignee.label));
       if (!hasConsignee) return 'Please select a consignee';
     }
