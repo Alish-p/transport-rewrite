@@ -21,6 +21,8 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
   const {
     subtripNo,
     customerId = {},
+    billingParty,
+    consigneeCustomerId = {},
     ewayBill,
     ewayExpiryDate,
     loadingPoint,
@@ -53,6 +55,14 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
 
   const customerName = customerId?.customerName;
   const customerId_ = customerId?._id;
+  const consigneeCustomerId_ =
+    typeof consigneeCustomerId === 'object' ? consigneeCustomerId?._id : consigneeCustomerId;
+  const consigneeName =
+    consignee ||
+    (typeof consigneeCustomerId === 'object' ? consigneeCustomerId?.customerName : null);
+  const displayBillingParty =
+    billingParty || (!subtrip?.isEmpty && (customerId_ || customerName) ? 'consignor' : null);
+
   const tripNo = tripId?.tripNo;
   const tripId_ = tripId?._id;
   const vehicleNo = vehicleId?.vehicleNo;
@@ -104,7 +114,44 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
           }
         />
 
-        {consignee ? <InfoRow icon="mdi:account-tie" label="Consignee" value={consignee} /> : null}
+        {consigneeName ? (
+          <InfoRow
+            icon="mdi:account-tie"
+            label="Consignee"
+            value={
+              consigneeCustomerId_ ? (
+                <Link
+                  component={RouterLink}
+                  href={paths.dashboard.customer.details(consigneeCustomerId_)}
+                  variant="body2"
+                  color="primary"
+                  underline="hover"
+                  sx={{ fontWeight: 600, fontSize: '0.8125rem' }}
+                >
+                  {consigneeName}
+                </Link>
+              ) : (
+                consigneeName
+              )
+            }
+          />
+        ) : null}
+
+        {displayBillingParty ? (
+          <InfoRow
+            icon="mdi:receipt-text-outline"
+            label="Billing Party"
+            value={
+              <Label
+                variant="soft"
+                color={displayBillingParty === 'consignee' ? 'info' : 'primary'}
+                sx={{ textTransform: 'capitalize' }}
+              >
+                {displayBillingParty}
+              </Label>
+            }
+          />
+        ) : null}
 
         <InfoRow
           icon="mdi:truck-outline"

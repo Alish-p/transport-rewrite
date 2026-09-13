@@ -301,7 +301,7 @@ export default function InvoiceView({ invoice }) {
           }
         />
         <RenderAddress
-          title="Invoice To"
+          title={invoice?.billingParty === 'consignee' ? 'Invoice To (Consignee)' : 'Invoice To (Consignor)'}
           details={
             <>
               {customer?.customerName}

@@ -75,7 +75,7 @@ const deleteSubtrip = async ({ id, cancellationRemarks }) => {
 
 // empty subtrip endpoints deprecated/removed on backend
 
-export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
+export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate, billingParty) {
   return useQuery({
     queryKey: [
       QUERY_KEY,
@@ -83,6 +83,7 @@ export function useClosedTripsByCustomerAndDate(customerId, fromDate, toDate) {
         customerId,
         fromDate,
         toDate,
+        billingParty,
         subtripStatus: SUBTRIP_STATUS.RECEIVED,
         isEmpty: false,
         hasInvoice: false,

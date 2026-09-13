@@ -74,6 +74,7 @@ const StyledTableCell = styled(TableCell)(() => ({
 
 const InvoiceSchema = zod.object({
   customerId: zod.string().min(1, 'Customer is required'),
+  billingParty: zod.enum(['consignor', 'consignee']).default('consignor'),
   billingPeriod: zod
     .object({
       start: schemaHelper.date({ required_error: 'Start date is required' }),
@@ -117,6 +118,7 @@ export default function SimplerNewInvoiceForm() {
     resolver: zodResolver(InvoiceSchema),
     defaultValues: {
       customerId: '',
+      billingParty: 'consignor',
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       issueDate: dayjs(),
       subtrips: [],
@@ -144,14 +146,14 @@ export default function SimplerNewInvoiceForm() {
     remove: removeItem,
   } = useFieldArray({ name: 'additionalItems', control });
 
-  const { customerId, billingPeriod, issueDate, subtrips, additionalItems } = watch();
+  const { customerId, billingParty, billingPeriod, issueDate, subtrips, additionalItems } = watch();
 
   const {
     data: fetchedSubtrips,
     isSuccess,
     isLoading,
     refetch,
-  } = useClosedTripsByCustomerAndDate(customerId, billingPeriod?.start, billingPeriod?.end);
+  } = useClosedTripsByCustomerAndDate(customerId, billingPeriod?.start, billingPeriod?.end, billingParty);
 
   const createInvoice = useCreateInvoice();
   const navigate = useNavigate();
@@ -160,7 +162,7 @@ export default function SimplerNewInvoiceForm() {
     if (customerId && billingPeriod?.start && billingPeriod?.end) {
       refetch();
     }
-  }, [customerId, billingPeriod?.start, billingPeriod?.end, refetch]);
+  }, [customerId, billingPeriod?.start, billingPeriod?.end, billingParty, refetch]);
 
   useEffect(() => {
     if (isSuccess && fetchedSubtrips) {
@@ -184,6 +186,7 @@ export default function SimplerNewInvoiceForm() {
   const handleReset = () => {
     reset({
       customerId: '',
+      billingParty: 'consignor',
       billingPeriod: { start: dayjs().startOf('month'), end: dayjs() },
       issueDate: dayjs(),
       subtrips: [],
@@ -197,15 +200,19 @@ export default function SimplerNewInvoiceForm() {
   const onSubmit = async (data) => {
     const {
       customerId: custId,
+      billingParty: bParty,
       billingPeriod: period,
       issueDate: selectedIssueDate,
       subtrips: subtripData,
       additionalItems: addItems,
     } = data;
     const selected = subtripData.filter((st) => st.selected);
+    const resolvedBillingParty =
+      bParty || (selectedCustomer?.customerType === 'consignee' ? 'consignee' : 'consignor');
     try {
       const invoice = await createInvoice({
         customerId: custId,
+        billingParty: resolvedBillingParty,
         billingPeriod: period,
         issueDate: selectedIssueDate,
         subtripIds: selected.map((st) => st._id),
@@ -287,7 +294,9 @@ export default function SimplerNewInvoiceForm() {
           <Stack sx={{ width: 1 }}>
             <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
               <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-                To:
+                {selectedCustomer
+                  ? `To (${billingParty === 'consignee' ? 'Consignee' : 'Consignor'}):`
+                  : 'To:'}
               </Typography>
               <IconButton onClick={customerDialog.onTrue}>
                 <Iconify
@@ -360,8 +369,10 @@ export default function SimplerNewInvoiceForm() {
           onClose={customerDialog.onFalse}
           selectedCustomer={selectedCustomer}
           onCustomerChange={(customer) => {
+            const bp = customer?.customerType === 'consignee' ? 'consignee' : 'consignor';
             setSelectedCustomer(customer);
             setValue('customerId', customer?._id);
+            setValue('billingParty', bp);
             replace([]);
           }}
         />

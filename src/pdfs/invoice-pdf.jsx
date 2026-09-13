@@ -21,6 +21,7 @@ Font.register({
 export default function InvoicePdf({ invoice, tenant }) {
   const {
     customerId,
+    billingParty,
     issueDate,
     invoiceNo,
     subtripSnapshot,
@@ -218,7 +219,7 @@ export default function InvoicePdf({ invoice, tenant }) {
         <PDFHeader company={tenant} />
 
         <PDFBillToSection
-          title="Consignor / Bill To"
+          title={billingParty === 'consignee' ? 'Consignee / Bill To' : 'Consignor / Bill To'}
           billToDetails={[
             customerId?.customerName,
             customerId?.address,

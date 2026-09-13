@@ -52,7 +52,7 @@ export const NewCustomerSchema = zod
   .object({
     // Basic Details
     customerName: zod.string().min(1, { message: 'Customer Name is required' }),
-    customerType: zod.enum(['consignor', 'consignee', 'both']).default('consignor'),
+    customerType: zod.enum(['consignor', 'consignee']).default('consignor'),
     address: zod.string().min(1, { message: 'Address is required' }),
     state: zod.string().min(1, { message: 'State is required' }),
 
