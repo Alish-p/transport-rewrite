@@ -7,6 +7,8 @@ import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
 
+import { CUSTOMER_TYPE_LABELS } from './customer.constant';
+
 // ----------------------------------------------------------------------
 
 export default function CustomerTableFiltersResult({
@@ -20,6 +22,7 @@ export default function CustomerTableFiltersResult({
   const handleRemoveCellNo = () => onFilters('cellNo', '');
   const handleRemoveGstIn = () => onFilters('gstIn', '');
   const handleRemoveGstEnabled = () => onFilters('gstEnabled', '');
+  const handleRemoveCustomerType = () => onFilters('customerType', '');
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -34,6 +37,15 @@ export default function CustomerTableFiltersResult({
         {filters.customerName && (
           <Block label="Customer Name:">
             <Chip size="small" label={filters.customerName} onDelete={handleRemoveCustomerName} />
+          </Block>
+        )}
+        {filters.customerType && (
+          <Block label="Customer Type:">
+            <Chip
+              size="small"
+              label={CUSTOMER_TYPE_LABELS[filters.customerType] || filters.customerType}
+              onDelete={handleRemoveCustomerType}
+            />
           </Block>
         )}
         {filters.cellNo && (

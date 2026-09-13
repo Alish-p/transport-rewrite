@@ -36,3 +36,6 @@ export const STATES = [
   { label: 'Uttarakhand', value: 'Uttarakhand' },
   { label: 'West Bengal', value: 'West Bengal' },
 ];
+
+export * from './customer.constant';
+

@@ -18,6 +18,7 @@ import { ColumnSelectorList } from 'src/components/table';
 import { usePopover } from 'src/components/custom-popover';
 
 import { TABLE_COLUMNS } from './customer-table-config';
+import { CUSTOMER_TYPE_OPTIONS } from './customer.constant';
 
 // ----------------------------------------------------------------------
 
@@ -128,6 +129,31 @@ export default function CustomerTableToolbar({
                 No
               </Label>
             </MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 160 },
+          }}
+        >
+          <InputLabel id="customer-type-select-label">Type</InputLabel>
+          <Select
+            value={filters.customerType || ''}
+            onChange={(event) => onFilters('customerType', event.target.value)}
+            input={<OutlinedInput label="Type" />}
+            labelId="customer-type-select-label"
+            MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+          >
+            <MenuItem value="">All</MenuItem>
+            {CUSTOMER_TYPE_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Label variant="soft" color={option.color}>
+                  {option.label}
+                </Label>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
 

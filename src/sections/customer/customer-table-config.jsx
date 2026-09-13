@@ -12,6 +12,8 @@ import { wrapText } from 'src/utils/change-case';
 
 import { Label } from 'src/components/label';
 
+import { CUSTOMER_TYPE_LABELS, CUSTOMER_TYPE_COLORS } from './customer.constant';
+
 export const TABLE_COLUMNS = [
   {
     id: 'customerName',
@@ -40,6 +42,25 @@ export const TABLE_COLUMNS = [
         />
       </div>
     ),
+  },
+  {
+    id: 'customerType',
+    label: 'Customer Type',
+    defaultVisible: true,
+    disabled: false,
+    align: 'center',
+    getter: (row) => CUSTOMER_TYPE_LABELS[row.customerType] || '-',
+    render: (row) => {
+      const type = row.customerType;
+      if (!type) return '-';
+      const color = CUSTOMER_TYPE_COLORS[type] || 'primary';
+      const label = CUSTOMER_TYPE_LABELS[type] || type;
+      return (
+        <Label variant="soft" color={color}>
+          {label}
+        </Label>
+      );
+    },
   },
   {
     id: 'GSTNo',

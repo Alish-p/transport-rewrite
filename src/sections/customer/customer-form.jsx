@@ -2,7 +2,7 @@ import { z as zod } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 
 // @mui
 import Box from '@mui/material/Box';
@@ -16,7 +16,14 @@ import TextField from '@mui/material/TextField';
 import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Paper, Tooltip, MenuItem, Typography } from '@mui/material';
+import {
+  Paper,
+  Tooltip,
+  MenuItem,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+} from '@mui/material';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -36,7 +43,7 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { BankDetailsWidget } from 'src/components/bank/bank-details-widget';
 
-import { STATES } from './config';
+import { STATES, CUSTOMER_TYPE_OPTIONS } from './config';
 
 // ----------------------
 // 1. Updated Zod schema
@@ -45,6 +52,7 @@ export const NewCustomerSchema = zod
   .object({
     // Basic Details
     customerName: zod.string().min(1, { message: 'Customer Name is required' }),
+    customerType: zod.enum(['consignor', 'consignee', 'both']).default('consignor'),
     address: zod.string().min(1, { message: 'Address is required' }),
     state: zod.string().min(1, { message: 'State is required' }),
 
@@ -151,6 +159,7 @@ export default function CustomerNewForm({ currentCustomer }) {
     () => ({
       // Basic Details
       customerName: currentCustomer?.customerName || '',
+      customerType: currentCustomer?.customerType || 'consignor',
       address: currentCustomer?.address || '',
       state: currentCustomer?.state || '',
       pinCode: currentCustomer?.pinCode || '',
@@ -358,6 +367,37 @@ export default function CustomerNewForm({ currentCustomer }) {
       <Divider />
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text name="customerName" label="Customer Name" />
+
+        <Stack spacing={1}>
+          <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+            Customer Type
+          </Typography>
+          <Controller
+            name="customerType"
+            control={control}
+            render={({ field }) => (
+              <ToggleButtonGroup
+                {...field}
+                exclusive
+                value={field.value || 'consignor'}
+                onChange={(event, newValue) => {
+                  if (newValue !== null) {
+                    field.onChange(newValue);
+                  }
+                }}
+                color="primary"
+                fullWidth
+              >
+                {CUSTOMER_TYPE_OPTIONS.map((option) => (
+                  <ToggleButton key={option.value} value={option.value}>
+                    {option.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            )}
+          />
+        </Stack>
+
         <Field.Text name="address" label="Address" multiline rows={4} />
         <Field.Select name="state" label="State">
           <MenuItem value="">None</MenuItem>
