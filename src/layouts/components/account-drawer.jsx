@@ -232,7 +232,7 @@ export function AccountDrawer({ sx, ...other }) {
             </MenuItem>
           </Stack>
 
-          <Box sx={{ px: 2.5, py: 3, mt: 3 }}>
+          <Box sx={{ px: 2.5, mt: 12 }}>
             <UpgradeBlock />
           </Box>
         </Scrollbar>
@@ -241,8 +241,8 @@ export function AccountDrawer({ sx, ...other }) {
           <Button
             fullWidth
             variant="soft"
-            size="large"
-            color="primary"
+            size="medium"
+            color="info"
             onClick={handleInstallClick}
             startIcon={<Iconify icon="solar:download-minimalistic-bold-duotone" />}
             sx={{ mb: 1.5 }}
