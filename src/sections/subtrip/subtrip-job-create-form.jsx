@@ -145,6 +145,13 @@ export function SubtripJobCreateForm() {
     const amountVal = Number(freightAmount || 0);
     const baseKmVal = Number(baseKm || 0);
 
+    if (model === 'to_be_billed') {
+      return {
+        amount: 'To Be Billed Later',
+        detail: 'Freight model and rates will be specified during job receive stage',
+      };
+    }
+
     const isPendingModel = ['per_hour', 'per_km', 'hybrid'].includes(model);
 
     if (isPendingModel) {

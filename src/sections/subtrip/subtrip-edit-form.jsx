@@ -61,7 +61,7 @@ const numericInputSchema = z.preprocess((val) => {
 }, z.number().optional());
 
 const freightDetailsSchema = z.object({
-  freightModel: z.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid']).optional(),
+  freightModel: z.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid', 'to_be_billed']).optional(),
   freightAmount: numericInputSchema,
   baseKm: numericInputSchema,
   rate: numericInputSchema,
@@ -112,11 +112,15 @@ const receivedSchemaBase = loadedSchemaBase.extend({
     .optional(),
 });
 
-const freightSuperRefine = (data, ctx) => {
+const loadedFreightSuperRefine = (data, ctx) => {
   const fm = data.freightDetails?.freightModel;
   const rate = data.freightDetails?.rate;
   const baseKm = data.freightDetails?.baseKm;
   const freightAmount = data.freightDetails?.freightAmount;
+
+  if (fm === 'to_be_billed') {
+    return;
+  }
 
   if (fm === 'fixed' && !freightAmount) {
     ctx.addIssue({
@@ -155,8 +159,21 @@ const freightSuperRefine = (data, ctx) => {
   }
 };
 
-const loadedSchema = loadedSchemaBase.superRefine(freightSuperRefine);
-const receivedSchema = receivedSchemaBase.superRefine(freightSuperRefine);
+const receivedFreightSuperRefine = (data, ctx) => {
+  const fm = data.freightDetails?.freightModel;
+  if (!fm || fm === 'to_be_billed') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'A concrete freight model is required for received jobs',
+      path: ['freightDetails', 'freightModel'],
+    });
+    return;
+  }
+  loadedFreightSuperRefine(data, ctx);
+};
+
+const loadedSchema = loadedSchemaBase.superRefine(loadedFreightSuperRefine);
+const receivedSchema = receivedSchemaBase.superRefine(receivedFreightSuperRefine);
 
 // Get the appropriate schema based on status
 const getSchemaForStatus = (status) => {
@@ -653,11 +670,19 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   {/* Start Km moved to Trip; removed from Subtrip edit */}
 
                   <Field.Select name="freightDetails.freightModel" label="Freight Model *">
-                    {FREIGHT_MODEL_OPTIONS.filter(
-                      (fm) =>
+                    {FREIGHT_MODEL_OPTIONS.filter((fm) => {
+                      if (
+                        (currentSubtrip?.subtripStatus === SUBTRIP_STATUS.RECEIVED ||
+                          currentSubtrip?.subtripStatus === SUBTRIP_STATUS.BILLED) &&
+                        fm.value === 'to_be_billed'
+                      ) {
+                        return false;
+                      }
+                      return (
                         !freightConfig?.allowedModels?.length ||
                         freightConfig.allowedModels.includes(fm.value)
-                    ).map((fm) => (
+                      );
+                    }).map((fm) => (
                       <MenuItem key={fm.value} value={fm.value}>
                         {fm.label}
                       </MenuItem>

@@ -45,6 +45,9 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
   const rate = freightDetailsRate ?? 0;
 
   const formatRateValue = (value) => {
+    if (freightModel === 'to_be_billed') {
+      return 'To Be Billed Later';
+    }
     const formatted = fCurrency(value || 0);
     switch (freightModel) {
       case 'per_ton':
@@ -66,6 +69,8 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
 
   const getFreightAmountCaption = () => {
     switch (freightModel) {
+      case 'to_be_billed':
+        return 'Pending rate resolution on receive';
       case 'per_ton':
         return `Rate: ₹${rate || 0} × Weight: ${loadingWeight || 0} Ton`;
       case 'per_kl':
@@ -102,6 +107,17 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
         expenses: 0,
         driverSalary: 0,
       };
+
+    if (freightModel === 'to_be_billed') {
+      const expenses =
+        selectedSubtrip.expenses?.filter(e => e.status !== 'Cancelled').reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
+      const driverSalary = calculateDriverSalaryPerSubtrip(selectedSubtrip);
+      return {
+        freightAmount: 0,
+        expenses,
+        driverSalary,
+      };
+    }
 
     // Calculate freightAmount (server calculated amount or rate * loadingWeight)
     const freightAmount = serverFreightAmount ?? (rate || 0) * (loadingWeight || 0);

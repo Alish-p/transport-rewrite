@@ -29,4 +29,9 @@ export const FREIGHT_MODEL_OPTIONS = [
   { value: 'per_km', label: 'Per KM' },
   { value: 'per_hour', label: 'Per Hour' },
   { value: 'hybrid', label: 'Hybrid' },
+  { value: 'to_be_billed', label: 'To Be Billed Later' },
 ];
+
+export const CONCRETE_FREIGHT_MODEL_OPTIONS = FREIGHT_MODEL_OPTIONS.filter(
+  (opt) => opt.value !== 'to_be_billed'
+);

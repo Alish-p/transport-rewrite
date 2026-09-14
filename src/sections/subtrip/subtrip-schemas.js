@@ -31,8 +31,15 @@ export const receiveSchema = zod
       .optional(),
     freightDetails: zod
       .object({
-        freightAmount: preprocessOptionalNumber(zod.number().optional()),
+        freightModel: zod.string().optional(),
+        rate: preprocessOptionalNumber(zod.number().optional()),
+        baseKm: preprocessOptionalNumber(zod.number().optional()),
+        startKm: preprocessOptionalNumber(zod.number().optional()),
         endKm: preprocessOptionalNumber(zod.number().optional()),
+        freightAmount: preprocessOptionalNumber(zod.number().optional()),
+        startTime: schemaHelper.dateOptional({
+          message: { invalid_type_error: 'Invalid Start Time!' },
+        }),
         endTime: schemaHelper.dateOptional({
           message: { invalid_type_error: 'Invalid End Time!' },
         }),
@@ -55,9 +62,21 @@ export const receiveSchema = zod
     remarksRequired: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
+    const effectiveFreightModel =
+      values.freightDetails?.freightModel || values.freightModel || '';
+
+    if (!effectiveFreightModel || effectiveFreightModel === 'to_be_billed') {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: 'Please select a valid freight model to complete receive',
+        path: ['freightDetails', 'freightModel'],
+      });
+      return;
+    }
+
     const isUnloadingWeightRequired =
-      values.freightModel === 'per_ton' ||
-      values.freightModel === 'per_kl' ||
+      effectiveFreightModel === 'per_ton' ||
+      effectiveFreightModel === 'per_kl' ||
       values.unloadingWeightRequired === true;
     if (isUnloadingWeightRequired) {
       if (
@@ -73,18 +92,73 @@ export const receiveSchema = zod
       }
     }
 
-    if (values.freightModel === 'per_km' || values.freightModel === 'hybrid') {
+    if (effectiveFreightModel === 'per_ton' || effectiveFreightModel === 'per_kl') {
+      const rate = values.freightDetails?.rate;
+      if (rate === undefined || rate === null || rate <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Rate is required',
+          path: ['freightDetails', 'rate'],
+        });
+      }
+    } else if (effectiveFreightModel === 'fixed') {
+      const amount = values.freightDetails?.freightAmount;
+      if (amount === undefined || amount === null || amount <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Freight amount is required',
+          path: ['freightDetails', 'freightAmount'],
+        });
+      }
+    } else if (effectiveFreightModel === 'hybrid') {
+      const amount = values.freightDetails?.freightAmount;
+      const baseKm = values.freightDetails?.baseKm;
+      const rate = values.freightDetails?.rate;
+      if (amount === undefined || amount === null || amount <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Base freight amount is required',
+          path: ['freightDetails', 'freightAmount'],
+        });
+      }
+      if (baseKm === undefined || baseKm === null || baseKm <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Base KM is required',
+          path: ['freightDetails', 'baseKm'],
+        });
+      }
+      if (rate === undefined || rate === null || rate <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Extra rate per KM is required',
+          path: ['freightDetails', 'rate'],
+        });
+      }
+    } else if (effectiveFreightModel === 'per_hour') {
+      const rate = values.freightDetails?.rate;
+      if (rate === undefined || rate === null || rate <= 0) {
+        ctx.addIssue({
+          code: zod.ZodIssueCode.custom,
+          message: 'Hourly rate is required',
+          path: ['freightDetails', 'rate'],
+        });
+      }
+    }
+
+    if (effectiveFreightModel === 'per_km' || effectiveFreightModel === 'hybrid') {
       const endKm = values.freightDetails?.endKm;
+      const effectiveStartKm = values.freightDetails?.startKm ?? values.startKm ?? 0;
       if (endKm === undefined || endKm === null) {
         ctx.addIssue({
           code: zod.ZodIssueCode.custom,
           message: 'End KM is required',
           path: ['freightDetails', 'endKm'],
         });
-      } else if (values.startKm !== undefined && endKm < values.startKm) {
+      } else if (effectiveStartKm !== undefined && endKm < effectiveStartKm) {
         ctx.addIssue({
           code: zod.ZodIssueCode.custom,
-          message: `End KM must be ≥ Start KM (${values.startKm})`,
+          message: `End KM must be ≥ Start KM (${effectiveStartKm})`,
           path: ['freightDetails', 'endKm'],
         });
       }
@@ -170,7 +244,7 @@ export const jobCreateSchema = zod
       .optional(),
     loadingWeight: loadingWeightSchema,
     freightModel: zod
-      .enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid'])
+      .enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid', 'to_be_billed'])
       .optional(),
     freightAmount: numericInputSchema,
     baseKm: numericInputSchema,
@@ -210,6 +284,11 @@ export const jobCreateSchema = zod
     }
 
     if (data.loadType === 'loaded') {
+      if (data.freightModel === 'to_be_billed') {
+        // No rate or amount required at job creation for to_be_billed model
+        return;
+      }
+
       if (data.freightModel === 'per_km' || data.freightModel === 'hybrid') {
         if (data.freightStartKm === undefined || data.freightStartKm === null) {
           ctx.addIssue({

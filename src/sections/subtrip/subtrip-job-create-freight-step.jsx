@@ -52,35 +52,35 @@ export function SubtripJobCreateFreightStep({
           watchedForm.freightModel === 'per_kl' ||
           watchedForm.freightModel === 'per_km' ||
           watchedForm.freightModel === 'per_hour') && (
-          <>
-            <Field.Text
-              name="rate"
-              label={
-                watchedForm.freightModel === 'per_km'
-                  ? 'Rate (Per KM) *'
-                  : watchedForm.freightModel === 'per_hour'
-                    ? 'Rate (Per Hour) *'
-                    : watchedForm.freightModel === 'per_kl'
-                      ? 'Rate (Per KL) *'
-                      : 'Rate (Per Ton) *'
-              }
-              type="number"
-              InputProps={{
-                endAdornment: <InputAdornment position="end">₹</InputAdornment>,
-              }}
-            />
-            {watchedForm.freightModel === 'per_km' && (
+            <>
               <Field.Text
-                name="freightStartKm"
-                label="Billing Start KM"
+                name="rate"
+                label={
+                  watchedForm.freightModel === 'per_km'
+                    ? 'Rate (Per KM) *'
+                    : watchedForm.freightModel === 'per_hour'
+                      ? 'Rate (Per Hour) *'
+                      : watchedForm.freightModel === 'per_kl'
+                        ? 'Rate (Per KL) *'
+                        : 'Rate (Per Ton) *'
+                }
                 type="number"
                 InputProps={{
-                  endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
                 }}
               />
-            )}
-          </>
-        )}
+              {watchedForm.freightModel === 'per_km' && (
+                <Field.Text
+                  name="freightStartKm"
+                  label="Billing Start KM"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                  }}
+                />
+              )}
+            </>
+          )}
 
         {watchedForm.freightModel === 'hybrid' && (
           <>
@@ -146,7 +146,7 @@ export function SubtripJobCreateFreightStep({
                     : watchedForm.freightModel === 'per_ton'
                       ? 'Ton'
                       : loadingWeightUnit[(selectedVehicle?.vehicleType || '').toLowerCase()] ||
-                        'Units'}
+                      'Units'}
                 </InputAdornment>
               ),
             }}
@@ -222,7 +222,9 @@ export function getFreightStepError(
   if (!isLoaded) return null;
 
   let isFreightValid = true;
-  if (form.freightModel === 'fixed') {
+  if (form.freightModel === 'to_be_billed') {
+    isFreightValid = true;
+  } else if (form.freightModel === 'fixed') {
     if (!form.freightAmount) isFreightValid = false;
   } else if (form.freightModel === 'hybrid') {
     if (!form.freightAmount || !form.baseKm || !form.rate) isFreightValid = false;

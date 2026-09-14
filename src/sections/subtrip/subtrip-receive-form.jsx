@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import {
@@ -14,6 +14,7 @@ import {
   Alert,
   Button,
   Divider,
+  MenuItem,
   Typography,
   LinearProgress,
   InputAdornment,
@@ -34,10 +35,10 @@ import { APP_ICONS } from 'src/components/iconify/icons';
 import { DialogSelectButton } from 'src/components/dialog-select-button';
 
 import { getWeightUnit } from './utils';
-import { SUBTRIP_STATUS } from './constants';
 import { receiveSchema } from './subtrip-schemas';
 import { BasicExpenseTable } from './widgets/basic-expense-table';
 import { SubtripDetailCard } from './widgets/subtrip-detail-card';
+import { SUBTRIP_STATUS, CONCRETE_FREIGHT_MODEL_OPTIONS } from './constants';
 import { KanbanSubtripDialog } from '../kanban/components/kanban-subtrip-dialog';
 import { SubtripReceiveSettlementSummary } from './widgets/subtrip-receive-settlement-summary';
 
@@ -66,23 +67,25 @@ const defaultValues = {
 const getInitialReceiveValues = (subtrip, isRequired) => {
   if (!subtrip) return defaultValues;
 
-  const freightModel = subtrip.freightDetails?.freightModel || 'per_ton';
+  const rawFreightModel = subtrip.freightDetails?.freightModel;
+  const isDeferred = rawFreightModel === 'to_be_billed';
+  const freightModel = isDeferred ? '' : (rawFreightModel || 'per_ton');
   const isOwn = subtrip.vehicleId?.isOwn ?? true;
   const loadingWeight = Number(subtrip.loadingWeight || 0);
   const unloadingWeight =
     subtrip.unloadingWeight && Number(subtrip.unloadingWeight) > 0
       ? Number(subtrip.unloadingWeight)
       : loadingWeight;
-  const freightRate = Number(subtrip.freightDetails?.rate || 0);
+  const freightRate = isDeferred ? '' : Number(subtrip.freightDetails?.rate || 0);
   const commissionRate = Number(subtrip.commissionDetails?.commissionRate || 0);
 
-  let freightAmount = Number(subtrip.freightDetails?.freightAmount || 0);
-  if (freightModel === 'per_ton' || freightModel === 'per_kl') {
-    freightAmount = loadingWeight * freightRate;
+  let freightAmount = isDeferred ? 0 : Number(subtrip.freightDetails?.freightAmount || 0);
+  if (!isDeferred && (freightModel === 'per_ton' || freightModel === 'per_kl')) {
+    freightAmount = loadingWeight * Number(freightRate || 0);
   }
 
   let commissionAmount = Number(subtrip.commissionDetails?.commissionAmount || 0);
-  if (!isOwn && (freightModel === 'per_ton' || freightModel === 'per_kl')) {
+  if (!isOwn && !isDeferred && (freightModel === 'per_ton' || freightModel === 'per_kl')) {
     commissionAmount = commissionRate * loadingWeight;
   }
 
@@ -96,7 +99,11 @@ const getInitialReceiveValues = (subtrip, isRequired) => {
       commissionAmount,
     },
     freightDetails: {
+      freightModel,
+      rate: freightRate,
       freightAmount,
+      baseKm: subtrip.freightDetails?.baseKm ?? '',
+      startKm: subtrip.freightDetails?.startKm ?? 0,
       endKm: subtrip.freightDetails?.endKm ?? '',
       endTime: subtrip.freightDetails?.endTime || null,
     },
@@ -133,10 +140,22 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
     shortageWeight,
   } = watch();
   const { isOwn } = selectedSubtrip?.vehicleId || {};
-  const freightModel = selectedSubtrip?.freightDetails?.freightModel || 'per_ton';
+
+  const isDeferredFreight = selectedSubtrip?.freightDetails?.freightModel === 'to_be_billed';
+  const activeFreightModel = isDeferredFreight
+    ? (freightDetails?.freightModel || '')
+    : (selectedSubtrip?.freightDetails?.freightModel || 'per_ton');
 
   const customerId = selectedSubtrip?.customerId?._id || selectedSubtrip?.customerId;
-  const { getLabel, isRequired } = useFieldHelpers('subtrip', customerId);
+  const { getLabel, isRequired, freightConfig } = useFieldHelpers('subtrip', customerId);
+
+  const availableFreightModelOptions = useMemo(() => {
+    const allowed = freightConfig?.allowedModels || [];
+    const filtered = CONCRETE_FREIGHT_MODEL_OPTIONS.filter(
+      (opt) => !allowed.length || allowed.includes(opt.value)
+    );
+    return filtered.length > 0 ? filtered : CONCRETE_FREIGHT_MODEL_OPTIONS;
+  }, [freightConfig?.allowedModels]);
 
   // Sync configurable field flags if tenant config changes
   useEffect(() => {
@@ -144,6 +163,11 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
     setValue('unloadingWeightRequired', isRequired('unloadingWeight'));
     setValue('remarksRequired', isRequired('remarks'));
   }, [selectedSubtrip, isRequired, setValue]);
+
+  // Keep top-level freightModel schema context in sync with active model
+  useEffect(() => {
+    setValue('freightModel', activeFreightModel);
+  }, [activeFreightModel, setValue]);
 
   const loadingWeight = Number(selectedSubtrip?.loadingWeight || 0);
   const currentUnloading = Number(unloadingWeight || 0);
@@ -154,33 +178,63 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
   // Auto-calculate commission amount based on commissionRate and loadingWeight for per_ton / per_kl model
   useEffect(() => {
-    if (!selectedSubtrip || isOwn || (freightModel !== 'per_ton' && freightModel !== 'per_kl'))
+    if (!selectedSubtrip || isOwn || (activeFreightModel !== 'per_ton' && activeFreightModel !== 'per_kl'))
       return;
 
     const rate = Number(commissionDetails?.commissionRate || 0);
     const weight = Number(selectedSubtrip.loadingWeight || 0);
     setValue('commissionDetails.commissionAmount', rate * weight, { shouldValidate: true });
-  }, [commissionDetails?.commissionRate, selectedSubtrip, freightModel, isOwn, setValue]);
+  }, [commissionDetails?.commissionRate, selectedSubtrip, activeFreightModel, isOwn, setValue]);
 
-  // Auto-calculate freight amount based on endKm / endDate / loadingWeight for specific models
+  // Auto-calculate freight amount based on model parameters
   useEffect(() => {
-    if (!selectedSubtrip) return;
+    if (!selectedSubtrip || !activeFreightModel || activeFreightModel === 'to_be_billed') return;
 
-    const rate = selectedSubtrip.freightDetails?.rate || 0;
+    const rate = Number(
+      freightDetails?.rate !== undefined && freightDetails?.rate !== ''
+        ? freightDetails.rate
+        : (selectedSubtrip.freightDetails?.rate || 0)
+    );
 
-    if (freightModel === 'per_km' && freightDetails?.endKm) {
-      const startKm = selectedSubtrip.freightDetails?.startKm || 0;
+    if (activeFreightModel === 'per_ton' || activeFreightModel === 'per_kl') {
+      setValue('freightDetails.freightAmount', rate * loadingWeight, {
+        shouldValidate: true,
+      });
+    } else if (activeFreightModel === 'fixed') {
+      if (freightDetails?.freightAmount !== undefined) {
+        setValue('freightDetails.freightAmount', Number(freightDetails.freightAmount) || 0, {
+          shouldValidate: true,
+        });
+      }
+    } else if (activeFreightModel === 'per_km' && freightDetails?.endKm) {
+      const startKm = Number(
+        freightDetails?.startKm !== undefined && freightDetails?.startKm !== ''
+          ? freightDetails.startKm
+          : (selectedSubtrip.freightDetails?.startKm || 0)
+      );
       const endKm = Number(freightDetails.endKm);
       if (endKm > startKm) {
         setValue('freightDetails.freightAmount', (endKm - startKm) * rate, {
           shouldValidate: true,
         });
       }
-    } else if (freightModel === 'hybrid' && freightDetails?.endKm) {
-      const startKm = selectedSubtrip.freightDetails?.startKm || 0;
+    } else if (activeFreightModel === 'hybrid' && freightDetails?.endKm) {
+      const startKm = Number(
+        freightDetails?.startKm !== undefined && freightDetails?.startKm !== ''
+          ? freightDetails.startKm
+          : (selectedSubtrip.freightDetails?.startKm || 0)
+      );
       const endKm = Number(freightDetails.endKm);
-      const baseKm = selectedSubtrip.freightDetails?.baseKm || 0;
-      const baseFreight = selectedSubtrip.freightDetails?.freightAmount || 0;
+      const baseKm = Number(
+        freightDetails?.baseKm !== undefined && freightDetails?.baseKm !== ''
+          ? freightDetails.baseKm
+          : (selectedSubtrip.freightDetails?.baseKm || 0)
+      );
+      const baseFreight = Number(
+        freightDetails?.freightAmount !== undefined && freightDetails?.freightAmount !== ''
+          ? freightDetails.freightAmount
+          : (selectedSubtrip.freightDetails?.freightAmount || 0)
+      );
       const totalKm = endKm > startKm ? endKm - startKm : 0;
 
       if (totalKm > baseKm && rate > 0) {
@@ -189,7 +243,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           shouldValidate: true,
         });
       }
-    } else if (freightModel === 'per_hour' && endDate) {
+    } else if (activeFreightModel === 'per_hour' && endDate) {
       const startTime = selectedSubtrip.startDate;
       if (startTime) {
         const start = dayjs(startTime);
@@ -200,7 +254,18 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
         }
       }
     }
-  }, [freightDetails?.endKm, endDate, selectedSubtrip, freightModel, setValue]);
+  }, [
+    activeFreightModel,
+    freightDetails?.rate,
+    freightDetails?.endKm,
+    freightDetails?.baseKm,
+    freightDetails?.startKm,
+    freightDetails?.freightAmount,
+    endDate,
+    loadingWeight,
+    selectedSubtrip,
+    setValue,
+  ]);
 
   const handleDropMultiFile = useCallback(
     (acceptedFiles) => {
@@ -213,7 +278,6 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
       const totalFiles = [...currentDocs, ...newFiles];
       if (totalFiles.length > 5) {
-        // We can just slice it to 5, or leave it to show the zod validation error
         setValue('docs', totalFiles.slice(0, 5), { shouldValidate: true });
       } else {
         setValue('docs', totalFiles, { shouldValidate: true });
@@ -259,18 +323,106 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
         {selectedSubtrip && (
           <>
+            {isDeferredFreight && (
+              <Box sx={{ gridColumn: '1 / -1' }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  This job was created with <strong>To Be Billed Later</strong>. You must select a concrete freight model and enter billing rates to complete receive.
+                </Alert>
+                <Field.Select name="freightDetails.freightModel" label="Freight Model *">
+                  {availableFreightModelOptions.map((opt) => (
+                    <MenuItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </MenuItem>
+                  ))}
+                </Field.Select>
+              </Box>
+            )}
+
+            {isDeferredFreight && (activeFreightModel === 'per_ton' || activeFreightModel === 'per_kl') && (
+              <Field.Text
+                name="freightDetails.rate"
+                label={activeFreightModel === 'per_kl' ? 'Freight Rate (Per KL) *' : 'Freight Rate (Per Ton) *'}
+                type="number"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
+            )}
+
+            {isDeferredFreight && activeFreightModel === 'fixed' && (
+              <Field.Text
+                name="freightDetails.freightAmount"
+                label="Freight Amount *"
+                type="number"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
+            )}
+
+            {isDeferredFreight && activeFreightModel === 'hybrid' && (
+              <>
+                <Field.Text
+                  name="freightDetails.freightAmount"
+                  label="Base Freight Amount *"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
+                />
+                <Field.Text
+                  name="freightDetails.baseKm"
+                  label="Base KM *"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">km</InputAdornment>,
+                  }}
+                />
+                <Field.Text
+                  name="freightDetails.rate"
+                  label="Extra Rate (Per KM) *"
+                  type="number"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                  }}
+                />
+              </>
+            )}
+
+            {isDeferredFreight && activeFreightModel === 'per_km' && (
+              <Field.Text
+                name="freightDetails.rate"
+                label="Rate (Per KM) *"
+                type="number"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
+            )}
+
+            {isDeferredFreight && activeFreightModel === 'per_hour' && (
+              <Field.Text
+                name="freightDetails.rate"
+                label="Rate (Per Hour) *"
+                type="number"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">₹</InputAdornment>,
+                }}
+              />
+            )}
+
             <Field.Configurable entity="subtrip" name="unloadingWeight" customerId={customerId}>
               <Stack spacing={0.5}>
                 <Field.Text
                   name="unloadingWeight"
                   label={getLabel(
                     'unloadingWeight',
-                    freightModel === 'per_kl' ? 'Unloading Volume (KL)' : 'Unloading Weight'
+                    activeFreightModel === 'per_kl' ? 'Unloading Volume (KL)' : 'Unloading Weight'
                   )}
                   type="number"
                   required={
-                    freightModel === 'per_ton' ||
-                    freightModel === 'per_kl' ||
+                    activeFreightModel === 'per_ton' ||
+                    activeFreightModel === 'per_kl' ||
                     isRequired('unloadingWeight')
                   }
                   InputProps={{
@@ -297,7 +449,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               </Stack>
             </Field.Configurable>
 
-            {isOwn ? null : freightModel === 'per_ton' || freightModel === 'per_kl' ? (
+            {isOwn ? null : activeFreightModel === 'per_ton' || activeFreightModel === 'per_kl' ? (
               <Field.Configurable entity="subtrip" name="commissionRate" customerId={customerId}>
                 <Field.Text
                   name="commissionDetails.commissionRate"
@@ -331,7 +483,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
 
             <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
 
-            {(freightModel === 'per_km' || freightModel === 'hybrid') && (
+            {(activeFreightModel === 'per_km' || activeFreightModel === 'hybrid') && (
               <Field.Configurable entity="subtrip" name="endKm" customerId={customerId}>
                 <Field.Text
                   name="freightDetails.endKm"
@@ -377,7 +529,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
                     name="shortageWeight"
                     label={getLabel(
                       'shortageWeight',
-                      freightModel === 'per_kl' ? 'Shortage Volume (KL)' : 'Shortage Weight'
+                      activeFreightModel === 'per_kl' ? 'Shortage Volume (KL)' : 'Shortage Weight'
                     )}
                     helperText=""
                     placeholder="0"
@@ -447,16 +599,16 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
           </Alert>
         )}
         {!isOwn &&
-          (freightModel === 'per_ton' || freightModel === 'per_kl') &&
-          commissionDetails?.commissionRate > selectedSubtrip?.freightDetails?.rate && (
+          (activeFreightModel === 'per_ton' || activeFreightModel === 'per_kl') &&
+          commissionDetails?.commissionRate > (freightDetails?.rate || selectedSubtrip?.freightDetails?.rate || 0) && (
             <Alert severity="error" variant="outlined">
               Commission rate cannot be more than the freight rate
             </Alert>
           )}
         {!isOwn &&
-          freightModel !== 'per_ton' &&
-          freightModel !== 'per_kl' &&
-          commissionDetails?.commissionAmount > selectedSubtrip?.freightDetails?.freightAmount && (
+          activeFreightModel !== 'per_ton' &&
+          activeFreightModel !== 'per_kl' &&
+          commissionDetails?.commissionAmount > (freightDetails?.freightAmount || selectedSubtrip?.freightDetails?.freightAmount || 0) && (
             <Alert severity="error" variant="outlined">
               Commission amount cannot be more than the freight amount
             </Alert>
@@ -564,18 +716,33 @@ export function SubtripReceiveForm({ currentSubtrip: currentSubtripProp }) {
     }
   };
 
-  // Removed endKm auto-fill via GPS as endKm is no longer captured
+  const isDeferredFreight = selectedSubtripData?.freightDetails?.freightModel === 'to_be_billed';
+  const activeFreightModel = isDeferredFreight
+    ? watch('freightDetails.freightModel')
+    : (selectedSubtripData?.freightDetails?.freightModel || 'per_ton');
 
-  const freightModel = selectedSubtripData?.freightDetails?.freightModel || 'per_ton';
+  const isFreightModelPending = isDeferredFreight && !watch('freightDetails.freightModel');
+
+  const effectiveRate = Number(
+    watch('freightDetails.rate') !== undefined && watch('freightDetails.rate') !== ''
+      ? watch('freightDetails.rate')
+      : (selectedSubtripData?.freightDetails?.rate || 0)
+  );
+
+  const effectiveFreightAmount = Number(
+    watch('freightDetails.freightAmount') !== undefined && watch('freightDetails.freightAmount') !== ''
+      ? watch('freightDetails.freightAmount')
+      : (selectedSubtripData?.freightDetails?.freightAmount || 0)
+  );
+
   const isOverweight = unloadingWeight > (selectedSubtripData?.loadingWeight || 0);
   const isCommissionExceeded =
     !isOwn &&
-    (freightModel === 'per_ton' || freightModel === 'per_kl'
-      ? commissionDetails?.commissionRate > (selectedSubtripData?.freightDetails?.rate || 0)
-      : commissionDetails?.commissionAmount >
-        (selectedSubtripData?.freightDetails?.freightAmount || 0));
+    (activeFreightModel === 'per_ton' || activeFreightModel === 'per_kl'
+      ? commissionDetails?.commissionRate > effectiveRate
+      : commissionDetails?.commissionAmount > effectiveFreightAmount);
 
-  const isSubmitDisabled = !isValid || isSubmitting || isOverweight || isCommissionExceeded;
+  const isSubmitDisabled = !isValid || isSubmitting || isOverweight || isCommissionExceeded || isFreightModelPending;
 
   return (
     <>

@@ -527,6 +527,20 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const displayQuantity = quantity !== undefined && quantity !== null ? quantity : '-';
   const totalQuantity = quantity !== undefined && quantity !== null ? quantity : '0';
 
+  // Freight Calculation
+  const isToBeBilled = freightDetails?.freightModel === 'to_be_billed';
+  let totalFreightAmount = Number(freightDetails?.freightAmount || 0);
+  if (
+    !totalFreightAmount &&
+    (freightDetails?.freightModel === 'per_ton' || freightDetails?.freightModel === 'per_kl')
+  ) {
+    totalFreightAmount = Number(loadingWeight || 0) * Number(freightDetails?.rate || 0);
+  }
+  const formattedFreightAmount = Number(totalFreightAmount || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
   // Locations (extract clean names for From / To to prevent overflow)
   const fromDisplay = loadingPoint
     ? (loadingPoint.split(',')[0] || loadingPoint).trim().toUpperCase()
@@ -771,7 +785,18 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
 
             {/* Right Section: Freight Card */}
             <View style={styles.tableRightCol}>
-              <Text style={styles.freightCardText}>Freight: To be billed</Text>
+              {isToBeBilled ? (
+                <Text style={styles.freightCardText}>Freight: To be billed</Text>
+              ) : (
+                <>
+                  <Text style={styles.freightCardText}>
+                    Total Freight : ₹ {formattedFreightAmount}
+                  </Text>
+                  <Text style={[styles.freightCardText, { marginTop: 4, letterSpacing: 0.5 }]}>
+                    TO PAY
+                  </Text>
+                </>
+              )}
             </View>
           </View>
 

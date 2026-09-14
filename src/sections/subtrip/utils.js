@@ -19,6 +19,9 @@ export const mapExpensesToChartData = (items, expenseTypes = DEFAULT_SUBTRIP_EXP
 };
 
 export function fFreightRate(rate, model, freightAmount) {
+  if (model === 'to_be_billed') {
+    return 'To Be Billed Later';
+  }
   if (model === 'fixed') {
     return `Fixed (${fNumber(freightAmount || 0)} ₹)`;
   }
@@ -56,7 +59,10 @@ export const getFreightExplanation = (st, isTransporter = false) => {
   let grossExplanation = '';
   let grossAmount = 0;
 
-  if (freightModel === 'per_hour') {
+  if (freightModel === 'to_be_billed') {
+    grossExplanation = 'To Be Billed Later (pending rate resolution on receive)';
+    grossAmount = 0;
+  } else if (freightModel === 'per_hour') {
     const { startDate } = st;
     const { endDate } = st;
     if (startDate && endDate) {
