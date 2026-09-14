@@ -17,40 +17,8 @@ export const _faqs = [...Array(8)].map((_, index) => ({
   heading: `Questions ${index + 1}`,
   detail: _mock.description(index),
 }));
-
 // ----------------------------------------------------------------------
 
-export const _addressBooks = [...Array(24)].map((_, index) => ({
-  id: _mock.id(index),
-  primary: index === 0,
-  name: _mock.fullName(index),
-  email: _mock.email(index + 1),
-  fullAddress: _mock.fullAddress(index),
-  phoneNumber: _mock.phoneNumber(index),
-  company: _mock.companyNames(index + 1),
-  addressType: index === 0 ? 'Home' : 'Office',
-}));
-
-// ----------------------------------------------------------------------
-
-export const _contacts = [...Array(20)].map((_, index) => {
-  const status =
-    (index % 2 && 'online') || (index % 3 && 'offline') || (index % 4 && 'alway') || 'busy';
-
-  return {
-    id: _mock.id(index),
-    status,
-    role: _mock.role(index),
-    email: _mock.email(index),
-    name: _mock.fullName(index),
-    phoneNumber: _mock.phoneNumber(index),
-    lastActivity: _mock.time(index),
-    avatarUrl: _mock.image.avatar(index),
-    address: _mock.fullAddress(index),
-  };
-});
-
-// ----------------------------------------------------------------------
 
 export const _notifications = [...Array(9)].map((_, index) => ({
   id: _mock.id(index),
@@ -101,20 +69,6 @@ export const _notifications = [...Array(9)].map((_, index) => ({
 
 // ----------------------------------------------------------------------
 
-export const _mapContact = [
-  {
-    latlng: [33, 65],
-    address: _mock.fullAddress(1),
-    phoneNumber: _mock.phoneNumber(1),
-  },
-  {
-    latlng: [-12.5, 18.5],
-    address: _mock.fullAddress(2),
-    phoneNumber: _mock.phoneNumber(2),
-  },
-];
-
-// ----------------------------------------------------------------------
 
 export const _socials = [
   {
