@@ -1,13 +1,14 @@
+import { useTenant } from 'src/query/use-tenant';
+
 import { useAuthContext } from 'src/auth/hooks';
 
 import { TenantContext } from './tenant-context';
 
 export function TenantProvider({ children }) {
-  const { tenant } = useAuthContext();
+  const { tenant: authTenant } = useAuthContext();
+  const { data: queryTenant } = useTenant({ enabled: !!authTenant }); // Fetching New Tenant if Updated so user does not have to refresh after tenant change 
 
-  // if (!loading && !tenant) {
-  //   throw new Error('TenantProvider: tenant is required');
-  // }
+  const activeTenant = queryTenant || authTenant;
 
-  return <TenantContext.Provider value={tenant}>{children}</TenantContext.Provider>;
+  return <TenantContext.Provider value={activeTenant}>{children}</TenantContext.Provider>;
 }

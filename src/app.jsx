@@ -30,8 +30,8 @@ export default function App() {
     <I18nProvider>
       <LocalizationProvider>
         <AuthProvider>
-          <TenantProvider>
-            <ReactQueryProvider>
+          <ReactQueryProvider>
+            <TenantProvider>
               <SettingsProvider settings={defaultSettings}>
                 <ThemeProvider>
                   <MotionLazy>
@@ -42,8 +42,8 @@ export default function App() {
                   </MotionLazy>
                 </ThemeProvider>
               </SettingsProvider>
-            </ReactQueryProvider>
-          </TenantProvider>
+            </TenantProvider>
+          </ReactQueryProvider>
         </AuthProvider>
       </LocalizationProvider>
     </I18nProvider>

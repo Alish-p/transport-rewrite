@@ -182,7 +182,7 @@ export default function CustomerNewForm({ currentCustomer }) {
       invoiceDueInDays:
         currentCustomer?.invoiceDueInDays ?? tenant?.config?.invoice?.defaultDueInDays ?? 10,
       invoicePrefix: currentCustomer?.invoicePrefix || '',
-      invoiceSuffix: currentCustomer?.invoiceSuffix ?? tenant?.config?.defaultInvoiceSuffix ?? '',
+      invoiceSuffix: currentCustomer?.invoiceSuffix || '',
       currentInvoiceSerialNumber: currentCustomer?.currentInvoiceSerialNumber || 0,
 
       // Consignees
@@ -264,9 +264,9 @@ export default function CustomerNewForm({ currentCustomer }) {
     // Remove all spaces, take first 3 chars, uppercase
     const firstThree = nameValue.replace(/\s+/g, '').substring(0, 3).toUpperCase();
 
-    // If there aren’t at least 3 characters yet, just set default prefix
+    // If there aren’t at least 3 characters yet, clear prefix
     if (firstThree.length < 1) {
-      setValue('invoicePrefix', tenant?.config?.defaultInvoicePrefix || '');
+      setValue('invoicePrefix', '');
       return;
     }
 
@@ -274,11 +274,9 @@ export default function CustomerNewForm({ currentCustomer }) {
     const fy = getCurrentFiscalYearShort();
 
     // Compose: e.g. "JKC/25-26/"
-    const newPrefix = tenant?.config?.defaultInvoicePrefix
-      ? `${tenant.config.defaultInvoicePrefix}${firstThree}/${fy}/`
-      : `${firstThree}/${fy}/`;
+    const newPrefix = `${firstThree}/${fy}/`;
     setValue('invoicePrefix', newPrefix);
-  }, [values.customerName, currentCustomer, setValue, tenant]);
+  }, [values.customerName, currentCustomer, setValue]);
 
   // ----------------------
   // 4. Render each section as a Card

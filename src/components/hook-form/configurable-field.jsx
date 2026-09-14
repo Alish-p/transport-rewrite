@@ -8,11 +8,10 @@ import { useFieldVisibility } from 'src/hooks/use-form-config';
  *
  * @param {string} entity - 'subtrip' | 'vehicle' | 'driver'
  * @param {string} name - Field name matching FieldConfig key
- * @param {string|null} customerId - Optional customer ID for overrides
  * @param {React.ReactNode} children - The Field.* component to render
  */
-export function ConfigurableField({ entity, name, customerId = null, children }) {
-  const visibility = useFieldVisibility(entity, name, customerId);
+export function ConfigurableField({ entity, name, children }) {
+  const visibility = useFieldVisibility(entity, name);
 
   if (visibility === 'hidden') {
     return null;

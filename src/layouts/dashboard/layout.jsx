@@ -333,8 +333,8 @@ const FEATURE_CHECKERS = {
     const mode = tenant?.config?.vehicle?.vehicleMode ?? VEHICLE_MODES.BOTH;
     return mode === VEHICLE_MODES.MARKET_ONLY;
   },
-  pumps: (tenant) => tenant?.config?.pumps !== false,
-  noPumps: (tenant) => tenant?.config?.pumps === false,
+  pumps: (tenant) => tenant?.config?.pump?.enabled !== false,
+  noPumps: (tenant) => tenant?.config?.pump?.enabled === false,
 };
 
 function filterNavByFeatures(navSections, tenant) {

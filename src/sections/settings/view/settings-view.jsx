@@ -24,51 +24,54 @@ import TransporterSettingForm from '../transporter/transporter-setting-form';
 
 // ----------------------------------------------------------------------
 
-const SETTINGS_ITEMS = [
+const SETTINGS_SECTIONS = [
   {
     id: 'tenant',
     label: 'Company Setting',
     icon: <Iconify icon="solar:user-id-bold" />,
+    component: TenantForm,
   },
   {
     id: 'subtrip',
     label: 'Subtrip',
     icon: <Iconify icon="mdi:bookmark" />,
+    component: SubtripSettingForm,
   },
   {
     id: 'expense',
     label: 'Expense',
     icon: <Iconify icon="solar:bill-list-bold" />,
+    component: ExpenseSettingForm,
   },
   {
     id: 'pump',
     label: 'Pump',
     icon: <Iconify icon="mdi:gas-station" />,
+    component: PumpSettingForm,
   },
   {
     id: 'vehicle',
     label: 'Vehicle',
     icon: <Iconify icon="mdi:truck" />,
-  },
-  {
-    id: 'driver',
-    label: 'Driver',
-    icon: <Iconify icon="mdi:account-tie-hat" />,
+    component: VehicleSettingForm,
   },
   {
     id: 'transporter',
     label: 'Transporter',
     icon: <Iconify icon="mdi:truck-fast" />,
+    component: TransporterSettingForm,
   },
   {
     id: 'customer',
     label: 'Customer',
     icon: <Iconify icon="mdi:account-group" />,
+    component: CustomerSettingForm,
   },
   {
     id: 'invoice',
     label: 'Invoice',
     icon: <Iconify icon="mdi:file-document-outline" />,
+    component: InvoiceSettingForm,
   },
 ];
 
@@ -85,29 +88,12 @@ export function SettingsView({ tenant }) {
     }
   }, []);
 
+  const currentSection = SETTINGS_SECTIONS.find((section) => section.id === selectedItem);
+  const ActiveComponent = currentSection?.component;
+
   const renderContent = () => {
-    switch (selectedItem) {
-      case 'tenant':
-        return <TenantForm currentTenant={tenant} />;
-      case 'subtrip':
-        return <SubtripSettingForm />;
-      case 'expense':
-        return <ExpenseSettingForm currentTenant={tenant} />;
-      case 'pump':
-        return <PumpSettingForm currentTenant={tenant} />;
-      case 'vehicle':
-        return <VehicleSettingForm currentTenant={tenant} />;
-      case 'driver':
-        return <p>Sample Driver Settings</p>;
-      case 'transporter':
-        return <TransporterSettingForm currentTenant={tenant} />;
-      case 'customer':
-        return <CustomerSettingForm currentTenant={tenant} />;
-      case 'invoice':
-        return <InvoiceSettingForm currentTenant={tenant} />;
-      default:
-        return null;
-    }
+    if (!ActiveComponent) return null;
+    return <ActiveComponent currentTenant={tenant} />;
   };
 
   const renderTreeItems = (items) =>
@@ -160,7 +146,7 @@ export function SettingsView({ tenant }) {
             onSelectedItemsChange={handleSelectedItemsChange}
             selectedItems={selectedItem}
           >
-            {renderTreeItems(SETTINGS_ITEMS)}
+            {renderTreeItems(SETTINGS_SECTIONS)}
           </SimpleTreeView>
         </Box>
 

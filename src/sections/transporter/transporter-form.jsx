@@ -91,6 +91,14 @@ export const NewTransporterSchema = zod
 
 // ----------------------------------------------------------------------
 
+const TRANSPORTER_PAYMENT_MODES = [
+  { label: 'UPI', value: 'UPI' },
+  { label: 'Card', value: 'Card' },
+  { label: 'Bank Transfer', value: 'BankTransfer' },
+  { label: 'Cash', value: 'Cash' },
+  { label: 'Fuel', value: 'Fuel' },
+];
+
 export default function TransporterForm({ currentTransporter }) {
   const navigate = useNavigate();
 
@@ -103,21 +111,7 @@ export default function TransporterForm({ currentTransporter }) {
   const [gstInput, setGstInput] = useState('');
   const isEditMode = Boolean(currentTransporter);
 
-  const paymentModes = useMemo(() => {
-    if (
-      tenant?.config?.transporterPaymentModes &&
-      tenant.config.transporterPaymentModes.length > 0
-    ) {
-      return tenant.config.transporterPaymentModes;
-    }
-    return [
-      { label: 'UPI', value: 'UPI' },
-      { label: 'Card', value: 'Card' },
-      { label: 'Bank Transfer', value: 'BankTransfer' },
-      { label: 'Cash', value: 'Cash' },
-      { label: 'Fuel', value: 'Fuel' },
-    ];
-  }, [tenant]);
+  const paymentModes = TRANSPORTER_PAYMENT_MODES;
 
   const defaultValues = useMemo(
     () => ({
