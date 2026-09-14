@@ -54,9 +54,6 @@ const QuickVehicleSchema = zod.object({
   transporter: zod.string().optional(),
 });
 
-// ----------------------------------------------------------------------
-// Custom hook for debounced search + infinite scroll
-// ----------------------------------------------------------------------
 // Custom hook for debounced search + infinite scroll
 function useVehicleSearch(
   searchText,
