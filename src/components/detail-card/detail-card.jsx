@@ -120,5 +120,3 @@ export function DetailCard({
     </Card>
   );
 }
-
-export default DetailCard;

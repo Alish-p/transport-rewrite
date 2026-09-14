@@ -249,7 +249,9 @@ export function VehicleDocumentDetailView({ doc }) {
           <Card sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
             <CardHeader
               title="Attachment Preview"
-              avatar={<Iconify icon="solar:document-attachment-bold" color="primary.main" width={24} />}
+              avatar={
+                <Iconify icon="solar:document-attachment-bold" color="primary.main" width={24} />
+              }
               sx={{
                 p: 2.5,
                 pb: 1.5,
@@ -345,7 +347,11 @@ export function VehicleDocumentDetailView({ doc }) {
                   )
                 }
               />
-              <InfoRow icon="mdi:file-document-outline" label="Document Type" value={doc?.docType} />
+              <InfoRow
+                icon="mdi:file-document-outline"
+                label="Document Type"
+                value={doc?.docType}
+              />
               <InfoRow icon="mdi:numeric" label="Document Number" value={doc?.docNumber} />
               <InfoRow icon="mdi:domain" label="Issuer" value={doc?.issuer} />
               <InfoRow
@@ -366,7 +372,9 @@ export function VehicleDocumentDetailView({ doc }) {
                     <Label
                       variant="soft"
                       color={statusMeta?.color || 'default'}
-                      startIcon={statusMeta?.icon ? <Iconify icon={statusMeta.icon} width={14} /> : undefined}
+                      startIcon={
+                        statusMeta?.icon ? <Iconify icon={statusMeta.icon} width={14} /> : undefined
+                      }
                     >
                       {status}
                     </Label>
@@ -410,16 +418,46 @@ export function VehicleDocumentDetailView({ doc }) {
 
               {!historyLoading && historyList.length > 0 && (
                 <Box>
-                  <TableContainer component={Box} sx={{ borderRadius: 1, border: (theme) => `1px solid ${theme.palette.divider}` }}>
+                  <TableContainer
+                    component={Box}
+                    sx={{
+                      borderRadius: 1,
+                      border: (theme) => `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
                     <Table size="medium">
                       <TableHead sx={{ bgcolor: 'background.neutral' }}>
                         <TableRow>
-                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Uploaded</Typography></TableCell>
-                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Doc Number</Typography></TableCell>
-                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Issuer</Typography></TableCell>
-                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Validity</Typography></TableCell>
-                          <TableCell><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Uploaded By</Typography></TableCell>
-                          <TableCell align="center"><Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>Action</Typography></TableCell>
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                              Uploaded
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                              Doc Number
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                              Issuer
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                              Validity
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                              Uploaded By
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                              Action
+                            </Typography>
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -461,7 +499,10 @@ export function VehicleDocumentDetailView({ doc }) {
                             return {
                               primary,
                               secondary: (
-                                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
+                                <Typography
+                                  variant="caption"
+                                  sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}
+                                >
                                   {secondaryText}
                                 </Typography>
                               ),
@@ -494,7 +535,10 @@ export function VehicleDocumentDetailView({ doc }) {
                               </TableCell>
                               <TableCell align="center">
                                 {h.fileUrl ? (
-                                  <IconButton color="primary" onClick={() => handleDownloadHistory(h)}>
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() => handleDownloadHistory(h)}
+                                  >
                                     <Iconify icon="solar:download-bold" />
                                   </IconButton>
                                 ) : (
@@ -600,4 +644,3 @@ function InfoRow({ icon, label, value }) {
     </Stack>
   );
 }
-

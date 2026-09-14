@@ -131,5 +131,3 @@ export function RHFInputWithUnit({
     </>
   );
 }
-
-export default RHFInputWithUnit;

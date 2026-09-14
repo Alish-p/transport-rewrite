@@ -54,14 +54,5 @@ export function UserBasicWidget({ user }) {
     [address, designation, email, mobile, name, role]
   );
 
-  return (
-    <DetailCard
-      title="Basic Details"
-      icon="solar:user-id-bold"
-      showCopy
-      fields={fields}
-    />
-  );
+  return <DetailCard title="Basic Details" icon="solar:user-id-bold" showCopy fields={fields} />;
 }
-
-export default UserBasicWidget;

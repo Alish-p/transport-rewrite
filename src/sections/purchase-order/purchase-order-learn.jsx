@@ -39,8 +39,8 @@ export default function PurchaseOrderLearn({ open, onClose }) {
           reject a purchase order. The system records who approved/rejected it and when.
           <br />
           <br />
-          <b>Important:</b> Only POs in <b>Pending Approval</b> status can be approved or
-          rejected. Once a PO moves past this stage, the approval decision is locked.
+          <b>Important:</b> Only POs in <b>Pending Approval</b> status can be approved or rejected.
+          Once a PO moves past this stage, the approval decision is locked.
         </>
       ),
     },
@@ -83,14 +83,14 @@ export default function PurchaseOrderLearn({ open, onClose }) {
           <br />
           <br />
           <b>Price Variances:</b> When receiving, you can override the original PO cost with the
-          actual unit cost paid. The GRN captures this actual cost and calculates the variance.
-          Your inventory valuation (Moving Average Price) will update using the <b>Actual Cost</b>,
-          not the PO cost.
+          actual unit cost paid. The GRN captures this actual cost and calculates the variance. Your
+          inventory valuation (Moving Average Price) will update using the <b>Actual Cost</b>, not
+          the PO cost.
           <br />
           <br />
-          <b>Over-Receiving:</b> You are allowed to receive more quantity than originally ordered
-          if needed (e.g., vendor sent extra items). A warning will be displayed, but the system
-          will accept the items and generate the GRN correctly.
+          <b>Over-Receiving:</b> You are allowed to receive more quantity than originally ordered if
+          needed (e.g., vendor sent extra items). A warning will be displayed, but the system will
+          accept the items and generate the GRN correctly.
         </>
       ),
     },
@@ -122,9 +122,9 @@ export default function PurchaseOrderLearn({ open, onClose }) {
       question: 'Can I edit a PO after items are received?',
       answer: (
         <>
-          <b>No.</b> Once any line item on a PO has received even a partial quantity, the entire
-          PO becomes locked for editing. This protects the integrity of your inventory records and
-          cost calculations.
+          <b>No.</b> Once any line item on a PO has received even a partial quantity, the entire PO
+          becomes locked for editing. This protects the integrity of your inventory records and cost
+          calculations.
           <br />
           <br />
           You also cannot edit a PO that is in <b>Received</b> or <b>Rejected</b> status.
@@ -141,9 +141,9 @@ export default function PurchaseOrderLearn({ open, onClose }) {
       question: 'Can I delete a Purchase Order?',
       answer: (
         <>
-          You can only delete a PO if it has <b>not</b> been purchased, partially received, or
-          fully received. Once any stock movement has been made against a PO, it cannot be deleted
-          to maintain inventory audit integrity.
+          You can only delete a PO if it has <b>not</b> been purchased, partially received, or fully
+          received. Once any stock movement has been made against a PO, it cannot be deleted to
+          maintain inventory audit integrity.
           <br />
           <br />
           POs in <b>Pending Approval</b> or <b>Approved</b> status can be safely deleted. A user
@@ -183,7 +183,8 @@ export default function PurchaseOrderLearn({ open, onClose }) {
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
               A Purchase Order (PO) is a formal request document used to order spare parts or
               inventory items from a Vendor. It tracks the entire procurement lifecycle — from
-              requesting approval, making payment, to physically receiving items into your warehouse.
+              requesting approval, making payment, to physically receiving items into your
+              warehouse.
             </Typography>
           </Box>
         </Box>
@@ -288,7 +289,15 @@ export default function PurchaseOrderLearn({ open, onClose }) {
       </Box>
 
       {/* Horizontal Pipeline Diagram */}
-      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 4,
+        }}
+      >
         {/* Connector Line */}
         <Box
           sx={{
@@ -364,7 +373,10 @@ export default function PurchaseOrderLearn({ open, onClose }) {
                 <Iconify icon={step.icon} width={20} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontSize: '12px', fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 1.5, fontSize: '12px', fontWeight: 700, color: `${step.color}.main` }}
+              >
                 {step.label}
               </Typography>
 
@@ -396,26 +408,54 @@ export default function PurchaseOrderLearn({ open, onClose }) {
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: alpha(theme.palette.grey[500], 0.06), borderRadius: 1.5 }}>
-          <Iconify icon="solar:lock-password-bold" color={theme.palette.text.secondary} width={24} sx={{ flexShrink: 0 }} />
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            p: 2,
+            bgcolor: alpha(theme.palette.grey[500], 0.06),
+            borderRadius: 1.5,
+          }}
+        >
+          <Iconify
+            icon="solar:lock-password-bold"
+            color={theme.palette.text.secondary}
+            width={24}
+            sx={{ flexShrink: 0 }}
+          />
           <Box>
             <Typography variant="subtitle2" sx={{ color: 'text.primary', fontWeight: 700 }}>
               Closed
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '13px' }}>
-              The PO is manually locked and closed. No further items can be received, even if some ordered items are still pending.
+              The PO is manually locked and closed. No further items can be received, even if some
+              ordered items are still pending.
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2, p: 2, bgcolor: alpha(theme.palette.error.main, 0.06), borderRadius: 1.5 }}>
-          <Iconify icon="solar:close-circle-bold" color={theme.palette.error.main} width={24} sx={{ flexShrink: 0 }} />
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            p: 2,
+            bgcolor: alpha(theme.palette.error.main, 0.06),
+            borderRadius: 1.5,
+          }}
+        >
+          <Iconify
+            icon="solar:close-circle-bold"
+            color={theme.palette.error.main}
+            width={24}
+            sx={{ flexShrink: 0 }}
+          />
           <Box>
             <Typography variant="subtitle2" sx={{ color: 'error.main', fontWeight: 700 }}>
               Rejected
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '13px' }}>
-              A reviewer denied the purchase request. Rejected POs cannot be edited or processed further.
+              A reviewer denied the purchase request. Rejected POs cannot be edited or processed
+              further.
             </Typography>
           </Box>
         </Box>
@@ -475,9 +515,21 @@ export default function PurchaseOrderLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'statuses',
+      label: 'Statuses',
+      icon: <Iconify icon="solar:info-circle-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

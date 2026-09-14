@@ -59,4 +59,3 @@ export function groupItems(array) {
 
   return group;
 }
-

@@ -178,23 +178,6 @@ export function usePublicSubtrip(id) {
   });
 }
 
-// Backward-compatible wrapper: maps to unified createJob
-export function useCreateSubtrip() {
-  const queryClient = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: createJob,
-    onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_KEY]);
-      toast.success('Job created successfully!');
-    },
-    onError: (error) => {
-      const errorMessage = error?.message || 'An error occurred';
-      toast.error(errorMessage);
-    },
-  });
-  return mutateAsync;
-}
-
 export function useCreateJob() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({

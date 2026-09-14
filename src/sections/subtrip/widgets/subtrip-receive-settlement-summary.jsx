@@ -22,7 +22,8 @@ export function SubtripReceiveSettlementSummary({
   if (!selectedSubtrip) return null;
 
   const { isOwn, vehicleType } = selectedSubtrip.vehicleId || {};
-  const freightModel = freightDetails?.freightModel || selectedSubtrip.freightDetails?.freightModel || 'per_ton';
+  const freightModel =
+    freightDetails?.freightModel || selectedSubtrip.freightDetails?.freightModel || 'per_ton';
 
   const grossFreight = Number(freightDetails?.freightAmount || 0);
   const commission = isOwn ? 0 : Number(commissionDetails?.commissionAmount || 0);
@@ -33,7 +34,11 @@ export function SubtripReceiveSettlementSummary({
     if (freightModel === 'to_be_billed' || !freightModel) {
       return 'Please select a freight model';
     }
-    const rate = Number(freightDetails?.rate !== undefined && freightDetails?.rate !== '' ? freightDetails.rate : (selectedSubtrip?.freightDetails?.rate || 0));
+    const rate = Number(
+      freightDetails?.rate !== undefined && freightDetails?.rate !== ''
+        ? freightDetails.rate
+        : selectedSubtrip?.freightDetails?.rate || 0
+    );
     if (freightModel === 'per_hour' && endDate && selectedSubtrip?.startDate) {
       const start = dayjs(selectedSubtrip.startDate);
       const end = dayjs(endDate);
@@ -41,17 +46,33 @@ export function SubtripReceiveSettlementSummary({
       return `calculated for ${diffInHours} hour${diffInHours !== 1 ? 's' : ''} at ₹${rate}/hour (job dates: ${dayjs(selectedSubtrip.startDate).format('DD MMM YYYY, hh:mm A')} to ${dayjs(endDate).format('DD MMM YYYY, hh:mm A')})`;
     }
     if (freightModel === 'per_km') {
-      const startKm = Number(freightDetails?.startKm !== undefined && freightDetails?.startKm !== '' ? freightDetails.startKm : (selectedSubtrip?.freightDetails?.startKm || 0));
+      const startKm = Number(
+        freightDetails?.startKm !== undefined && freightDetails?.startKm !== ''
+          ? freightDetails.startKm
+          : selectedSubtrip?.freightDetails?.startKm || 0
+      );
       const endKm = Number(freightDetails?.endKm || startKm);
       const diffKm = endKm > startKm ? endKm - startKm : 0;
       return `calculated for ${diffKm} km at ₹${rate}/km (KM: ${startKm} to ${endKm})`;
     }
     if (freightModel === 'hybrid') {
-      const startKm = Number(freightDetails?.startKm !== undefined && freightDetails?.startKm !== '' ? freightDetails.startKm : (selectedSubtrip?.freightDetails?.startKm || 0));
+      const startKm = Number(
+        freightDetails?.startKm !== undefined && freightDetails?.startKm !== ''
+          ? freightDetails.startKm
+          : selectedSubtrip?.freightDetails?.startKm || 0
+      );
       const endKm = Number(freightDetails?.endKm || startKm);
       const totalKm = endKm > startKm ? endKm - startKm : 0;
-      const baseKm = Number(freightDetails?.baseKm !== undefined && freightDetails?.baseKm !== '' ? freightDetails.baseKm : (selectedSubtrip?.freightDetails?.baseKm || 0));
-      const baseFreight = Number(freightDetails?.freightAmount !== undefined && freightDetails?.freightAmount !== '' ? freightDetails.freightAmount : (selectedSubtrip?.freightDetails?.freightAmount || 0));
+      const baseKm = Number(
+        freightDetails?.baseKm !== undefined && freightDetails?.baseKm !== ''
+          ? freightDetails.baseKm
+          : selectedSubtrip?.freightDetails?.baseKm || 0
+      );
+      const baseFreight = Number(
+        freightDetails?.freightAmount !== undefined && freightDetails?.freightAmount !== ''
+          ? freightDetails.freightAmount
+          : selectedSubtrip?.freightDetails?.freightAmount || 0
+      );
       const extraKm = totalKm > baseKm ? totalKm - baseKm : 0;
       return `calculated using base freight of ₹${baseFreight} (${baseKm} km) + extra ${extraKm} km at ₹${rate}/km`;
     }
@@ -62,7 +83,11 @@ export function SubtripReceiveSettlementSummary({
       return `calculated for loading ${freightModel === 'per_kl' ? 'volume' : 'weight'} of ${weight} ${unit} at ₹${rate}/${rateLabel}`;
     }
     if (freightModel === 'fixed') {
-      const baseFreight = Number(freightDetails?.freightAmount !== undefined && freightDetails?.freightAmount !== '' ? freightDetails.freightAmount : (selectedSubtrip?.freightDetails?.freightAmount || 0));
+      const baseFreight = Number(
+        freightDetails?.freightAmount !== undefined && freightDetails?.freightAmount !== ''
+          ? freightDetails.freightAmount
+          : selectedSubtrip?.freightDetails?.freightAmount || 0
+      );
       return `fixed freight amount of ₹${baseFreight}`;
     }
     return 'rate model';

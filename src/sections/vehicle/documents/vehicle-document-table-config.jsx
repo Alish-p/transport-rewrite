@@ -31,7 +31,10 @@ function AttachmentDownloadLink({ row }) {
 
   const handleDownload = async (e) => {
     e.stopPropagation();
-    const vehicleId = row?.vehicleId || row?.vehicle?._id || (typeof row?.vehicle === 'string' ? row.vehicle : null);
+    const vehicleId =
+      row?.vehicleId ||
+      row?.vehicle?._id ||
+      (typeof row?.vehicle === 'string' ? row.vehicle : null);
     const docId = row?._id;
 
     if (!row?.fileKey && !row?.fileUrl) {
@@ -209,9 +212,14 @@ export const TABLE_COLUMNS = [
     defaultVisible: true,
     disabled: false,
     align: 'center',
-    getter: (row) => getExpiryStatus(row?.expiryDate) || (row?.status === 'missing' || row?.missing ? 'Missing' : '-') || '-',
+    getter: (row) =>
+      getExpiryStatus(row?.expiryDate) ||
+      (row?.status === 'missing' || row?.missing ? 'Missing' : '-') ||
+      '-',
     render: (row) => {
-      const status = getExpiryStatus(row?.expiryDate) || (row?.status === 'missing' || row?.missing ? 'Missing' : null);
+      const status =
+        getExpiryStatus(row?.expiryDate) ||
+        (row?.status === 'missing' || row?.missing ? 'Missing' : null);
       const meta = status ? getStatusMeta(status) : null;
       if (!meta) return '-';
       return (

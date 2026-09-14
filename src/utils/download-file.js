@@ -20,9 +20,7 @@ export async function downloadFileFromUrl(url, defaultFilename = 'document') {
     const cleanUrl = url.split('?')[0].split('#')[0];
     const urlExt = cleanUrl.includes('.') ? cleanUrl.split('.').pop() : '';
     const filename =
-      defaultFilename.includes('.') || !urlExt
-        ? defaultFilename
-        : `${defaultFilename}.${urlExt}`;
+      defaultFilename.includes('.') || !urlExt ? defaultFilename : `${defaultFilename}.${urlExt}`;
 
     const anchor = document.createElement('a');
     anchor.href = objectUrl;

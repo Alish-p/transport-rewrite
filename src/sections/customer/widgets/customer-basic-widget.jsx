@@ -21,14 +21,5 @@ export function CustomerBasicWidget({ customer }) {
     [address, cellNo, customerName, customerType, pinCode, state]
   );
 
-  return (
-    <DetailCard
-      title="Basic Details"
-      icon="solar:user-bold"
-      showCopy
-      fields={fields}
-    />
-  );
+  return <DetailCard title="Basic Details" icon="solar:user-bold" showCopy fields={fields} />;
 }
-
-export default CustomerBasicWidget;

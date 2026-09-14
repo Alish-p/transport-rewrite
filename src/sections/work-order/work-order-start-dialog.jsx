@@ -93,4 +93,3 @@ export function WorkOrderStartDialog({ open, onClose, workOrder }) {
     </Dialog>
   );
 }
-

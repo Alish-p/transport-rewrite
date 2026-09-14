@@ -34,4 +34,3 @@ export default function PDFFooter({ additionalInfo = [] }) {
     </View>
   );
 }
-

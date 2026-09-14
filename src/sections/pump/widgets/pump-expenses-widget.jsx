@@ -22,7 +22,11 @@ import { usePaginatedAdvances } from 'src/query/use-transporter-advance';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { DATE_RANGE_PRESETS, useDateRangePicker, CustomDateRangePicker } from 'src/components/custom-date-range-picker';
+import {
+  DATE_RANGE_PRESETS,
+  useDateRangePicker,
+  CustomDateRangePicker,
+} from 'src/components/custom-date-range-picker';
 import {
   useTable,
   TableNoData,
@@ -229,5 +233,3 @@ export function PumpExpensesWidget({ pumpId, title = 'Pump Expenses & Advances',
     </Card>
   );
 }
-
-export default PumpExpensesWidget;

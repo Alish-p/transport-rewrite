@@ -438,16 +438,16 @@ export function ExpenseListView() {
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const supportedRows = selectedRows.filter((r) =>
                         ['Diesel', 'Trip Advance', 'Bhatta'].some(
                           (type) => type.toLowerCase() === (r.expenseType || '').toLowerCase()
                         )
                       );
                       if (supportedRows.length === 0) {
-                        toast.error('No supported expenses (Diesel, Trip Advance, Bhatta) selected for XML export.');
+                        toast.error(
+                          'No supported expenses (Diesel, Trip Advance, Bhatta) selected for XML export.'
+                        );
                         return;
                       }
                       if (supportedRows.length < selectedRows.length) {

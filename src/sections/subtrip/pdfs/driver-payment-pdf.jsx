@@ -39,8 +39,9 @@ export default function DriverPaymentPdf({ subtrip, tenant }) {
 
   const expenseTypesToInclude = ['driver-salary', 'trip-advance', 'trip-extra-advance'];
 
-  const filteredExpenses = expenses.filter((expense) =>
-    expense.status !== 'Cancelled' && expenseTypesToInclude.includes(expense.expenseType)
+  const filteredExpenses = expenses.filter(
+    (expense) =>
+      expense.status !== 'Cancelled' && expenseTypesToInclude.includes(expense.expenseType)
   );
 
   const totalExpense = useMemo(

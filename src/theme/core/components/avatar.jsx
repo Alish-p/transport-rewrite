@@ -59,8 +59,7 @@ const MuiAvatar = {
     rounded: ({ theme }) => ({ borderRadius: theme.shape.borderRadius * 1.5 }),
     colorDefault: ({ ownerState, theme }) => {
       const name =
-        ownerState.alt ||
-        (typeof ownerState.children === 'string' ? ownerState.children : '');
+        ownerState.alt || (typeof ownerState.children === 'string' ? ownerState.children : '');
 
       const isSurplus =
         typeof ownerState.children === 'string' && ownerState.children.trim().startsWith('+');

@@ -82,7 +82,9 @@ export function WhatsAppMessageItem({ message, onImageClick }) {
           <Card variant="outlined" sx={{ p: 2, bgcolor: 'background.neutral' }}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Iconify
-                icon={messageType === 'video' ? 'solar:video-frame-bold' : 'solar:microphone-2-bold'}
+                icon={
+                  messageType === 'video' ? 'solar:video-frame-bold' : 'solar:microphone-2-bold'
+                }
                 sx={{ color: 'text.secondary' }}
               />
               <Typography variant="body2">

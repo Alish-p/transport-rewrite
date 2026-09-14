@@ -161,8 +161,7 @@ export const TABLE_COLUMNS = [
     defaultVisible: false,
     sortable: true,
     disabled: false,
-    getter: (row) =>
-      row.lastLoginAt ? fDateTime(row.lastLoginAt) : 'Never',
+    getter: (row) => (row.lastLoginAt ? fDateTime(row.lastLoginAt) : 'Never'),
     render: (row) => {
       const value = row.lastLoginAt;
       if (!value) return 'Never';

@@ -48,11 +48,7 @@ export function ResultItem({ title, breadcrumbs, groupLabel, onClickItem, isActi
         ...(isActive && {
           borderRadius: '0px 8px 8px 0px',
           borderLeftColor: (theme) => theme.vars.palette.primary.main,
-          backgroundColor: (theme) =>
-            varAlpha(
-              theme.vars.palette.primary.mainChannel,
-              0.08
-            ),
+          backgroundColor: (theme) => varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
         }),
       }}
     >
@@ -103,4 +99,3 @@ export function ResultItem({ title, breadcrumbs, groupLabel, onClickItem, isActi
     </ListItemButton>
   );
 }
-

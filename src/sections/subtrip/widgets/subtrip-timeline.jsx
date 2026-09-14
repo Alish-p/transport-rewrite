@@ -93,10 +93,7 @@ export function SubtripTimeline({ events = [], sx, ...other }) {
       />
       <Scrollbar sx={{ flexGrow: 1 }}>
         {events.length === 0 ? (
-          <Typography
-            variant="body2"
-            sx={{ color: 'text.secondary', p: 3, textAlign: 'center' }}
-          >
+          <Typography variant="body2" sx={{ color: 'text.secondary', p: 3, textAlign: 'center' }}>
             No activity recorded yet
           </Typography>
         ) : (
@@ -115,7 +112,10 @@ export function SubtripTimeline({ events = [], sx, ...other }) {
                 <TimelineItem key={event._id}>
                   <TimelineSeparator>
                     <TimelineDot color={eventColor}>
-                      <Iconify icon={EVENT_ICONS[event.eventType] || 'eva:activity-fill'} width={20} />
+                      <Iconify
+                        icon={EVENT_ICONS[event.eventType] || 'eva:activity-fill'}
+                        width={20}
+                      />
                     </TimelineDot>
                     {index === events.length - 1 ? null : <TimelineConnector />}
                   </TimelineSeparator>

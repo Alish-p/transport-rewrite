@@ -15,7 +15,8 @@ export function useNavBadges() {
   const { data: vehicleDocsSummary } = useVehicleDocumentsSummary();
   const { data: whatsappData } = useWhatsAppConversations({}, { refetchInterval: 30000 });
 
-  const totalWhatsAppUnread = whatsappData?.data?.reduce((sum, c) => sum + (c.unreadCount || 0), 0) || 0;
+  const totalWhatsAppUnread =
+    whatsappData?.data?.reduce((sum, c) => sum + (c.unreadCount || 0), 0) || 0;
 
   // Map route paths to their corresponding live counts
   const badgeCounts = {
@@ -56,4 +57,3 @@ export function useNavBadges() {
 
   return { injectBadges };
 }
-

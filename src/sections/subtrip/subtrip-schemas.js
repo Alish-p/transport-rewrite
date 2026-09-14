@@ -62,8 +62,7 @@ export const receiveSchema = zod
     remarksRequired: zod.boolean().optional(),
   })
   .superRefine((values, ctx) => {
-    const effectiveFreightModel =
-      values.freightDetails?.freightModel || values.freightModel || '';
+    const effectiveFreightModel = values.freightDetails?.freightModel || values.freightModel || '';
 
     if (!effectiveFreightModel || effectiveFreightModel === 'to_be_billed') {
       ctx.addIssue({

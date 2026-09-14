@@ -59,5 +59,3 @@ export function InfoItem({
     </Stack>
   );
 }
-
-export default InfoItem;

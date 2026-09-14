@@ -79,7 +79,8 @@ export const TABLE_COLUMNS = [
   {
     id: 'status',
     label: 'Status',
-    tooltip: 'Track lifecycle: Open (created), In Progress (servicing), and Completed (closed & finalized)',
+    tooltip:
+      'Track lifecycle: Open (created), In Progress (servicing), and Completed (closed & finalized)',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.status,

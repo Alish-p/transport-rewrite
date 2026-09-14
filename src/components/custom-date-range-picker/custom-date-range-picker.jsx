@@ -40,10 +40,7 @@ export function CustomDateRangePicker({
       // Use the atomic setter to avoid the stale error-closure bug
       // that causes only one date to apply when calling the two handlers separately.
       if (onApplyRange) {
-        onApplyRange(
-          dayjs(start).startOf('day'),
-          dayjs(end).endOf('day')
-        );
+        onApplyRange(dayjs(start).startOf('day'), dayjs(end).endOf('day'));
       } else {
         onChangeStartDate(dayjs(start).startOf('day'));
         onChangeEndDate(dayjs(end).endOf('day'));

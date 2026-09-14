@@ -30,7 +30,9 @@ const VehicleDocumentsListPage = lazy(() => import('src/pages/dashboard/vehicle/
 const VehicleDocumentsGridPage = lazy(() => import('src/pages/dashboard/vehicle/documents-grid'));
 const VehicleDocumentCreatePage = lazy(() => import('src/pages/dashboard/vehicle/document-new'));
 const VehicleDocumentEditPage = lazy(() => import('src/pages/dashboard/vehicle/document-edit'));
-const VehicleDocumentDetailsPage = lazy(() => import('src/pages/dashboard/vehicle/document-details'));
+const VehicleDocumentDetailsPage = lazy(
+  () => import('src/pages/dashboard/vehicle/document-details')
+);
 const VehicleKmBulkImportPage = lazy(() =>
   import('src/sections/vehicle/views/vehicle-km-bulk-import-view').then((module) => ({
     default: module.VehicleKmBulkImportView,

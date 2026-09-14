@@ -5,7 +5,16 @@ import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
-import { Box, Grid, Stack, Button, Dialog, TextField, Typography, DialogActions } from '@mui/material';
+import {
+  Box,
+  Grid,
+  Stack,
+  Button,
+  Dialog,
+  TextField,
+  Typography,
+  DialogActions,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 
@@ -176,7 +185,10 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
   const handleCancelSubtrip = async () => {
     try {
-      cancelSubtrip({ id: subtrip._id, cancellationRemarks: cancellationRemarks.trim() || undefined });
+      cancelSubtrip({
+        id: subtrip._id,
+        cancellationRemarks: cancellationRemarks.trim() || undefined,
+      });
       handleCloseCancelDialog();
       navigate(paths.dashboard.subtrip.root);
     } catch (error) {
@@ -203,7 +215,9 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
 
   // For market vehicles, use advances; for own vehicles, use expenses
   const isMarketVehicle = subtrip?.vehicleId?.isOwn === false;
-  const deductionItems = (isMarketVehicle ? subtrip?.advances || [] : subtrip?.expenses || []).filter(item => item.status !== 'Cancelled');
+  const deductionItems = (
+    isMarketVehicle ? subtrip?.advances || [] : subtrip?.expenses || []
+  ).filter((item) => item.status !== 'Cancelled');
 
   const totalExpenses = deductionItems.reduce((sum, item) => sum + (item.amount || 0), 0);
   const totalDieselLtr = deductionItems.reduce((sum, item) => {
@@ -339,12 +353,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             // Show Trip only when associated (non-market vehicles)
             ...(hasTrip
               ? [
-                {
-                  icon: 'mdi:routes',
-                  label: `Trip #${subtrip.tripId.tripNo}`,
-                  href: paths.dashboard.trip.details(subtrip.tripId._id),
-                },
-              ]
+                  {
+                    icon: 'mdi:routes',
+                    label: `Trip #${subtrip.tripId.tripNo}`,
+                    href: paths.dashboard.trip.details(subtrip.tripId._id),
+                  },
+                ]
               : []),
           ].filter((m) => (publicMode ? m.label !== 'Actions' : true))}
           menus={[
@@ -763,7 +777,11 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                 />
               </Stack>
               <Grid item>
-                <BasicExpenseTable selectedSubtrip={subtrip} withAdd={!publicMode} withDelete={!publicMode} />
+                <BasicExpenseTable
+                  selectedSubtrip={subtrip}
+                  withAdd={!publicMode}
+                  withDelete={!publicMode}
+                />
               </Grid>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
                 <ExpenseChart

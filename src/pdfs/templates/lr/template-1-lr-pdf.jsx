@@ -486,13 +486,13 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const cityStatePin =
     tenant?.address?.city || tenant?.address?.state
       ? [
-        tenant?.address?.city,
-        tenant?.address?.state
-          ? `${tenant.address.state}${tenant?.address?.pincode ? ` - ${tenant.address.pincode}` : ''}`
-          : tenant?.address?.pincode,
-      ]
-        .filter(Boolean)
-        .join(', ')
+          tenant?.address?.city,
+          tenant?.address?.state
+            ? `${tenant.address.state}${tenant?.address?.pincode ? ` - ${tenant.address.pincode}` : ''}`
+            : tenant?.address?.pincode,
+        ]
+          .filter(Boolean)
+          .join(', ')
       : 'Jharkhand - 828202';
 
   // Legal Numbers
@@ -505,14 +505,16 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const consignorGst = customerId?.GSTNo || '20AAXFM7326C1ZC';
   const consignorMobile = customerId?.cellNo || '-';
   const consignorAddress =
-    customerId?.address || 'CHIRKUNDA, DHANBAD, JHARKHAND, DHANBAD - 828202, Chirkunda, Jharkhand, India - 828202';
+    customerId?.address ||
+    'CHIRKUNDA, DHANBAD, JHARKHAND, DHANBAD - 828202, Chirkunda, Jharkhand, India - 828202';
 
   // Consignee
   const consigneeName = consignee || 'M/S MAA JWALA ENTERPRISES';
   const consigneeGst = subtrip?.consigneeGst || customerId?.consigneeGst || '-';
   const consigneeMobile = subtrip?.consigneeMobile || subtrip?.consigneePhone || '-';
   const consigneeAddress =
-    unloadingPoint || 'SHAKTINAGAR, SONEBHADRA, UTTAR PRADESH - 231222, SONEBHADRA, UTTAR PRADESH, India - 231222';
+    unloadingPoint ||
+    'SHAKTINAGAR, SONEBHADRA, UTTAR PRADESH - 231222, SONEBHADRA, UTTAR PRADESH, India - 231222';
 
   // Bank Details
   const bankName = tenant?.bankDetails?.name || 'ICICI BANK';
@@ -520,8 +522,12 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const bankIfsc = tenant?.bankDetails?.ifsc || 'ICIC0001410';
 
   // Weights & Formats
-  const formattedActualWeight = loadingWeight ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}` : '35.000 MTS';
-  const formattedChargeWeight = loadingWeight ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}` : '35.000 MTS';
+  const formattedActualWeight = loadingWeight
+    ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
+    : '35.000 MTS';
+  const formattedChargeWeight = loadingWeight
+    ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
+    : '35.000 MTS';
   const displayMaterial = materialType || 'AS PER TAX INVOICE';
   const displayPackaging = packagingType || packaging || 'BAGS';
   const displayQuantity = quantity !== undefined && quantity !== null ? quantity : '-';
@@ -625,7 +631,9 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
             <View style={styles.lrMetaCol}>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>LR Date</Text>
-                <Text style={styles.metaValue}>{fDate(startDate, 'DD-MM-YYYY') || '09-09-2026'}</Text>
+                <Text style={styles.metaValue}>
+                  {fDate(startDate, 'DD-MM-YYYY') || '09-09-2026'}
+                </Text>
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>LR No</Text>
@@ -842,7 +850,8 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
             {/* Box 2: Computer generated note */}
             <View style={styles.centerNoteCol}>
               <Text style={styles.centerNoteText}>
-                &ldquo;Total amount of goods as <Text style={{ fontWeight: 700 }}>per the invoice</Text>&rdquo;
+                &ldquo;Total amount of goods as{' '}
+                <Text style={{ fontWeight: 700 }}>per the invoice</Text>&rdquo;
               </Text>
               <Text style={styles.centerNoteText}>This is computer generated LR/ Bilty.</Text>
             </View>

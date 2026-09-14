@@ -85,9 +85,12 @@ export function InvoiceListView() {
   const table = useTable({ defaultOrderBy: 'issueDate', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const [selectedSubtrip, setSelectedSubtrip] = useState(null);
   // Clear local selected subtrip when filter is removed via chips/reset

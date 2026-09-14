@@ -67,7 +67,8 @@ export default function InvoiceLearn({ open, onClose }) {
           the Customer has <b>GST Enabled</b>, the system compares the Customer state to the Tenant
           state:
           <br />
-          <br />• <b>Intra-state</b> (Same State): Applied evenly across <b>CGST</b> and <b>SGST</b>.
+          <br />• <b>Intra-state</b> (Same State): Applied evenly across <b>CGST</b> and <b>SGST</b>
+          .
           <br />• <b>Inter-state</b> (Different State): Applied entirely as <b>IGST</b>.
         </>
       ),
@@ -78,8 +79,8 @@ export default function InvoiceLearn({ open, onClose }) {
       question: 'What do I do if I made a mistake on a billed job?',
       answer: (
         <>
-          You cannot directly edit a Job (subtrip) that has already been billed via an invoice. If you
-          realize there was an error with shortages, rates, or freight details:
+          You cannot directly edit a Job (subtrip) that has already been billed via an invoice. If
+          you realize there was an error with shortages, rates, or freight details:
           <br />
           <br />
           1. Select the Invoice and mark it as <b>Cancelled</b>.
@@ -100,7 +101,8 @@ export default function InvoiceLearn({ open, onClose }) {
         <>
           There is no hard &quot;Delete&quot; for an invoice. Instead, you <b>Cancel</b> it.
           Cancelling an invoice completely neutralizes it from your payment ledgers and revenue
-          analytics, while safely maintaining financial compliance audit trails linking the old jobs.
+          analytics, while safely maintaining financial compliance audit trails linking the old
+          jobs.
         </>
       ),
     },
@@ -147,8 +149,8 @@ export default function InvoiceLearn({ open, onClose }) {
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
               An Invoice is a formal billing document sent to your Customer. It aggregates freight
-              charges, deductions, shortages, and taxes for selected trips within a billing period into
-              a single structured payment statement.
+              charges, deductions, shortages, and taxes for selected trips within a billing period
+              into a single structured payment statement.
             </Typography>
           </Box>
         </Box>
@@ -254,7 +256,15 @@ export default function InvoiceLearn({ open, onClose }) {
       </Box>
 
       {/* Horizontal Pipeline Diagram */}
-      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 4,
+        }}
+      >
         {/* Connector Line */}
         <Box
           sx={{
@@ -316,7 +326,10 @@ export default function InvoiceLearn({ open, onClose }) {
                 <Iconify icon={step.icon} width={24} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}
+              >
                 {step.label}
               </Typography>
 
@@ -343,15 +356,30 @@ export default function InvoiceLearn({ open, onClose }) {
       <Divider sx={{ my: 3 }} />
 
       {/* Cancelled Status Box */}
-      <Box sx={{ display: 'flex', gap: 2, bgcolor: alpha(theme.palette.grey[500], 0.08), p: 2, borderRadius: 1.5 }}>
-        <Iconify icon="solar:close-circle-bold" color={theme.palette.text.secondary} width={24} sx={{ flexShrink: 0 }} />
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          bgcolor: alpha(theme.palette.grey[500], 0.08),
+          p: 2,
+          borderRadius: 1.5,
+        }}
+      >
+        <Iconify
+          icon="solar:close-circle-bold"
+          color={theme.palette.text.secondary}
+          width={24}
+          sx={{ flexShrink: 0 }}
+        />
         <Box>
           <Typography variant="subtitle2" sx={{ color: 'text.primary', fontWeight: 700 }}>
             Cancelled Invoices
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '13px' }}>
-            Voiding an invoice removes it from payment ledgers while preserving financial audit records.
-            <b> Important:</b> Cancelling frees up the underlying jobs back to &quot;Received&quot; status so they can be edited and billed again.
+            Voiding an invoice removes it from payment ledgers while preserving financial audit
+            records.
+            <b> Important:</b> Cancelling frees up the underlying jobs back to &quot;Received&quot;
+            status so they can be edited and billed again.
           </Typography>
         </Box>
       </Box>
@@ -386,7 +414,8 @@ export default function InvoiceLearn({ open, onClose }) {
           {
             color: 'info',
             label: 'Gross Freight',
-            description: 'Sum of all subtrips calculated as Rate × Loading Weight (or Unloading Weight / Fixed depending on freight model).',
+            description:
+              'Sum of all subtrips calculated as Rate × Loading Weight (or Unloading Weight / Fixed depending on freight model).',
           },
           {
             color: 'error',
@@ -396,17 +425,20 @@ export default function InvoiceLearn({ open, onClose }) {
           {
             color: 'primary',
             label: 'Taxable Amount',
-            description: 'Base billable total calculated from freight charges prior to applying taxes.',
+            description:
+              'Base billable total calculated from freight charges prior to applying taxes.',
           },
           {
             color: 'success',
             label: 'Intra-State GST',
-            description: 'Applied when Customer & Tenant operate in the same state: split 50/50 between CGST and SGST.',
+            description:
+              'Applied when Customer & Tenant operate in the same state: split 50/50 between CGST and SGST.',
           },
           {
             color: 'warning',
             label: 'Inter-State GST',
-            description: 'Applied when Customer & Tenant operate in different states: charged entirely under IGST.',
+            description:
+              'Applied when Customer & Tenant operate in different states: charged entirely under IGST.',
           },
           {
             color: 'secondary',
@@ -416,7 +448,12 @@ export default function InvoiceLearn({ open, onClose }) {
         ].map((item) => (
           <Box key={item.label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 130, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'none', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -481,10 +518,26 @@ export default function InvoiceLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
-    { value: 'taxes', label: 'Taxes & Calculation', icon: <Iconify icon="solar:calculator-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'statuses',
+      label: 'Statuses',
+      icon: <Iconify icon="solar:info-circle-bold" width={16} />,
+    },
+    {
+      value: 'taxes',
+      label: 'Taxes & Calculation',
+      icon: <Iconify icon="solar:calculator-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

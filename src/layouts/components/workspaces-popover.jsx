@@ -28,9 +28,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
   const mediaQuery = 'sm';
 
   // Ensure current active tenant is in the list
-  const companies = accessibleTenants.length > 0
-    ? accessibleTenants
-    : tenant ? [tenant] : data;
+  const companies = accessibleTenants.length > 0 ? accessibleTenants : tenant ? [tenant] : data;
 
   const currentTenantId = tenant?._id ? String(tenant._id) : null;
   const isMultiTenant = companies.length > 1;
@@ -65,8 +63,8 @@ export function WorkspacesPopover({ data = [], sx, ...other }) {
           transition: (theme) => theme.transitions.create(['background-color']),
           '&:hover': isMultiTenant
             ? {
-              backgroundColor: 'action.hover',
-            }
+                backgroundColor: 'action.hover',
+              }
             : {},
           ...sx,
         }}

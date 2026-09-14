@@ -47,14 +47,5 @@ export function TransporterBasicWidget({ transporter }) {
     [address, cellNo, emailId, ownerName, pinNo, state, transportName, transportType]
   );
 
-  return (
-    <DetailCard
-      title="Basic Details"
-      icon="solar:user-bold"
-      showCopy
-      fields={fields}
-    />
-  );
+  return <DetailCard title="Basic Details" icon="solar:user-bold" showCopy fields={fields} />;
 }
-
-export default TransporterBasicWidget;

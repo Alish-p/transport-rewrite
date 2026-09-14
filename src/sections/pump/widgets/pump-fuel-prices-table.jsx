@@ -201,5 +201,3 @@ export function PumpDieselPricesWidget({ pump, title = 'Fuel Prices', ...other }
     </Card>
   );
 }
-
-export default PumpDieselPricesWidget;

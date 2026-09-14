@@ -110,7 +110,9 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
 
     if (freightModel === 'to_be_billed') {
       const expenses =
-        selectedSubtrip.expenses?.filter(e => e.status !== 'Cancelled').reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
+        selectedSubtrip.expenses
+          ?.filter((e) => e.status !== 'Cancelled')
+          .reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
       const driverSalary = calculateDriverSalaryPerSubtrip(selectedSubtrip);
       return {
         freightAmount: 0,
@@ -124,7 +126,9 @@ export const SubtripDetailCard = ({ selectedSubtrip, commissionRate }) => {
 
     // Calculate total expenses
     const expenses =
-      selectedSubtrip.expenses?.filter(e => e.status !== 'Cancelled').reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
+      selectedSubtrip.expenses
+        ?.filter((e) => e.status !== 'Cancelled')
+        .reduce((total, expense) => total + (expense.amount || 0), 0) || 0;
 
     // Calculate driver salary
     const driverSalary = calculateDriverSalaryPerSubtrip(selectedSubtrip);

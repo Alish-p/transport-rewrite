@@ -18,7 +18,7 @@ export function VehicleDocumentCreateView() {
   const searchParams = useSearchParams();
   const vehicleId = searchParams.get('vehicleId') || '';
   const docType = searchParams.get('docType') || '';
-  
+
   const { data: vehicle } = useVehicle(vehicleId, {
     enabled: !!vehicleId,
   });

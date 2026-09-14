@@ -122,7 +122,8 @@ export function PartLocationOverviewTab({ partLocation }) {
   const totalParts = tabCounts.total || data?.count || 0;
   const outOfStock = tabCounts.outOfStock ?? data?.outOfStockItems ?? 0;
   const lowStock = tabCounts.lowStock ?? data?.lowStockItems ?? 0;
-  const inStock = tabCounts.inStock ?? data?.inStockItems ?? Math.max(0, totalParts - outOfStock - lowStock);
+  const inStock =
+    tabCounts.inStock ?? data?.inStockItems ?? Math.max(0, totalParts - outOfStock - lowStock);
 
   const notFound = !filteredParts.length && !isLoading;
 

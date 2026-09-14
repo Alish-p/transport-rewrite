@@ -132,5 +132,3 @@ export function UserChangePasswordDialog({ open, onClose, user }) {
     </Dialog>
   );
 }
-
-export default UserChangePasswordDialog;

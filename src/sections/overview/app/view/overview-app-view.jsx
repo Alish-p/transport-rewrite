@@ -336,8 +336,6 @@ export function OverviewAppView({
           <AppSubtripExpensesCategory title="Expenses categories" />
         </Grid>
 
-
-
         {tenant?.integrations?.ewayBill?.enabled && (
           <Grid xs={12}>
             <Suspense fallback={<WidgetSkeleton height={600} />}>

@@ -35,9 +35,9 @@ export default function TyreLearn({ open, onClose }) {
       question: 'Does Current KM mean actual total distance?',
       answer: (
         <>
-          <b>Yes.</b> Current KM represents the total actual accumulated mileage of the tyre over its
-          entire lifespan. It includes initial &quot;Opening KM&quot; (for used tyres) plus all distance
-          covered while mounted on active vehicles.
+          <b>Yes.</b> Current KM represents the total actual accumulated mileage of the tyre over
+          its entire lifespan. It includes initial &quot;Opening KM&quot; (for used tyres) plus all
+          distance covered while mounted on active vehicles.
         </>
       ),
     },
@@ -128,8 +128,8 @@ export default function TyreLearn({ open, onClose }) {
               Distance & Cost per KM
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-              The system automatically tracks mileage covered per tyre position to calculate cost per
-              kilometer (CPKM) and predict replacement cycles.
+              The system automatically tracks mileage covered per tyre position to calculate cost
+              per kilometer (CPKM) and predict replacement cycles.
             </Typography>
           </Box>
         </Box>
@@ -205,27 +205,36 @@ export default function TyreLearn({ open, onClose }) {
           {
             color: 'info',
             label: 'Mount / Unmount',
-            description: 'Mounting assigns a tyre to a specific wheel position on a vehicle layout. Unmounting returns it to Stock and logs distance covered.',
+            description:
+              'Mounting assigns a tyre to a specific wheel position on a vehicle layout. Unmounting returns it to Stock and logs distance covered.',
           },
           {
             color: 'warning',
             label: 'Remold / Retread',
-            description: 'Adding new rubber tread to worn casings. Extends usable life, updates status to Remolded, and restores tread depth.',
+            description:
+              'Adding new rubber tread to worn casings. Extends usable life, updates status to Remolded, and restores tread depth.',
           },
           {
             color: 'primary',
             label: 'Axle Layout',
-            description: 'The wheel arrangement (e.g. 10 Tyre, 12 Tyre) defined in vehicle settings to validate position mapping.',
+            description:
+              'The wheel arrangement (e.g. 10 Tyre, 12 Tyre) defined in vehicle settings to validate position mapping.',
           },
           {
             color: 'error',
             label: 'Scrap',
-            description: 'Retiring unusable or burst tyres past retreading limits. Scrapped tyres are locked from future mounting.',
+            description:
+              'Retiring unusable or burst tyres past retreading limits. Scrapped tyres are locked from future mounting.',
           },
         ].map((item) => (
           <Box key={item.label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 130, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'none', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -290,9 +299,21 @@ export default function TyreLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'lifecycle', label: 'Lifecycle', icon: <Iconify icon="solar:refresh-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'lifecycle',
+      label: 'Lifecycle',
+      icon: <Iconify icon="solar:refresh-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

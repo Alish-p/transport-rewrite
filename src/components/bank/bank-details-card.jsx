@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { InfoItem, DetailCard } from 'src/components/detail-card';
+import { DetailCard } from 'src/components/detail-card';
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +28,10 @@ export function BankDetailsCard({
     ];
 
     if (extraFields && extraFields.length > 0) {
-      return [...baseFields, ...extraFields.map((f) => ({ ...f, hideIfEmpty: f.hideIfEmpty ?? true }))];
+      return [
+        ...baseFields,
+        ...extraFields.map((f) => ({ ...f, hideIfEmpty: f.hideIfEmpty ?? true })),
+      ];
     }
 
     return baseFields;
@@ -38,7 +41,8 @@ export function BankDetailsCard({
     const extraData =
       extraFields?.reduce((acc, f) => {
         if (f?.label && f?.value !== undefined && f?.value !== null) {
-          acc[f.label] = typeof f.value === 'object' && f.rawValue !== undefined ? f.rawValue : f.value;
+          acc[f.label] =
+            typeof f.value === 'object' && f.rawValue !== undefined ? f.rawValue : f.value;
         }
         return acc;
       }, {}) || {};
@@ -62,7 +66,3 @@ export function BankDetailsCard({
     </DetailCard>
   );
 }
-
-export const BankInfoRow = (props) => <InfoItem hideIfEmpty {...props} />;
-
-export default BankDetailsCard;

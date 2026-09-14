@@ -81,9 +81,12 @@ export function LoansListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const confirm = useBoolean();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const { vehicleMode } = useSystemFeatures();
 

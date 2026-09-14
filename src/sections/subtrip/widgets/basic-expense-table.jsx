@@ -50,7 +50,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = true, withAdd 
   // Determine if this is a market vehicle subtrip (use advances) or own vehicle (use expenses)
   const isMarketVehicle = selectedSubtrip?.vehicleId?.isOwn === false;
   const items = isMarketVehicle ? selectedSubtrip?.advances || [] : selectedSubtrip?.expenses || [];
-  const activeItems = items.filter(item => item.status !== 'Cancelled');
+  const activeItems = items.filter((item) => item.status !== 'Cancelled');
   const totalAmount = activeItems.reduce((acc, item) => acc + (item.amount || 0), 0);
 
   const label = isMarketVehicle ? 'Advances' : 'Expenses';
@@ -141,7 +141,15 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = true, withAdd 
             {items.map((item) => {
               const itemType = item.advanceType || item.expenseType;
               return (
-                <TableRow key={item._id} hover sx={item.status === 'Cancelled' ? { opacity: 0.5, textDecoration: 'line-through' } : {}}>
+                <TableRow
+                  key={item._id}
+                  hover
+                  sx={
+                    item.status === 'Cancelled'
+                      ? { opacity: 0.5, textDecoration: 'line-through' }
+                      : {}
+                  }
+                >
                   <TableCell align="center">{fDate(item.date)}</TableCell>
                   <TableCell align="center">
                     <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
@@ -176,10 +184,7 @@ export const BasicExpenseTable = ({ selectedSubtrip, withDelete = true, withAdd 
                     </Tooltip>
                   </TableCell>
                   <TableCell align="center">
-                    <Label
-                      variant="soft"
-                      color={item.status === 'Cancelled' ? 'error' : 'success'}
-                    >
+                    <Label variant="soft" color={item.status === 'Cancelled' ? 'error' : 'success'}>
                       {item.status || 'Recorded'}
                     </Label>
                   </TableCell>

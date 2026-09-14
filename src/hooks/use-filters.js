@@ -10,12 +10,7 @@ export function useFilters(initialFilters, options = {}) {
   const { onResetPage } = options;
   const [searchParams, setSearchParams] = _useSearchParams();
 
-  const {
-    state: filters,
-    setState,
-    onResetState,
-    canReset,
-  } = useSetState(initialFilters);
+  const { state: filters, setState, onResetState, canReset } = useSetState(initialFilters);
 
   const isDateKey = useCallback((key) => /date/i.test(key), []);
 

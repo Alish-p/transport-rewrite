@@ -21,7 +21,7 @@ export function FileThumbnail({
   const previewUrl =
     typeof file === 'string'
       ? file
-      : (file instanceof Blob || file instanceof File)
+      : file instanceof Blob || file instanceof File
         ? URL.createObjectURL(file)
         : '';
 

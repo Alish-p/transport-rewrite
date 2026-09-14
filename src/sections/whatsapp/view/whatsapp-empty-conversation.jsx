@@ -15,7 +15,11 @@ export function WhatsAppEmptyConversation() {
         textAlign: 'center',
       }}
     >
-      <Iconify icon="solar:chat-round-dots-bold-duotone" width={120} sx={{ color: 'text.disabled', mb: 3 }} />
+      <Iconify
+        icon="solar:chat-round-dots-bold-duotone"
+        width={120}
+        sx={{ color: 'text.disabled', mb: 3 }}
+      />
       <Typography variant="h5" gutterBottom>
         Select a conversation
       </Typography>

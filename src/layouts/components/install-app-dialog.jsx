@@ -90,7 +90,11 @@ export function InstallAppDialog({ open, onClose, isIos, isMacSafari }) {
               </Box>
 
               <Stack direction="row" alignItems="center" spacing={1} sx={{ flex: 1 }}>
-                <Iconify icon={step.icon} width={24} sx={{ color: 'primary.main', flexShrink: 0 }} />
+                <Iconify
+                  icon={step.icon}
+                  width={24}
+                  sx={{ color: 'primary.main', flexShrink: 0 }}
+                />
                 <Typography variant="body2">{step.text}</Typography>
               </Stack>
             </Stack>

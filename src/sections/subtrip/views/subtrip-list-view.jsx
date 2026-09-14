@@ -94,9 +94,12 @@ export function SubtripListView() {
   const deleteSubtrip = useDeleteSubtrip();
   const learn = useBoolean();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -428,7 +431,9 @@ export function SubtripListView() {
           filters={filters}
           onFilters={handleFilterChange}
           onApplyDateRange={(start, end) => setFilters({ fromDate: start, toDate: end })}
-          onApplyEndRange={(start, end) => setFilters({ subtripEndFromDate: start, subtripEndToDate: end })}
+          onApplyEndRange={(start, end) =>
+            setFilters({ subtripEndFromDate: start, subtripEndToDate: end })
+          }
           tableData={tableData}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}

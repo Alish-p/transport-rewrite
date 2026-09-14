@@ -6,7 +6,12 @@ import { fNumber, fCurrency } from 'src/utils/format-number';
 
 import { PDFTitle, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
-import { fFreightRate, getWeightUnit, calculateTotalWeight, calculateTotalShortageWeight } from 'src/sections/subtrip/utils';
+import {
+  fFreightRate,
+  getWeightUnit,
+  calculateTotalWeight,
+  calculateTotalShortageWeight,
+} from 'src/sections/subtrip/utils';
 
 import PDFBillToSection from './common/PDFBillTo';
 import PDFInvoiceFooter from './common/PDFInvoiceFooter';

@@ -132,5 +132,3 @@ export function PumpDieselPriceWidget({ pumpId }) {
     </Stack>
   );
 }
-
-export default PumpDieselPriceWidget;

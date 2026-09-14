@@ -70,10 +70,7 @@ export function WhatsAppHeader({ conversation, onToggleDetails, detailsOpen }) {
           >
             <Iconify icon="ic:baseline-whatsapp" />
           </IconButton>
-          <IconButton
-            onClick={onToggleDetails}
-            color={detailsOpen ? 'primary' : 'default'}
-          >
+          <IconButton onClick={onToggleDetails} color={detailsOpen ? 'primary' : 'default'}>
             <Iconify icon="eva:info-outline" />
           </IconButton>
         </Stack>

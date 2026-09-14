@@ -54,14 +54,10 @@ export function WhatsAppNav({
                   size="small"
                   onClick={() => onEntityFilterChange(f === 'All' ? '' : f)}
                   color={
-                    (f === 'All' && !entityFilter) || entityFilter === f
-                      ? 'primary'
-                      : 'default'
+                    (f === 'All' && !entityFilter) || entityFilter === f ? 'primary' : 'default'
                   }
                   variant={
-                    (f === 'All' && !entityFilter) || entityFilter === f
-                      ? 'filled'
-                      : 'outlined'
+                    (f === 'All' && !entityFilter) || entityFilter === f ? 'filled' : 'outlined'
                   }
                 />
               ))}
@@ -71,32 +67,37 @@ export function WhatsAppNav({
       </Stack>
 
       <Scrollbar sx={{ flex: 1 }}>
-        {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Stack key={i} direction="row" spacing={2} sx={{ p: 2, alignItems: 'center' }}>
-              <Skeleton variant="circular" width={48} height={48} />
-              {!collapsed && (
-                <Stack spacing={1} flex={1}>
-                  <Skeleton variant="text" width="60%" />
-                  <Skeleton variant="text" width="90%" />
-                </Stack>
-              )}
-            </Stack>
-          ))
-        ) : (
-          conversations?.map((conv) => (
-            <WhatsAppNavItem
-              key={conv._id}
-              conversation={conv}
-              selected={selectedId === conv._id}
-              onSelect={() => onSelect(conv._id)}
-              collapsed={collapsed}
-            />
-          ))
-        )}
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <Stack key={i} direction="row" spacing={2} sx={{ p: 2, alignItems: 'center' }}>
+                <Skeleton variant="circular" width={48} height={48} />
+                {!collapsed && (
+                  <Stack spacing={1} flex={1}>
+                    <Skeleton variant="text" width="60%" />
+                    <Skeleton variant="text" width="90%" />
+                  </Stack>
+                )}
+              </Stack>
+            ))
+          : conversations?.map((conv) => (
+              <WhatsAppNavItem
+                key={conv._id}
+                conversation={conv}
+                selected={selectedId === conv._id}
+                onSelect={() => onSelect(conv._id)}
+                collapsed={collapsed}
+              />
+            ))}
       </Scrollbar>
 
-      <Box sx={{ p: 1, borderTop: (theme) => `solid 1px ${theme.palette.divider}`, display: 'flex', justifyContent: collapsed ? 'center' : 'flex-end' }}>
+      <Box
+        sx={{
+          p: 1,
+          borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
+          display: 'flex',
+          justifyContent: collapsed ? 'center' : 'flex-end',
+        }}
+      >
         <IconButton onClick={onToggleCollapse}>
           <Iconify icon={collapsed ? 'eva:arrow-ios-forward-fill' : 'eva:arrow-ios-back-fill'} />
         </IconButton>

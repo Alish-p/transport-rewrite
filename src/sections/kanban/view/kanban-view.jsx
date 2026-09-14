@@ -232,11 +232,7 @@ export function KanbanView({ tasks = {} }) {
       const updated = {
         ...localTasks,
         [activeColumn]: activeItems.filter((task) => task?._id !== active.id),
-        [overColumn]: [
-          ...overItems.slice(0, newIndex),
-          activeTask,
-          ...overItems.slice(newIndex),
-        ],
+        [overColumn]: [...overItems.slice(0, newIndex), activeTask, ...overItems.slice(newIndex)],
       };
 
       setLocalTasks(updated);
@@ -280,8 +276,7 @@ export function KanbanView({ tasks = {} }) {
       }
     }
 
-    const columnsToUpdate =
-      sourceColId === overColumn ? [overColumn] : [sourceColId, overColumn];
+    const columnsToUpdate = sourceColId === overColumn ? [overColumn] : [sourceColId, overColumn];
 
     const updates = [];
     columnsToUpdate.forEach((colId) => {
@@ -382,7 +377,12 @@ export function KanbanView({ tasks = {} }) {
         </Stack>
       </Stack>
 
-      <KanbanDragOverlay columns={COLUMNS} tasks={localTasks || {}} activeId={activeId} sx={cssVars} />
+      <KanbanDragOverlay
+        columns={COLUMNS}
+        tasks={localTasks || {}}
+        activeId={activeId}
+        sx={cssVars}
+      />
     </DndContext>
   );
 
@@ -443,7 +443,6 @@ export function KanbanView({ tasks = {} }) {
               </Label>
             </MenuItem>
           ))}
-
         </Select>
       </FormControl>
     </Box>

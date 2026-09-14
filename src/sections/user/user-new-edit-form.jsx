@@ -124,7 +124,10 @@ export function UserNewEditForm({ currentUser }) {
   const filteredPermissions = useMemo(
     () =>
       PERMISSIONS.filter((perm) => {
-        if (vehicleMode === VEHICLE_MODES.OWN_ONLY && (perm.name === 'transporter' || perm.name === 'transporterPayment'))
+        if (
+          vehicleMode === VEHICLE_MODES.OWN_ONLY &&
+          (perm.name === 'transporter' || perm.name === 'transporterPayment')
+        )
           return false;
         if (!pumps && perm.name === 'pump') return false;
         if (!tenant?.integrations?.tyre?.enabled && perm.group === 'Tyre Management') return false;

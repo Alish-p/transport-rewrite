@@ -155,5 +155,3 @@ export function CustomerInvoicesTable({ customer, title, subheader, ...other }) 
     </Card>
   );
 }
-
-export default CustomerInvoicesTable;

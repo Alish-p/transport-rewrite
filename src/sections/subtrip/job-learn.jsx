@@ -51,12 +51,13 @@ export default function JobLearn({ open, onClose }) {
       question: 'What is an E-way Bill and is it mandatory?',
       answer: (
         <>
-          <b>Yes.</b> The E-way Bill (Electronic Way Bill) is a mandatory document required under GST
-          rules for transporting goods. The system tracks the e-way bill number and its expiry date.
+          <b>Yes.</b> The E-way Bill (Electronic Way Bill) is a mandatory document required under
+          GST rules for transporting goods. The system tracks the e-way bill number and its expiry
+          date.
           <br />
           <br />
-          <b>Alerts:</b> If a job is active and the e-way bill is close to expiry, the system displays
-          clear warnings to dispatchers to prevent transit penalties.
+          <b>Alerts:</b> If a job is active and the e-way bill is close to expiry, the system
+          displays clear warnings to dispatchers to prevent transit penalties.
         </>
       ),
     },
@@ -74,8 +75,8 @@ export default function JobLearn({ open, onClose }) {
           <code>Shortage Weight = Loading Weight - Unloading Weight</code>
           <br />
           <br />
-          If shortage weight is positive, you can enter the <b>shortage amount (penalty)</b>.
-          This penalty is deducted from the transporter&apos;s final payout or recorded as a cargo loss.
+          If shortage weight is positive, you can enter the <b>shortage amount (penalty)</b>. This
+          penalty is deducted from the transporter&apos;s final payout or recorded as a cargo loss.
         </>
       ),
     },
@@ -88,12 +89,12 @@ export default function JobLearn({ open, onClose }) {
           The system supports two vehicle ownership types:
           <br />
           <br />
-          1. <b>Own Vehicles</b> — Operated internally. The system tracks actual route expenses (fuel,
-          tolls, maintenance) and driver salaries to calculate actual Job profitability.
+          1. <b>Own Vehicles</b> — Operated internally. The system tracks actual route expenses
+          (fuel, tolls, maintenance) and driver salaries to calculate actual Job profitability.
           <br />
           2. <b>Market Vehicles</b> — Outsourced from third-party transporters. You negotiate a
-          freight rate with the customer, pay the transporter a rate minus your commission, and track
-          outbound transporter advances.
+          freight rate with the customer, pay the transporter a rate minus your commission, and
+          track outbound transporter advances.
         </>
       ),
     },
@@ -193,8 +194,9 @@ export default function JobLearn({ open, onClose }) {
               How are Job Numbers generated?
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-              Job numbers are auto-generated and incremented sequentially (e.g. <code>JOB-0001</code>)
-              by the system upon creation. This acts as a unique transit identifier.
+              Job numbers are auto-generated and incremented sequentially (e.g.{' '}
+              <code>JOB-0001</code>) by the system upon creation. This acts as a unique transit
+              identifier.
             </Typography>
           </Box>
         </Box>
@@ -266,7 +268,15 @@ export default function JobLearn({ open, onClose }) {
       </Box>
 
       {/* Horizontal Pipeline Diagram */}
-      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 4,
+        }}
+      >
         {/* Connector Line */}
         <Box
           sx={{
@@ -335,7 +345,10 @@ export default function JobLearn({ open, onClose }) {
                 <Iconify icon={step.icon} width={24} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}
+              >
                 {step.label}
               </Typography>
 
@@ -362,8 +375,21 @@ export default function JobLearn({ open, onClose }) {
       <Divider sx={{ my: 3 }} />
 
       {/* Error Status Box */}
-      <Box sx={{ display: 'flex', gap: 2, bgcolor: alpha(theme.palette.error.main, 0.06), p: 2, borderRadius: 1.5 }}>
-        <Iconify icon="solar:danger-bold" color={theme.palette.error.main} width={24} sx={{ flexShrink: 0 }} />
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          bgcolor: alpha(theme.palette.error.main, 0.06),
+          p: 2,
+          borderRadius: 1.5,
+        }}
+      >
+        <Iconify
+          icon="solar:danger-bold"
+          color={theme.palette.error.main}
+          width={24}
+          sx={{ flexShrink: 0 }}
+        />
         <Box>
           <Typography variant="subtitle2" sx={{ color: 'error.main', fontWeight: 700 }}>
             Error Status
@@ -406,25 +432,29 @@ export default function JobLearn({ open, onClose }) {
             value: 'per_ton',
             color: 'info',
             label: 'Per Ton',
-            description: 'Billed based on unloading weight in tons (Loading Weight is used if unloading weight is missing).',
+            description:
+              'Billed based on unloading weight in tons (Loading Weight is used if unloading weight is missing).',
           },
           {
             value: 'per_kl',
             color: 'info',
             label: 'Per KL',
-            description: 'Billed based on unloading volume in Kilolitres (typically for liquid/gas commodities).',
+            description:
+              'Billed based on unloading volume in Kilolitres (typically for liquid/gas commodities).',
           },
           {
             value: 'fixed',
             color: 'primary',
             label: 'Fixed Rate',
-            description: 'A pre-negotiated fixed freight amount, regardless of weight, volume, or distance.',
+            description:
+              'A pre-negotiated fixed freight amount, regardless of weight, volume, or distance.',
           },
           {
             value: 'per_km',
             color: 'warning',
             label: 'Per KM',
-            description: 'Billed dynamically based on trip distance: (End KM - Start KM) × rate per KM.',
+            description:
+              'Billed dynamically based on trip distance: (End KM - Start KM) × rate per KM.',
           },
           {
             value: 'per_hour',
@@ -441,7 +471,12 @@ export default function JobLearn({ open, onClose }) {
         ].map((item) => (
           <Box key={item.value} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 120, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'capitalize', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'capitalize', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -506,10 +541,26 @@ export default function JobLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
-    { value: 'freight', label: 'Freight Models', icon: <Iconify icon="solar:calculator-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'statuses',
+      label: 'Statuses',
+      icon: <Iconify icon="solar:info-circle-bold" width={16} />,
+    },
+    {
+      value: 'freight',
+      label: 'Freight Models',
+      icon: <Iconify icon="solar:calculator-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

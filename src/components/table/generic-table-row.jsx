@@ -89,9 +89,7 @@ export function GenericTableRow({
       <TableRow hover selected={selected} {...rowProps}>
         {!!onSelectRow && (
           <TableCell padding="checkbox">
-            {!hideSelection && (
-              <Checkbox checked={selected} onClick={onSelectRow} />
-            )}
+            {!hideSelection && <Checkbox checked={selected} onClick={onSelectRow} />}
           </TableCell>
         )}
 

@@ -51,9 +51,7 @@ const FIELDS_KEYS = [
 ];
 
 const SubtripSettingSchema = zod.object({
-  materialOptions: zod
-    .array(zod.object({ label: zod.string(), value: zod.string() }))
-    .optional(),
+  materialOptions: zod.array(zod.object({ label: zod.string(), value: zod.string() })).optional(),
   freightConfig: zod
     .object({
       allowedModels: zod.array(zod.string()).min(1, 'At least one freight model must be allowed'),
@@ -110,7 +108,13 @@ export default function SubtripSettingForm() {
     defaultValues,
   });
 
-  const { handleSubmit, control, watch, reset, formState: { isSubmitting } } = methods;
+  const {
+    handleSubmit,
+    control,
+    watch,
+    reset,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (currentTenant) {
@@ -121,7 +125,8 @@ export default function SubtripSettingForm() {
   const watchedAllowedModels = watch('freightConfig.allowedModels');
 
   const defaultModelOptions = useMemo(
-    () => FREIGHT_MODEL_OPTIONS.filter((model) => (watchedAllowedModels || []).includes(model.value)),
+    () =>
+      FREIGHT_MODEL_OPTIONS.filter((model) => (watchedAllowedModels || []).includes(model.value)),
     [watchedAllowedModels]
   );
 
@@ -155,7 +160,8 @@ export default function SubtripSettingForm() {
             Subtrip Settings
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Configure default freight models, visible fields, required constraints, and material options for Subtrips (Jobs).
+            Configure default freight models, visible fields, required constraints, and material
+            options for Subtrips (Jobs).
           </Typography>
         </Box>
       </Card>
@@ -224,11 +230,7 @@ export default function SubtripSettingForm() {
 
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
-                <Field.Select
-                  name="lrTemplate"
-                  label="LR Template"
-                  fullWidth
-                >
+                <Field.Select name="lrTemplate" label="LR Template" fullWidth>
                   <MenuItem value="standard">Standard (A5 Landscape)</MenuItem>
                   <MenuItem value="template-1">Template 1 (A4 Portrait)</MenuItem>
                 </Field.Select>

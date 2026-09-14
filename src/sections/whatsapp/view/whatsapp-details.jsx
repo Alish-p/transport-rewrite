@@ -49,19 +49,11 @@ export function WhatsAppDetails({ conversation, messages, open }) {
     [messages]
   );
 
-  const lightboxSlides = useMemo(
-    () => mediaImages.map((img) => ({ src: img.src })),
-    [mediaImages]
-  );
+  const lightboxSlides = useMemo(() => mediaImages.map((img) => ({ src: img.src })), [mediaImages]);
 
   if (!open || !conversation) return null;
 
-  const {
-    displayName,
-    contactPhone,
-    senderEntity,
-    tenant,
-  } = conversation;
+  const { displayName, contactPhone, senderEntity, tenant } = conversation;
 
   const contactName = displayName || senderEntity?.entityName;
   const entityType = senderEntity?.entityType;
@@ -92,10 +84,8 @@ export function WhatsAppDetails({ conversation, messages, open }) {
             sx={{
               width: 72,
               height: 72,
-              bgcolor: (theme) =>
-                theme.palette[color === 'default' ? 'grey' : color].main,
-              color: (theme) =>
-                theme.palette[color === 'default' ? 'grey' : color].contrastText,
+              bgcolor: (theme) => theme.palette[color === 'default' ? 'grey' : color].main,
+              color: (theme) => theme.palette[color === 'default' ? 'grey' : color].contrastText,
               fontSize: 28,
             }}
           >
@@ -123,13 +113,9 @@ export function WhatsAppDetails({ conversation, messages, open }) {
 
         {/* Entity Details */}
         <Stack spacing={1.5} sx={{ pb: 2 }}>
-          {senderEntity?.entityName && (
-            <DetailRow label="Name" value={senderEntity.entityName} />
-          )}
+          {senderEntity?.entityName && <DetailRow label="Name" value={senderEntity.entityName} />}
 
-          {tenant?.companyName && (
-            <DetailRow label="Company" value={tenant.companyName} />
-          )}
+          {tenant?.companyName && <DetailRow label="Company" value={tenant.companyName} />}
 
           {entityLink && (
             <Link

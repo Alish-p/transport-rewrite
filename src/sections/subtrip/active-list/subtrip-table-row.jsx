@@ -32,7 +32,8 @@ export default function SubtripTableRow({
   const isCancelled = status === SUBTRIP_STATUS.CANCELLED;
 
   // Lock edit & delete if any financial document has been generated for this subtrip, or if cancelled
-  const isLocked = isCancelled || !!(row?.invoiceId || row?.driverSalaryId || row?.transporterPaymentReceiptId);
+  const isLocked =
+    isCancelled || !!(row?.invoiceId || row?.driverSalaryId || row?.transporterPaymentReceiptId);
   const lockReason = isCancelled
     ? 'Disabled: This job has been cancelled'
     : 'Disabled: financial documents have been generated for this subtrip';
@@ -116,9 +117,13 @@ export default function SubtripTableRow({
         visibleColumns={visibleColumns}
         disabledColumns={disabledColumns}
         columnOrder={columnOrder}
-        rowProps={isCancelled ? {
-          sx: { textDecoration: 'line-through', opacity: 0.6 },
-        } : {}}
+        rowProps={
+          isCancelled
+            ? {
+                sx: { textDecoration: 'line-through', opacity: 0.6 },
+              }
+            : {}
+        }
       />
 
       {status === SUBTRIP_STATUS.ERROR && (

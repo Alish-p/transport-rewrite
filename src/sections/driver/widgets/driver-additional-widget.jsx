@@ -23,13 +23,5 @@ export function DriverAdditionalWidget({ driver }) {
     [aadharNo, dob, experience, guarantorCellNo, guarantorName, licenseFrom, licenseTo]
   );
 
-  return (
-    <DetailCard
-      title="Additional Details"
-      icon="solar:settings-bold"
-      fields={fields}
-    />
-  );
+  return <DetailCard title="Additional Details" icon="solar:settings-bold" fields={fields} />;
 }
-
-export default DriverAdditionalWidget;

@@ -91,8 +91,6 @@ export default function PurchaseOrderTableToolbar({
     [onFilters, onSelectApprovedBy, approvedByDialog]
   );
 
-
-
   const handleFilterPurchaseOrderNo = useCallback(
     (event) => {
       onFilters('purchaseOrderNo', event.target.value);
@@ -236,8 +234,6 @@ export default function PurchaseOrderTableToolbar({
         onAssigneeChange={handleSelectApprovedBy}
         single
       />
-
-
 
       <PurchaseOrderFiltersDrawer
         open={filtersDrawer.value}

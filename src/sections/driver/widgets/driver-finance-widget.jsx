@@ -7,5 +7,3 @@ export function DriverFinanceWidget({ driver }) {
 
   return <BankDetailsCard title="Finance Details" bankDetails={bankDetails} />;
 }
-
-export default DriverFinanceWidget;

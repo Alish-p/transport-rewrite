@@ -101,7 +101,8 @@ export function HomePricing({ sx, ...other }) {
 
         <Container sx={{ mt: 5, textAlign: 'center' }}>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            * Terms &amp; Conditions: Final price may vary based on the nature of business and volume.
+            * Terms &amp; Conditions: Final price may vary based on the nature of business and
+            volume.
           </Typography>
         </Container>
       </MotionViewport>

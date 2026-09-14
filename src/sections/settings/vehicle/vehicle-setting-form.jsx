@@ -151,7 +151,9 @@ export default function VehicleSettingForm({ currentTenant }) {
                           }),
                         border: (theme) =>
                           `2px solid ${
-                            isSelected ? theme.palette.primary.main : alpha(theme.palette.divider, 0.8)
+                            isSelected
+                              ? theme.palette.primary.main
+                              : alpha(theme.palette.divider, 0.8)
                           }`,
                         bgcolor: (theme) =>
                           isSelected ? alpha(theme.palette.primary.main, 0.04) : 'background.paper',

@@ -62,5 +62,3 @@ export function UserBankWidget({ user }) {
     </DetailCard>
   );
 }
-
-export default UserBankWidget;

@@ -444,10 +444,12 @@ export function SubtripJobCreateForm() {
       ? {
           customerId: selectedCustomer?._id,
           billingParty: form.billingParty || 'consignor',
-          consigneeCustomerId: form.billingParty === 'consignee' ? selectedConsignee?._id : undefined,
-          consignee: form.billingParty === 'consignee'
-            ? selectedConsignee?.customerName
-            : (form.consignee?.value || form.consignee?.label),
+          consigneeCustomerId:
+            form.billingParty === 'consignee' ? selectedConsignee?._id : undefined,
+          consignee:
+            form.billingParty === 'consignee'
+              ? selectedConsignee?.customerName
+              : form.consignee?.value || form.consignee?.label,
           loadingPoint: form.loadingPoint,
           unloadingPoint: Array.isArray(form.unloadingPoint)
             ? form.unloadingPoint

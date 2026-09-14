@@ -80,9 +80,12 @@ export default function TransporterAdvanceListView() {
   const navigate = useNavigate();
   const cancelAdvance = useCancelTransporterAdvance();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const [selectedTransporter, setSelectedTransporter] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -375,16 +378,16 @@ export default function TransporterAdvanceListView() {
                   <IconButton
                     color="primary"
                     onClick={() => {
-                      const selectedRows = tableData.filter((r) =>
-                        table.selected.includes(r._id)
-                      );
+                      const selectedRows = tableData.filter((r) => table.selected.includes(r._id));
                       const supportedRows = selectedRows.filter((r) =>
                         ['Diesel', 'Trip Advance'].some(
                           (type) => type.toLowerCase() === (r.advanceType || '').toLowerCase()
                         )
                       );
                       if (supportedRows.length === 0) {
-                        toast.error('No supported advances (Diesel, Trip Advance) selected for XML export.');
+                        toast.error(
+                          'No supported advances (Diesel, Trip Advance) selected for XML export.'
+                        );
                         return;
                       }
 
@@ -392,7 +395,9 @@ export default function TransporterAdvanceListView() {
                         (r) => !r.vehicleId?.transporter?.transportName
                       );
                       if (missingTransporter) {
-                        toast.error('Some selected advances are missing the Transporter Name. Please configure transporters before exporting.');
+                        toast.error(
+                          'Some selected advances are missing the Transporter Name. Please configure transporters before exporting.'
+                        );
                         return;
                       }
 

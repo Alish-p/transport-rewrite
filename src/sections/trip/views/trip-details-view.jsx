@@ -41,7 +41,9 @@ function getTripDashboardData(trip) {
   const totalExpenses =
     trip?.subtrips?.reduce((sum, subtrip) => {
       const subtripExpenses =
-        subtrip.expenses?.filter(e => e.status !== 'Cancelled').reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
+        subtrip.expenses
+          ?.filter((e) => e.status !== 'Cancelled')
+          .reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
       return sum + subtripExpenses;
     }, 0) || 0;
 
@@ -55,7 +57,7 @@ function getTripDashboardData(trip) {
     trip?.subtrips?.reduce((sum, subtrip) => {
       const dieselExpenses =
         subtrip.expenses
-          ?.filter(e => e.status !== 'Cancelled')
+          ?.filter((e) => e.status !== 'Cancelled')
           .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
           .reduce((subSum, expense) => subSum + (expense.amount || 0), 0) || 0;
       return sum + dieselExpenses;
@@ -65,7 +67,7 @@ function getTripDashboardData(trip) {
     trip?.subtrips?.reduce((sum, subtrip) => {
       const dieselLtrs =
         subtrip.expenses
-          ?.filter(e => e.status !== 'Cancelled')
+          ?.filter((e) => e.status !== 'Cancelled')
           .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
           .reduce((subSum, expense) => subSum + (expense.dieselLtr || 0), 0) || 0;
       return sum + dieselLtrs;

@@ -559,7 +559,12 @@ export default function TransporterPaymentSimpleForm({ currentTransporter = null
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Stack direction="row" alignItems="center" spacing={1} justifyContent="flex-end">
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                        justifyContent="flex-end"
+                      >
                         <Field.Text
                           size="small"
                           name={`additionalCharges[${idx}].amount`}

@@ -88,7 +88,8 @@ export const TABLE_COLUMNS = [
   {
     id: 'status',
     label: 'Status',
-    tooltip: 'Track lifecycle: Pending Approval, Approved, Purchased, Received/Partially Received, Closed, Rejected',
+    tooltip:
+      'Track lifecycle: Pending Approval, Approved, Purchased, Received/Partially Received, Closed, Rejected',
     defaultVisible: true,
     disabled: false,
     getter: (row) => row.status,
@@ -259,21 +260,13 @@ export const TABLE_COLUMNS = [
     disabled: false,
     getter: (row) => {
       const invoices = [
-        ...new Set(
-          (row.receipts || [])
-            .map((r) => r.vendorInvoiceNo)
-            .filter(Boolean)
-        ),
+        ...new Set((row.receipts || []).map((r) => r.vendorInvoiceNo).filter(Boolean)),
       ];
       return invoices.length > 0 ? invoices.join(', ') : '-';
     },
     render: (row) => {
       const invoices = [
-        ...new Set(
-          (row.receipts || [])
-            .map((r) => r.vendorInvoiceNo)
-            .filter(Boolean)
-        ),
+        ...new Set((row.receipts || []).map((r) => r.vendorInvoiceNo).filter(Boolean)),
       ];
       if (invoices.length === 0) {
         return (

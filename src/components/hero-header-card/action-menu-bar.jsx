@@ -159,7 +159,9 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
               </MenuItem>
               {menu.items.map((item, i) => {
                 if (item.divider || item.type === 'divider') {
-                  return <Divider key={item.key || `m-divider-${i}`} sx={{ my: 0.5, ...item.sx }} />;
+                  return (
+                    <Divider key={item.key || `m-divider-${i}`} sx={{ my: 0.5, ...item.sx }} />
+                  );
                 }
 
                 const content = item.render ? null : (
@@ -240,5 +242,3 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
     </>
   );
 }
-
-export default ActionMenuBar;

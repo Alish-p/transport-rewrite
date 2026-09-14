@@ -3,7 +3,11 @@ import { Box, Stack, Divider, Typography } from '@mui/material';
 import { Iconify } from 'src/components/iconify';
 
 import { parseWhatsAppMarkdown } from '../utils/whatsapp-formatter';
-import { getTemplateFooter, getTemplateButtons, reconstructTemplateText } from '../utils/template-registry';
+import {
+  getTemplateFooter,
+  getTemplateButtons,
+  reconstructTemplateText,
+} from '../utils/template-registry';
 
 export function WhatsAppTemplateBubble({ templateName, templateComponents }) {
   const bodyText = reconstructTemplateText(templateName, templateComponents);
@@ -68,9 +72,16 @@ export function WhatsAppTemplateBubble({ templateName, templateComponents }) {
                 {btn.text === 'Copy code' ? (
                   <Iconify icon="solar:copy-bold" width={16} sx={{ color: 'primary.main' }} />
                 ) : (
-                  <Iconify icon="solar:arrow-right-up-linear" width={16} sx={{ color: 'primary.main' }} />
+                  <Iconify
+                    icon="solar:arrow-right-up-linear"
+                    width={16}
+                    sx={{ color: 'primary.main' }}
+                  />
                 )}
-                <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 600, fontSize: 13 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: 'primary.main', fontWeight: 600, fontSize: 13 }}
+                >
                   {btn.text}
                 </Typography>
               </Box>

@@ -158,14 +158,14 @@ export default function WorkOrderLearn({ open, onClose }) {
         <>
           • <b>Open</b> — The work order has been created but work hasn&apos;t started. You can
           freely edit everything.
-          <br />• <b>In Progress</b> — Work is actively in progress. The vehicle is being serviced. You
-          can still make changes at this stage.
+          <br />• <b>In Progress</b> — Work is actively in progress. The vehicle is being serviced.
+          You can still make changes at this stage.
           <br />• <b>Completed</b> — The work order is finalized. Inventory has been adjusted, costs
           are locked in, and the work order is effectively closed.
           <br />
           <br />
-          The status progression is typically: <code>Open → In Progress → Completed</code>, but you can
-          move directly from <code>Open → Completed</code> for quick repairs.
+          The status progression is typically: <code>Open → In Progress → Completed</code>, but you
+          can move directly from <code>Open → Completed</code> for quick repairs.
         </>
       ),
     },
@@ -177,8 +177,8 @@ export default function WorkOrderLearn({ open, onClose }) {
         <>
           <b>Yes</b>, you can delete a work order from the list view. However, please note:
           <br />
-          <br />• If the work order is <b>Open</b> or <b>In Progress</b>, it can be deleted safely since
-          inventory has not been adjusted yet.
+          <br />• If the work order is <b>Open</b> or <b>In Progress</b>, it can be deleted safely
+          since inventory has not been adjusted yet.
           <br />• If the work order has been <b>Completed</b>, deleting it will <b>not reverse</b>{' '}
           the inventory deductions or expenses that were already recorded. Use deletion with caution
           for completed work orders.
@@ -196,8 +196,9 @@ export default function WorkOrderLearn({ open, onClose }) {
       answer: (
         <>
           <b>Yes</b>, you can edit a work order at any time while it is <b>Open</b> or{' '}
-          <b>In Progress</b>. You can change the vehicle, add/remove issues and assignees, modify parts
-          and quantities, update the category, priority, dates, odometer reading, and description.
+          <b>In Progress</b>. You can change the vehicle, add/remove issues and assignees, modify
+          parts and quantities, update the category, priority, dates, odometer reading, and
+          description.
           <br />
           <br />
           Once a work order is <b>Completed</b>, editing is still possible, but be cautious —
@@ -416,7 +417,15 @@ export default function WorkOrderLearn({ open, onClose }) {
       </Box>
 
       {/* Horizontal Pipeline Diagram */}
-      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 4,
+        }}
+      >
         {/* Connector Line */}
         <Box
           sx={{
@@ -478,7 +487,10 @@ export default function WorkOrderLearn({ open, onClose }) {
                 <Iconify icon={step.icon} width={24} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}
+              >
                 {step.label}
               </Typography>
 
@@ -533,24 +545,32 @@ export default function WorkOrderLearn({ open, onClose }) {
             value: 'scheduled',
             color: 'info',
             label: 'Scheduled',
-            description: 'Planned maintenance (preventive servicing, tyre rotation) scheduled in advance.',
+            description:
+              'Planned maintenance (preventive servicing, tyre rotation) scheduled in advance.',
           },
           {
             value: 'non-scheduled',
             color: 'default',
             label: 'Non Scheduled',
-            description: 'Unplanned repairs for minor issues and inspections arising from wear and tear.',
+            description:
+              'Unplanned repairs for minor issues and inspections arising from wear and tear.',
           },
           {
             value: 'emergency',
             color: 'error',
             label: 'Emergency',
-            description: 'Critical, time-sensitive repairs (breakdowns, brake/engine failures) needing immediate attention.',
+            description:
+              'Critical, time-sensitive repairs (breakdowns, brake/engine failures) needing immediate attention.',
           },
         ].map((item) => (
           <Box key={item.value} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 120, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'capitalize', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'capitalize', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -615,10 +635,26 @@ export default function WorkOrderLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
-    { value: 'priorities', label: 'Priorities', icon: <Iconify icon="solar:flag-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'statuses',
+      label: 'Statuses',
+      icon: <Iconify icon="solar:info-circle-bold" width={16} />,
+    },
+    {
+      value: 'priorities',
+      label: 'Priorities',
+      icon: <Iconify icon="solar:flag-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

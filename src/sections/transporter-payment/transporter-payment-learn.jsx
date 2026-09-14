@@ -54,8 +54,8 @@ export default function TransporterPaymentLearn({ open, onClose }) {
       question: 'How are TDS and GST calculated?',
       answer: (
         <>
-          • <b>TDS</b>: Tax Deduction at Source is dynamically calculated based on the Transporter&apos;s{' '}
-          <code>TDS Percentage</code> setting and applied to Total Freight.
+          • <b>TDS</b>: Tax Deduction at Source is dynamically calculated based on the
+          Transporter&apos;s <code>TDS Percentage</code> setting and applied to Total Freight.
           <br />
           <br />• <b>GST</b>: Since transporters operate under a Reverse Charge Mechanism (RCM),{' '}
           <b>GST is NOT added to the Total Net Amount.</b> Instead, GST breakdowns (CGST/SGST vs
@@ -69,7 +69,8 @@ export default function TransporterPaymentLearn({ open, onClose }) {
       question: 'What do I do if I made a mistake on a billed job?',
       answer: (
         <>
-          You cannot edit a job once it is linked to a Transporter Payment. If you need to make changes:
+          You cannot edit a job once it is linked to a Transporter Payment. If you need to make
+          changes:
           <br />
           <br />
           1. Select the specific Payment Receipt from the list and <b>Delete</b> it.
@@ -229,7 +230,15 @@ export default function TransporterPaymentLearn({ open, onClose }) {
       </Box>
 
       {/* Horizontal Pipeline Diagram */}
-      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 4,
+        }}
+      >
         {/* Connector Line */}
         <Box
           sx={{
@@ -284,7 +293,10 @@ export default function TransporterPaymentLearn({ open, onClose }) {
                 <Iconify icon={step.icon} width={24} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}
+              >
                 {step.label}
               </Typography>
 
@@ -339,17 +351,20 @@ export default function TransporterPaymentLearn({ open, onClose }) {
           {
             color: 'primary',
             label: 'Total Freight',
-            description: 'Calculated as Effective Freight Rate × Loading Weight (or Unloading Weight).',
+            description:
+              'Calculated as Effective Freight Rate × Loading Weight (or Unloading Weight).',
           },
           {
             color: 'warning',
             label: 'TDS Deduction',
-            description: 'Tax Deducted at Source applied to Total Freight based on Transporter TDS % settings.',
+            description:
+              'Tax Deducted at Source applied to Total Freight based on Transporter TDS % settings.',
           },
           {
             color: 'secondary',
             label: 'RCM GST',
-            description: 'Reverse Charge Mechanism (RCM): GST is not added to net payable total, but shown for accounting audit.',
+            description:
+              'Reverse Charge Mechanism (RCM): GST is not added to net payable total, but shown for accounting audit.',
           },
           {
             color: 'success',
@@ -359,7 +374,12 @@ export default function TransporterPaymentLearn({ open, onClose }) {
         ].map((item) => (
           <Box key={item.label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 130, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'none', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -424,10 +444,26 @@ export default function TransporterPaymentLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
-    { value: 'calculations', label: 'Calculations & Taxes', icon: <Iconify icon="solar:calculator-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'statuses',
+      label: 'Statuses',
+      icon: <Iconify icon="solar:info-circle-bold" width={16} />,
+    },
+    {
+      value: 'calculations',
+      label: 'Calculations & Taxes',
+      icon: <Iconify icon="solar:calculator-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

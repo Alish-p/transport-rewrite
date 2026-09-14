@@ -36,7 +36,9 @@ function getGuidFromId(id) {
   if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
     return id;
   }
-  const clean = String(id).replace(/[^0-9a-fA-F]/g, '').padEnd(32, '0');
+  const clean = String(id)
+    .replace(/[^0-9a-fA-F]/g, '')
+    .padEnd(32, '0');
   return `${clean.slice(0, 8)}-${clean.slice(8, 12)}-${clean.slice(12, 16)}-${clean.slice(16, 20)}-${clean.slice(20, 32)}`;
 }
 
@@ -53,14 +55,14 @@ export function buildTransporterAdvancesXml(advancesInput, tenant) {
       const type = (advance.advanceType || '').toLowerCase();
       const date = advance.date || new Date();
       const yyyymmdd = escapeXml(formatDateYYYYMMDD(date));
-      
+
       const guid = getGuidFromId(advance._id);
       const voucherNo = escapeXml(String(advance._id).slice(-6).toUpperCase());
       const amount = Number(advance.amount || 0);
-      
+
       const subtripNo = advance.subtripId?.subtripNo || '';
       const reference = escapeXml(subtripNo);
-      
+
       const transporterName = escapeXml(advance.vehicleId?.transporter?.transportName || '');
       const vehicleNo = escapeXml(advance.vehicleId?.vehicleNo || advance.vehicleNo || '');
       const remarks = advance.remarks ? ` ${advance.remarks}` : '';
@@ -265,8 +267,3 @@ export function downloadTransporterAdvancesXml(advancesInput, fileNameInput, ten
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-
-export default {
-  buildTransporterAdvancesXml,
-  downloadTransporterAdvancesXml,
-};

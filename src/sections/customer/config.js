@@ -38,4 +38,3 @@ export const STATES = [
 ];
 
 export * from './customer.constant';
-

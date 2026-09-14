@@ -72,9 +72,9 @@ export default function DriverSalaryLearn({ open, onClose }) {
       question: 'What happens if I delete a salary record?',
       answer: (
         <>
-          Deleting a salary record permanently removes it from the database. The underlying
-          subtrips <b>are NOT deleted</b>, but this payment record vanishes. Prefer setting status
-          to <b>Cancelled</b> to preserve financial audit trails.
+          Deleting a salary record permanently removes it from the database. The underlying subtrips{' '}
+          <b>are NOT deleted</b>, but this payment record vanishes. Prefer setting status to{' '}
+          <b>Cancelled</b> to preserve financial audit trails.
         </>
       ),
     },
@@ -109,8 +109,8 @@ export default function DriverSalaryLearn({ open, onClose }) {
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
               Driver Salary acts as the final ledger for settling driver payments over a specific
-              billing period. It consolidates completed jobs, factors in driver advances or penalties,
-              and calculates the final net payout.
+              billing period. It consolidates completed jobs, factors in driver advances or
+              penalties, and calculates the final net payout.
             </Typography>
           </Box>
         </Box>
@@ -215,7 +215,15 @@ export default function DriverSalaryLearn({ open, onClose }) {
       </Box>
 
       {/* Horizontal Pipeline Diagram */}
-      <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'space-between', mt: 2, mb: 4 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 4,
+        }}
+      >
         {/* Connector Line */}
         <Box
           sx={{
@@ -270,7 +278,10 @@ export default function DriverSalaryLearn({ open, onClose }) {
                 <Iconify icon={step.icon} width={24} />
               </Avatar>
 
-              <Typography variant="subtitle2" sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 1.5, fontWeight: 700, color: `${step.color}.main` }}
+              >
                 {step.label}
               </Typography>
 
@@ -293,8 +304,21 @@ export default function DriverSalaryLearn({ open, onClose }) {
       <Divider sx={{ my: 3 }} />
 
       {/* Cancelled Box */}
-      <Box sx={{ display: 'flex', gap: 2, bgcolor: alpha(theme.palette.grey[500], 0.08), p: 2, borderRadius: 1.5 }}>
-        <Iconify icon="solar:close-circle-bold" color={theme.palette.error.main} width={24} sx={{ flexShrink: 0 }} />
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          bgcolor: alpha(theme.palette.grey[500], 0.08),
+          p: 2,
+          borderRadius: 1.5,
+        }}
+      >
+        <Iconify
+          icon="solar:close-circle-bold"
+          color={theme.palette.error.main}
+          width={24}
+          sx={{ flexShrink: 0 }}
+        />
         <Box>
           <Typography variant="subtitle2" sx={{ color: 'error.main', fontWeight: 700 }}>
             Cancelled Status
@@ -336,17 +360,20 @@ export default function DriverSalaryLearn({ open, onClose }) {
           {
             color: 'info',
             label: 'Trips Total',
-            description: 'Sum of driver salary and trip bata across all completed subtrips in the period.',
+            description:
+              'Sum of driver salary and trip bata across all completed subtrips in the period.',
           },
           {
             color: 'success',
             label: 'Extra Income',
-            description: 'Performance bonuses, overtime allowances, or previous pending dues added.',
+            description:
+              'Performance bonuses, overtime allowances, or previous pending dues added.',
           },
           {
             color: 'error',
             label: 'Deductions',
-            description: 'Cash advances, fuel over-consumption penalties, or shortage cuts subtracted.',
+            description:
+              'Cash advances, fuel over-consumption penalties, or shortage cuts subtracted.',
           },
           {
             color: 'primary',
@@ -356,7 +383,12 @@ export default function DriverSalaryLearn({ open, onClose }) {
         ].map((item) => (
           <Box key={item.label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 120, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'none', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -421,10 +453,26 @@ export default function DriverSalaryLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'statuses', label: 'Statuses', icon: <Iconify icon="solar:info-circle-bold" width={16} /> },
-    { value: 'calculations', label: 'Calculations', icon: <Iconify icon="solar:calculator-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'statuses',
+      label: 'Statuses',
+      icon: <Iconify icon="solar:info-circle-bold" width={16} />,
+    },
+    {
+      value: 'calculations',
+      label: 'Calculations',
+      icon: <Iconify icon="solar:calculator-bold" width={16} />,
+    },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

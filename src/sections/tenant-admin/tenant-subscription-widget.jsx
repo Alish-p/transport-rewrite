@@ -141,5 +141,3 @@ function Row({ label, value }) {
     </Stack>
   );
 }
-
-export default TenantSubscriptionWidget;

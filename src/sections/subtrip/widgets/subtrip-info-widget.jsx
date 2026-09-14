@@ -227,7 +227,9 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
           <InfoRow icon="mdi:calendar-start" label="Start Date" value={fDateTime(startDate)} />
         ) : null}
 
-        {endDate ? <InfoRow icon="mdi:calendar-end" label="End Date" value={fDateTime(endDate)} /> : null}
+        {endDate ? (
+          <InfoRow icon="mdi:calendar-end" label="End Date" value={fDateTime(endDate)} />
+        ) : null}
       </Stack>
 
       <Divider sx={{ borderStyle: 'dashed' }} />
@@ -247,7 +249,9 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
         <InfoRow icon="mdi:cube" label="Material" value={materialType} />
         {grade ? <InfoRow icon="mdi:star" label="Grade" value={grade} /> : null}
         {quantity ? <InfoRow icon="mdi:scale" label="Quantity" value={quantity} /> : null}
-        {rate ? <InfoRow icon="mdi:currency-inr" label="Freight Rate" value={fCurrency(rate)} /> : null}
+        {rate ? (
+          <InfoRow icon="mdi:currency-inr" label="Freight Rate" value={fCurrency(rate)} />
+        ) : null}
         {commissionRate ? (
           <InfoRow
             icon="mdi:cash-check"
@@ -258,7 +262,9 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
       </Stack>
 
       {/* 4. Documents & References Section */}
-      {Boolean(invoiceNo || orderNo || shipmentNo || diNumber || ewayBill || referenceSubtripNo) && (
+      {Boolean(
+        invoiceNo || orderNo || shipmentNo || diNumber || ewayBill || referenceSubtripNo
+      ) && (
         <>
           <Divider sx={{ borderStyle: 'dashed' }} />
           <SectionHeader icon="solar:file-check-bold" title="Documents & References" />
@@ -276,11 +282,7 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
             {diNumber ? <InfoRow icon="mdi:ticket" label="DI No" value={diNumber} /> : null}
             {ewayBill ? <InfoRow icon="mdi:barcode" label="E-Way Bill" value={ewayBill} /> : null}
             {ewayExpiryDate ? (
-              <InfoRow
-                icon="mdi:calendar"
-                label="E-Way Expiry"
-                value={fDateTime(ewayExpiryDate)}
-              />
+              <InfoRow icon="mdi:calendar" label="E-Way Expiry" value={fDateTime(ewayExpiryDate)} />
             ) : null}
           </Stack>
         </>
@@ -299,20 +301,14 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
               <InfoRow icon="mdi:weight-kilogram" label="Unloading Wt" value={unloadingWeight} />
             ) : null}
             {shortageWeight ? (
-              <InfoRow
-                icon="mdi:scale-unbalanced"
-                label="Shortage Wt"
-                value={shortageWeight}
-              />
+              <InfoRow icon="mdi:scale-unbalanced" label="Shortage Wt" value={shortageWeight} />
             ) : null}
             {shortageAmount ? (
               <InfoRow
                 icon="mdi:currency-inr"
                 label="Shortage Amt"
                 value={
-                  typeof shortageAmount === 'number'
-                    ? fCurrency(shortageAmount)
-                    : shortageAmount
+                  typeof shortageAmount === 'number' ? fCurrency(shortageAmount) : shortageAmount
                 }
               />
             ) : null}
@@ -358,7 +354,9 @@ function InfoRow({ icon, label, value }) {
       sx={{ typography: 'body2', minHeight: 24 }}
     >
       <Stack direction="row" alignItems="center" spacing={0.75} sx={{ minWidth: 0, flexShrink: 0 }}>
-        {icon ? <Iconify icon={icon} width={16} sx={{ color: 'text.disabled', flexShrink: 0 }} /> : null}
+        {icon ? (
+          <Iconify icon={icon} width={16} sx={{ color: 'text.disabled', flexShrink: 0 }} />
+        ) : null}
         <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
           {label}
         </Typography>
@@ -383,4 +381,3 @@ function InfoRow({ icon, label, value }) {
     </Stack>
   );
 }
-

@@ -31,7 +31,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { useSubtripExpenseTypes, useVehicleExpenseTypes } from 'src/sections/expense/expense-config';
+import {
+  useSubtripExpenseTypes,
+  useVehicleExpenseTypes,
+} from 'src/sections/expense/expense-config';
 
 const STATUS_COLORS = {
   Pending: 'warning',
@@ -169,5 +172,3 @@ export function TransporterAdvancesWidget({ transporterId, title = 'Advances', .
     </Card>
   );
 }
-
-export default TransporterAdvancesWidget;

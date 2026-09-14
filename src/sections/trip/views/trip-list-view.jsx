@@ -85,9 +85,12 @@ export function TripListView() {
   const [selectAllMode, setSelectAllMode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const {
     visibleColumns,

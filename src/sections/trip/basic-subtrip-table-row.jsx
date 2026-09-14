@@ -49,10 +49,7 @@ export default function SubtripListRow({ row, index }) {
                 return fDate(row[column.id]);
               case 'subtripStatus':
                 return (
-                  <Label
-                    variant="soft"
-                    color={SUBTRIP_STATUS_COLORS[row[column.id]] || 'default'}
-                  >
+                  <Label variant="soft" color={SUBTRIP_STATUS_COLORS[row[column.id]] || 'default'}>
                     {row[column.id]}
                   </Label>
                 );

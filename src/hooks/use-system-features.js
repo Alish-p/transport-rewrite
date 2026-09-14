@@ -10,5 +10,3 @@ export function useSystemFeatures() {
     pumps: tenant?.config?.pump?.enabled !== false,
   };
 }
-
-export default useSystemFeatures;

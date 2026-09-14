@@ -101,7 +101,6 @@ export function AppInvoiceAmountSummary({ customerId, ...other }) {
                 </IconButton>
               </span>
             </Tooltip>
-
           </Stack>
         }
       />

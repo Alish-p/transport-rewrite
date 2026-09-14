@@ -1,6 +1,14 @@
 import { Box } from '@mui/material';
 
-export function WhatsAppLayout({ nav, header, messages, input, details, navCollapsed, detailsOpen }) {
+export function WhatsAppLayout({
+  nav,
+  header,
+  messages,
+  input,
+  details,
+  navCollapsed,
+  detailsOpen,
+}) {
   return (
     <Box sx={{ display: 'flex', height: '100%', width: '100%', overflow: 'hidden' }}>
       {/* Nav */}
@@ -22,7 +30,15 @@ export function WhatsAppLayout({ nav, header, messages, input, details, navColla
       </Box>
 
       {/* Main Chat Area */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, bgcolor: 'background.paper' }}>
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          bgcolor: 'background.paper',
+        }}
+      >
         <Box sx={{ flexShrink: 0 }}>{header}</Box>
         <Box sx={{ flex: 1, overflow: 'hidden', position: 'relative' }}>{messages}</Box>
         <Box sx={{ flexShrink: 0 }}>{input}</Box>

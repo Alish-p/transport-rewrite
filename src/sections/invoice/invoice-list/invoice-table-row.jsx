@@ -73,12 +73,12 @@ export default function InvoiceTableRow({
         rowProps={
           isCancelled
             ? {
-              sx: {
-                opacity: 0.7,
-                textDecoration: 'line-through',
-                '& .MuiTableCell-root': { textDecoration: 'line-through' },
-              },
-            }
+                sx: {
+                  opacity: 0.7,
+                  textDecoration: 'line-through',
+                  '& .MuiTableCell-root': { textDecoration: 'line-through' },
+                },
+              }
             : {}
         }
       />

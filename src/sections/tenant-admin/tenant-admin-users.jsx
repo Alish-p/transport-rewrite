@@ -94,5 +94,3 @@ export function TenantUserFormDialog({ open, onClose, onSubmit }) {
     </Dialog>
   );
 }
-
-export default TenantUserFormDialog;

@@ -43,7 +43,11 @@ import { KanbanPumpDialog } from '../kanban/components/kanban-pump-dialog';
 import { KanbanDriverDialog } from '../kanban/components/kanban-driver-dialog';
 import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialog';
 // Route dialog removed
-import { SUBTRIP_STATUS, FREIGHT_MODEL_OPTIONS, DRIVER_ADVANCE_GIVEN_BY_OPTIONS } from './constants';
+import {
+  SUBTRIP_STATUS,
+  FREIGHT_MODEL_OPTIONS,
+  DRIVER_ADVANCE_GIVEN_BY_OPTIONS,
+} from './constants';
 
 // Base schema for common fields
 const baseSchema = z.object({
@@ -61,7 +65,9 @@ const numericInputSchema = z.preprocess((val) => {
 }, z.number().optional());
 
 const freightDetailsSchema = z.object({
-  freightModel: z.enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid', 'to_be_billed']).optional(),
+  freightModel: z
+    .enum(['per_ton', 'per_kl', 'fixed', 'per_km', 'per_hour', 'hybrid', 'to_be_billed'])
+    .optional(),
   freightAmount: numericInputSchema,
   baseKm: numericInputSchema,
   rate: numericInputSchema,
@@ -335,8 +341,9 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const blockingDocuments = useMemo(() => {
     const docs = [];
     if (currentSubtrip?.transporterPaymentReceiptId) {
-      const id = currentSubtrip.transporterPaymentReceiptId.paymentId
-        ?? currentSubtrip.transporterPaymentReceiptId;
+      const id =
+        currentSubtrip.transporterPaymentReceiptId.paymentId ??
+        currentSubtrip.transporterPaymentReceiptId;
       docs.push(`Transporter Payment [${id}]`);
     }
     if (currentSubtrip?.invoiceId) {
@@ -643,7 +650,13 @@ export default function SubtripEditForm({ currentSubtrip }) {
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            {freightModel === 'per_kl' ? 'KL' : freightModel === 'per_ton' ? 'Ton' : vehicleType ? loadingWeightUnit[vehicleType] : 'Units'}
+                            {freightModel === 'per_kl'
+                              ? 'KL'
+                              : freightModel === 'per_ton'
+                                ? 'Ton'
+                                : vehicleType
+                                  ? loadingWeightUnit[vehicleType]
+                                  : 'Units'}
                           </InputAdornment>
                         ),
                       }}
@@ -1065,10 +1078,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
           <Grid item xs={12} md={8} sx={{ my: 2 }}>
             {isFinanciallyLocked && (
-              <Alert
-                severity="warning"
-                sx={{ mb: 2 }}
-              >
+              <Alert severity="warning" sx={{ mb: 2 }}>
                 <strong>Editing is not allowed.</strong> The following financial documents have
                 already been generated:
                 <Box component="ul" sx={{ m: 0, pl: 2.5 }}>

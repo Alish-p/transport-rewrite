@@ -288,7 +288,7 @@ export function SubtripJobCreateVehicleStep({
                       borderBottom: '1px solid',
                       borderColor: 'divider',
                       bgcolor: 'background.neutral',
-                      borderRadius: 1.5
+                      borderRadius: 1.5,
                     }}
                   >
                     <Stack direction="row" alignItems="center" spacing={1}>

@@ -932,7 +932,11 @@ export default function LiveTrackingView() {
             }}
           />
 
-          <FormControl fullWidth size="small" sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}
+          >
             <InputLabel id="live-tracking-fuel-level-label">Fuel Level</InputLabel>
             <Select
               labelId="live-tracking-fuel-level-label"
@@ -966,7 +970,11 @@ export default function LiveTrackingView() {
             </Select>
           </FormControl>
 
-          <FormControl fullWidth size="small" sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}>
+          <FormControl
+            fullWidth
+            size="small"
+            sx={{ width: { xs: '100%', sm: 180 }, flexShrink: 0 }}
+          >
             <InputLabel id="live-tracking-last-seen-label">Last Seen</InputLabel>
             <Select
               labelId="live-tracking-last-seen-label"

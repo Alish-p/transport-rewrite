@@ -29,7 +29,11 @@ export function reconstructTemplateText(templateName, templateComponents) {
   if (!template) {
     // Graceful fallback: extract and display parameters if present
     const bodyComponent = templateComponents?.find?.((c) => c.type === 'body');
-    if (bodyComponent && Array.isArray(bodyComponent.parameters) && bodyComponent.parameters.length > 0) {
+    if (
+      bodyComponent &&
+      Array.isArray(bodyComponent.parameters) &&
+      bodyComponent.parameters.length > 0
+    ) {
       const paramTexts = bodyComponent.parameters
         .map((p) => {
           if (p.type === 'text') return p.text;
@@ -54,7 +58,8 @@ export function reconstructTemplateText(templateName, templateComponents) {
     bodyComponent.parameters.forEach((param, index) => {
       let val = '';
       if (param.type === 'text') val = param.text;
-      if (param.type === 'currency') val = param.currency?.fallback_value || param.currency?.amount || '';
+      if (param.type === 'currency')
+        val = param.currency?.fallback_value || param.currency?.amount || '';
       if (param.type === 'date_time') val = param.date_time?.fallback_value || '';
 
       const strVal = String(val ?? '');

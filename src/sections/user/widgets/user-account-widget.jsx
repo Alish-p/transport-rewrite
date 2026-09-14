@@ -81,13 +81,6 @@ export function UserAccountWidget({ user }) {
   );
 
   return (
-    <DetailCard
-      title="Account & Activity"
-      icon="solar:history-bold"
-      showCopy
-      fields={fields}
-    />
+    <DetailCard title="Account & Activity" icon="solar:history-bold" showCopy fields={fields} />
   );
 }
-
-export default UserAccountWidget;

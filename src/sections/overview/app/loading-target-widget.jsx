@@ -108,7 +108,9 @@ function TargetCardItem({ target, onEdit, onDelete }) {
             },
             boxShadow: (theme) => {
               const isDark = theme.palette.mode === 'dark';
-              const shadowColor = isCompleted ? theme.palette.success.main : theme.palette.primary.main;
+              const shadowColor = isCompleted
+                ? theme.palette.success.main
+                : theme.palette.primary.main;
               return `0 4px 16px ${alpha(shadowColor, isDark ? 0.24 : 0.1)}`;
             },
             transform: 'translateY(-2px)',
@@ -263,7 +265,8 @@ function TargetCardItem({ target, onEdit, onDelete }) {
                       : theme.palette.primary.main,
                 }}
               />
-              {(target.materialTarget.targetWeight - target.achievedWeight).toLocaleString()} Ton remaining
+              {(target.materialTarget.targetWeight - target.achievedWeight).toLocaleString()} Ton
+              remaining
             </Typography>
           ) : (
             <Typography
@@ -281,7 +284,8 @@ function TargetCardItem({ target, onEdit, onDelete }) {
             >
               <Iconify icon="solar:check-circle-bold" width={15} />
               Target achieved! +
-              {(target.achievedWeight - target.materialTarget.targetWeight).toLocaleString()} Ton extra
+              {(target.achievedWeight - target.materialTarget.targetWeight).toLocaleString()} Ton
+              extra
             </Typography>
           )}
         </Stack>
@@ -323,7 +327,6 @@ function TargetCardItem({ target, onEdit, onDelete }) {
 // ----------------------------------------------------------------------
 
 export function LoadingTargetWidget({ sx, ...other }) {
-
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const dialog = useBoolean();
@@ -703,10 +706,7 @@ export function LoadingTargetWidget({ sx, ...other }) {
                 p: 1.5,
                 borderRadius: 1,
                 bgcolor: (theme) =>
-                  alpha(
-                    theme.palette.primary.main,
-                    theme.palette.mode === 'dark' ? 0.12 : 0.06
-                  ),
+                  alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.12 : 0.06),
                 border: (theme) =>
                   `1px dashed ${alpha(
                     theme.palette.primary.main,

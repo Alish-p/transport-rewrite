@@ -111,5 +111,3 @@ export function PaymentFormDialog({ open, onClose, initial, onSubmit }) {
     </Dialog>
   );
 }
-
-export default PaymentFormDialog;

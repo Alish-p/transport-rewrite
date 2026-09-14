@@ -174,8 +174,6 @@ export default function PurchaseOrderFiltersDrawer({
             placeholder="Approved By"
             iconName={APP_ICONS.user}
           />
-
-
         </Stack>
       </Scrollbar>
     </Drawer>

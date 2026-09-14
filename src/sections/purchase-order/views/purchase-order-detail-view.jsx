@@ -125,19 +125,15 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
   const [closeReason, setCloseReason] = useState('');
 
   const debouncedInvoiceNo = useDebounce(vendorInvoiceNo, 400);
-  const { data: invoiceCheckData } = useCheckInvoiceReferences(
-    debouncedInvoiceNo,
-    _id,
-    { enabled: Boolean(debouncedInvoiceNo && debouncedInvoiceNo.trim().length > 0) }
-  );
+  const { data: invoiceCheckData } = useCheckInvoiceReferences(debouncedInvoiceNo, _id, {
+    enabled: Boolean(debouncedInvoiceNo && debouncedInvoiceNo.trim().length > 0),
+  });
 
   const handleCloseRejectDialog = useCallback(() => {
     if (isRejecting.value) return;
     rejectDialog.onFalse();
     setRejectReason('');
   }, [rejectDialog, isRejecting.value]);
-
-
 
   const allFullyReceived =
     Array.isArray(lines) &&
@@ -160,10 +156,7 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     );
   }
 
-  if (
-    (status === 'approved' || status === 'partial-received') &&
-    !allFullyReceived
-  ) {
+  if ((status === 'approved' || status === 'partial-received') && !allFullyReceived) {
     actions.push({
       label: 'Receive Items',
       icon: 'material-symbols:inventory-2-outline',
@@ -328,8 +321,6 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     }
   }, [rejectPo, _id, rejectReason, handleCloseRejectDialog, isRejecting]);
 
-
-
   const handleReceiveAll = useCallback(async () => {
     if (isReceiving.value) return;
     try {
@@ -349,9 +340,12 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
             ? { tyreDetails: line.tyreDetails.slice(0, line.receiveQty) }
             : {}),
         })),
-        vendorInvoiceNo: vendorInvoiceNo && vendorInvoiceNo.trim() ? vendorInvoiceNo.trim() : undefined,
+        vendorInvoiceNo:
+          vendorInvoiceNo && vendorInvoiceNo.trim() ? vendorInvoiceNo.trim() : undefined,
         vendorInvoiceDate: vendorInvoiceDate
-          ? (dayjs.isDayjs(vendorInvoiceDate) ? vendorInvoiceDate.toDate() : new Date(vendorInvoiceDate))
+          ? dayjs.isDayjs(vendorInvoiceDate)
+            ? vendorInvoiceDate.toDate()
+            : new Date(vendorInvoiceDate)
           : undefined,
         notes: receiveNotes || undefined,
       };
@@ -363,7 +357,16 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
     } finally {
       isReceiving.onFalse();
     }
-  }, [receivePo, _id, receiveLines, receiveNotes, vendorInvoiceNo, vendorInvoiceDate, receiveDialog, isReceiving]);
+  }, [
+    receivePo,
+    _id,
+    receiveLines,
+    receiveNotes,
+    vendorInvoiceNo,
+    vendorInvoiceDate,
+    receiveDialog,
+    isReceiving,
+  ]);
 
   const handleClosePo = useCallback(async () => {
     if (isClosing.value) return;
@@ -782,8 +785,6 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
         }
       />
 
-
-
       <ConfirmDialog
         open={receiveDialog.value}
         onClose={receiveDialog.onFalse}
@@ -1056,7 +1057,8 @@ export function PurchaseOrderDetailView({ purchaseOrder }) {
                   <Stack spacing={0.5}>
                     {invoiceCheckData.references.map((ref, idx) => (
                       <Typography key={idx} variant="caption" sx={{ display: 'block' }}>
-                        • <strong>{ref.purchaseOrderNo}</strong> (Vendor: {ref.vendorName} — GRN #{ref.grnNumber}
+                        • <strong>{ref.purchaseOrderNo}</strong> (Vendor: {ref.vendorName} — GRN #
+                        {ref.grnNumber}
                         {ref.receivedAt ? `, received on ${fDate(ref.receivedAt)}` : ''})
                       </Typography>
                     ))}

@@ -100,5 +100,3 @@ export function TripExpensesWidget({ tripId, title = 'Expenses', ...other }) {
     </Card>
   );
 }
-
-export default TripExpensesWidget;

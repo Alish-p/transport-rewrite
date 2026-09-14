@@ -336,13 +336,6 @@ export function downloadInvoicesXml(invoicesInput, fileNameInput, tenant) {
   URL.revokeObjectURL(url);
 }
 
-export default {
-  buildInvoiceXml,
-  buildInvoicesXml,
-  downloadInvoiceXml,
-  downloadInvoicesXml,
-};
-
 // ----------------------------------
 // Tally POST helpers
 // ----------------------------------
@@ -383,7 +376,3 @@ export async function postInvoicesToTally(invoicesInput, tenant, opts = {}) {
     };
   }
 }
-
-export const tally = {
-  postInvoicesToTally,
-};

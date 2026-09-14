@@ -117,5 +117,11 @@ export function useFieldHelpers(entity) {
     [fields, isRequired]
   );
 
-  return { isVisible, isRequired, getLabel, fields, freightConfig: { allowedModels: allowedFreightModels, defaultModel: defaultFreightModel } };
+  return {
+    isVisible,
+    isRequired,
+    getLabel,
+    fields,
+    freightConfig: { allowedModels: allowedFreightModels, defaultModel: defaultFreightModel },
+  };
 }

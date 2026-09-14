@@ -12,7 +12,11 @@ import TableContainer from '@mui/material/TableContainer';
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { useDeleteTenant, usePaginatedTenants, useRecordTenantPayment } from 'src/query/use-tenant-admin';
+import {
+  useDeleteTenant,
+  usePaginatedTenants,
+  useRecordTenantPayment,
+} from 'src/query/use-tenant-admin';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';

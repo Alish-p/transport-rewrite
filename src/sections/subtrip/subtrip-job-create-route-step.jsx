@@ -92,7 +92,16 @@ export function SubtripJobCreateRouteStep({
 
 export function getRouteStepError(
   form,
-  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields, billingParty, selectedConsignee }
+  {
+    selectedVehicle,
+    fetchingActiveTrip,
+    activeTrip,
+    selectedDriver,
+    selectedCustomer,
+    fields,
+    billingParty,
+    selectedConsignee,
+  }
 ) {
   const jobStageError = getJobStepError(form, {
     selectedVehicle,

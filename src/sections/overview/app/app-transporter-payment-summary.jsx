@@ -91,7 +91,6 @@ export function AppTransporterPaymentSummary({ ...other }) {
                 </IconButton>
               </span>
             </Tooltip>
-
           </Stack>
         }
       />

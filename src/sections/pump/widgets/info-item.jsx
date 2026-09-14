@@ -41,6 +41,3 @@ export function InfoItem({ icon, label, value }) {
     </Stack>
   );
 }
-
-export default InfoItem;
-

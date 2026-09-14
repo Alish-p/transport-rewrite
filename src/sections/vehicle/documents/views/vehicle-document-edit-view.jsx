@@ -29,7 +29,10 @@ export function VehicleDocumentEditView({ doc }) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Documents List', href: paths.dashboard.vehicle.documents },
-          { name: doc?.docType || 'Document Details', href: paths.dashboard.vehicle.documentDetails(doc?._id) },
+          {
+            name: doc?.docType || 'Document Details',
+            href: paths.dashboard.vehicle.documentDetails(doc?._id),
+          },
           { name: 'Edit' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

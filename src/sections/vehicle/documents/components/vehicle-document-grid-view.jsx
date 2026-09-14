@@ -98,5 +98,3 @@ export function VehicleDocumentGridView() {
     </DashboardContent>
   );
 }
-
-export default VehicleDocumentGridView;

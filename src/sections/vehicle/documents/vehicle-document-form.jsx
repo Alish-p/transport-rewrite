@@ -101,7 +101,14 @@ export default function VehicleDocumentForm({
   }, [initialVehicle]);
 
   const effectiveVehicleId = useMemo(() => {
-    const raw = doc?.vehicleId || doc?.vehicle?._id || doc?.vehicle?.id || doc?.vehicle || selectedVehicle?._id || selectedVehicle?.id || null;
+    const raw =
+      doc?.vehicleId ||
+      doc?.vehicle?._id ||
+      doc?.vehicle?.id ||
+      doc?.vehicle ||
+      selectedVehicle?._id ||
+      selectedVehicle?.id ||
+      null;
     if (!raw) return null;
     if (typeof raw === 'string') return raw;
     return raw?._id || raw?.id || null;
@@ -197,10 +204,9 @@ export default function VehicleDocumentForm({
         return;
       }
       try {
-        const { data } = await axios.get(
-          `/api/documents/${effectiveVehicleId}/${docId}/download`,
-          { signal: controller.signal }
-        );
+        const { data } = await axios.get(`/api/documents/${effectiveVehicleId}/${docId}/download`, {
+          signal: controller.signal,
+        });
         if (active && data?.url) {
           methods.setValue('file', data.url, { shouldValidate: false });
         }
@@ -354,14 +360,8 @@ export default function VehicleDocumentForm({
           />
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <Field.DatePicker
-              name="issueDate"
-              label="Issue Date"
-            />
-            <Field.DatePicker
-              name="expiryDate"
-              label="Expiry Date"
-            />
+            <Field.DatePicker name="issueDate" label="Issue Date" />
+            <Field.DatePicker name="expiryDate" label="Expiry Date" />
           </Stack>
 
           <Field.Upload

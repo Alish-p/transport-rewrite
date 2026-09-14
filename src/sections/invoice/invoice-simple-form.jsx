@@ -153,7 +153,12 @@ export default function SimplerNewInvoiceForm() {
     isSuccess,
     isLoading,
     refetch,
-  } = useClosedTripsByCustomerAndDate(customerId, billingPeriod?.start, billingPeriod?.end, billingParty);
+  } = useClosedTripsByCustomerAndDate(
+    customerId,
+    billingPeriod?.start,
+    billingPeriod?.end,
+    billingParty
+  );
 
   const createInvoice = useCreateInvoice();
   const navigate = useNavigate();
@@ -392,7 +397,12 @@ export default function SimplerNewInvoiceForm() {
           }}
         />
 
-        <Dialog open={issueDateDialog.value} onClose={issueDateDialog.onFalse} maxWidth="xs" fullWidth>
+        <Dialog
+          open={issueDateDialog.value}
+          onClose={issueDateDialog.onFalse}
+          maxWidth="xs"
+          fullWidth
+        >
           <DialogTitle sx={{ pb: 2 }}>Select Issue Date</DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ pt: 1 }}>

@@ -41,13 +41,5 @@ export function CustomerAdditionalWidget({ customer }) {
     ]
   );
 
-  return (
-    <DetailCard
-      title="Additional Details"
-      icon="solar:settings-bold"
-      fields={fields}
-    />
-  );
+  return <DetailCard title="Additional Details" icon="solar:settings-bold" fields={fields} />;
 }
-
-export default CustomerAdditionalWidget;

@@ -103,5 +103,3 @@ export function HeroHeaderCard({
     </Card>
   );
 }
-
-export default HeroHeaderCard;

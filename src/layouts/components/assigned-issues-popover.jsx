@@ -132,12 +132,7 @@ export function AssignedIssuesPopover({ sx, ...other }) {
         {/* Priority Icon from Issue Views */}
         <Tooltip title={`Priority: ${priority.label}`}>
           <Box sx={{ mt: 0.25, flexShrink: 0, display: 'flex' }}>
-            <Iconify
-              icon={priority.icon}
-              width={18}
-              height={18}
-              sx={{ color: priority.color }}
-            />
+            <Iconify icon={priority.icon} width={18} height={18} sx={{ color: priority.color }} />
           </Box>
         </Tooltip>
 
@@ -162,7 +157,13 @@ export function AssignedIssuesPopover({ sx, ...other }) {
               <Label
                 variant="soft"
                 color={isProgress ? 'info' : 'warning'}
-                sx={{ textTransform: 'capitalize', height: 20, px: 0.75, fontSize: 11, flexShrink: 0 }}
+                sx={{
+                  textTransform: 'capitalize',
+                  height: 20,
+                  px: 0.75,
+                  fontSize: 11,
+                  flexShrink: 0,
+                }}
               >
                 {isProgress ? 'In Progress' : 'To Do'}
               </Label>
@@ -187,12 +188,19 @@ export function AssignedIssuesPopover({ sx, ...other }) {
                   }}
                 >
                   <Iconify icon="solar:calendar-date-bold" width={13} />
-                  <span>{isOverdue ? `Overdue • ${fDate(firstDueDate)}` : fDate(firstDueDate)}</span>
+                  <span>
+                    {isOverdue ? `Overdue • ${fDate(firstDueDate)}` : fDate(firstDueDate)}
+                  </span>
                 </Stack>
               )}
 
               {totalSubtasks > 0 && (
-                <Stack direction="row" alignItems="center" spacing={0.25} sx={{ color: 'text.disabled' }}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.25}
+                  sx={{ color: 'text.disabled' }}
+                >
                   <Iconify icon="solar:checklist-minimalistic-bold" width={13} />
                   <span>
                     {completedSubtasks}/{totalSubtasks}
@@ -201,14 +209,24 @@ export function AssignedIssuesPopover({ sx, ...other }) {
               )}
 
               {task.vehicle?.vehicleNo && (
-                <Stack direction="row" alignItems="center" spacing={0.25} sx={{ color: 'text.disabled' }}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.25}
+                  sx={{ color: 'text.disabled' }}
+                >
                   <Iconify icon="solar:bus-bold-duotone" width={13} />
                   <span>{task.vehicle.vehicleNo}</span>
                 </Stack>
               )}
 
               {task.driver?.driverName && (
-                <Stack direction="row" alignItems="center" spacing={0.25} sx={{ color: 'text.disabled' }}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.25}
+                  sx={{ color: 'text.disabled' }}
+                >
                   <Iconify icon="solar:user-rounded-bold-duotone" width={13} />
                   <span>{task.driver.driverName}</span>
                 </Stack>

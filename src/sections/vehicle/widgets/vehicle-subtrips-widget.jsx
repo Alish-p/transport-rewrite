@@ -145,9 +145,9 @@ export function VehicleSubtripsWidget({ vehicleId, title = 'Jobs', ...other }) {
         rowsPerPage={table.rowsPerPage}
         onPageChange={table.onChangePage}
         onRowsPerPageChange={table.onChangeRowsPerPage}
+        dense={table.dense}
+        onChangeDense={table.onChangeDense}
       />
     </Card>
   );
 }
-
-export default VehicleSubtripsWidget;

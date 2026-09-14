@@ -25,5 +25,3 @@ export function HeroHeader({ offsetTop = 70, wrapperSx, ...cardProps }) {
     </Box>
   );
 }
-
-export default HeroHeader;

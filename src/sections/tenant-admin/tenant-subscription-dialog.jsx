@@ -85,5 +85,3 @@ export function TenantSubscriptionDialog({ open, onClose, initial, onSubmit }) {
     </Dialog>
   );
 }
-
-export default TenantSubscriptionDialog;

@@ -28,12 +28,6 @@ export function TransporterFinanceWidget({ transporter }) {
   );
 
   return (
-    <BankDetailsCard
-      title="Finance Details"
-      bankDetails={bankDetails}
-      extraFields={extraFields}
-    />
+    <BankDetailsCard title="Finance Details" bankDetails={bankDetails} extraFields={extraFields} />
   );
 }
-
-export default TransporterFinanceWidget;

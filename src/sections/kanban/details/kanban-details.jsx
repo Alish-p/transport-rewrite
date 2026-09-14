@@ -178,14 +178,11 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
     }
   }, [saveTask, task.name, taskName]);
 
-  const handleKeyUpTaskName = useCallback(
-    (event) => {
-      if (event.key === 'Enter') {
-        event.target.blur();
-      }
-    },
-    []
-  );
+  const handleKeyUpTaskName = useCallback((event) => {
+    if (event.key === 'Enter') {
+      event.target.blur();
+    }
+  }, []);
 
   const handleChangeTaskDescription = useCallback((event) => {
     setTaskDescription(event.target.value);
@@ -442,7 +439,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
       <Box sx={{ display: 'flex' }}>
         <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Departments</StyledLabel>
 
-         <Select
+        <Select
           multiple
           size="small"
           value={selectedDepartments}
@@ -540,11 +537,7 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
               {fDate(dueDate)}
             </Button>
             <Tooltip title="Clear due date">
-              <IconButton
-                size="small"
-                onClick={handleClearDueDate}
-                sx={{ color: 'text.disabled' }}
-              >
+              <IconButton size="small" onClick={handleClearDueDate} sx={{ color: 'text.disabled' }}>
                 <Iconify icon="mingcute:close-line" width={16} />
               </IconButton>
             </Tooltip>
@@ -578,19 +571,10 @@ export function KanbanDetails({ task, openDetails, onUpdateTask, onDeleteTask, o
               }}
             />
             <Box sx={{ display: 'flex', justifyContent: 'space-between', px: 2, pb: 1 }}>
-              <Button
-                size="small"
-                color="error"
-                onClick={handleClearDueDate}
-                disabled={!dueDate}
-              >
+              <Button size="small" color="error" onClick={handleClearDueDate} disabled={!dueDate}>
                 Clear
               </Button>
-              <Button
-                size="small"
-                variant="contained"
-                onClick={datePopover.onClose}
-              >
+              <Button size="small" variant="contained" onClick={datePopover.onClose}>
                 Done
               </Button>
             </Box>

@@ -433,5 +433,3 @@ export function VehicleChallanWidget({ vehicleNo, isOwn, sx, ...other }) {
     </>
   );
 }
-
-export default VehicleChallanWidget;

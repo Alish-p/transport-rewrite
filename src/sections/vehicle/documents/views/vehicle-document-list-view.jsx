@@ -76,9 +76,12 @@ export function VehicleDocumentListView() {
   });
   const [view, setView] = useState('list');
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const del = useDeleteVehicleDocument();
@@ -233,7 +236,9 @@ export function VehicleDocumentListView() {
             filters={filters}
             onFilters={handleFilters}
             onApplyIssueDateRange={(start, end) => setFilters({ issueFrom: start, issueTo: end })}
-            onApplyExpiryDateRange={(start, end) => setFilters({ expiryFrom: start, expiryTo: end })}
+            onApplyExpiryDateRange={(start, end) =>
+              setFilters({ expiryFrom: start, expiryTo: end })
+            }
             visibleColumns={visibleColumns}
             disabledColumns={disabledColumns}
             onToggleColumn={toggleColumnVisibility}
@@ -333,7 +338,10 @@ export function VehicleDocumentListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={[...visibleHeaders, { id: 'actions', label: 'Actions', align: 'right' }]}
+                  headLabel={[
+                    ...visibleHeaders,
+                    { id: 'actions', label: 'Actions', align: 'right' },
+                  ]}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -348,20 +356,20 @@ export function VehicleDocumentListView() {
                 <TableBody>
                   {isLoading
                     ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                      <TableSkeleton key={i} />
-                    ))
+                        <TableSkeleton key={i} />
+                      ))
                     : tableData.map((row) => (
-                      <VehicleDocumentTableRow
-                        key={row._id || `${row.vehicle?._id || row.vehicle}-${row.docType}`}
-                        row={row}
-                        selected={row._id ? table.selected.includes(row._id) : false}
-                        onSelectRow={() => row._id && table.onSelectRow(row._id)}
-                        onDeleteRow={handleDeleteRow}
-                        visibleColumns={visibleColumns}
-                        disabledColumns={disabledColumns}
-                        columnOrder={columnOrder}
-                      />
-                    ))}
+                        <VehicleDocumentTableRow
+                          key={row._id || `${row.vehicle?._id || row.vehicle}-${row.docType}`}
+                          row={row}
+                          selected={row._id ? table.selected.includes(row._id) : false}
+                          onSelectRow={() => row._id && table.onSelectRow(row._id)}
+                          onDeleteRow={handleDeleteRow}
+                          visibleColumns={visibleColumns}
+                          disabledColumns={disabledColumns}
+                          columnOrder={columnOrder}
+                        />
+                      ))}
                   <TableNoData notFound={!tableData.length && canReset} />
                 </TableBody>
               </Table>

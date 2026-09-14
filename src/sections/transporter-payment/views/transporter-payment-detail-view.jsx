@@ -82,12 +82,7 @@ export function TransporterPaymentDetailView({ transporterPayment, publicMode = 
 
       <TransporterPaymentView transporterPayment={transporterPayment} />
 
-      <Dialog
-        open={markPaidModal.value}
-        onClose={markPaidModal.onFalse}
-        maxWidth="xs"
-        fullWidth
-      >
+      <Dialog open={markPaidModal.value} onClose={markPaidModal.onFalse} maxWidth="xs" fullWidth>
         <DialogTitle>Mark Payment as Paid</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2} sx={{ pt: 1 }}>

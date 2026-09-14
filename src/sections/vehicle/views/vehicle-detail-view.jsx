@@ -350,4 +350,3 @@ function InfoRow({ icon, label, value }) {
     </Stack>
   );
 }
-

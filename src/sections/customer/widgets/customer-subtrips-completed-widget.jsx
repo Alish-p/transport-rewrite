@@ -68,5 +68,3 @@ export function CustomerSubtripCompletedWidget({ customer }) {
     />
   );
 }
-
-export default CustomerSubtripCompletedWidget;

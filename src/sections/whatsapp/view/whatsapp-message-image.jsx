@@ -51,7 +51,15 @@ export function WhatsAppMessageImage({ mediaId, caption, onImageClick }) {
 
   if (loading) {
     return (
-      <Box sx={{ width: 200, height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box
+        sx={{
+          width: 200,
+          height: 150,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <CircularProgress size={24} />
       </Box>
     );

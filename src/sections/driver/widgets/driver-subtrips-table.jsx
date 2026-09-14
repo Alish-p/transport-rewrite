@@ -119,5 +119,3 @@ export function DriverSubtripsTable({ driver }) {
     </Card>
   );
 }
-
-export default DriverSubtripsTable;

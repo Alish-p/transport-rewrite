@@ -78,9 +78,12 @@ export function PurchaseOrderListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const [selectedPart, setSelectedPart] = useState(null);
   const [selectedVendor, setSelectedVendor] = useState(null);
@@ -223,8 +226,6 @@ export function PurchaseOrderListView() {
   useEffect(() => {
     if (!filters.approvedBy) setSelectedApprovedBy(null);
   }, [filters.approvedBy]);
-
-
 
   return (
     <DashboardContent>

@@ -46,7 +46,12 @@ function useOtpCountdown() {
   }, []);
 
   // Cleanup on unmount
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    []
+  );
 
   return { countdown, start };
 }
@@ -71,7 +76,13 @@ export function WhatsAppLoginForm({ onSuccess, onError }) {
     defaultValues: { mobile: '', code: '' },
   });
 
-  const { handleSubmit, getValues, setValue, setError, formState: { isSubmitting } } = methods;
+  const {
+    handleSubmit,
+    getValues,
+    setValue,
+    setError,
+    formState: { isSubmitting },
+  } = methods;
 
   // ---- OTP request helpers ------------------------------------------------
 
@@ -177,7 +188,12 @@ export function WhatsAppLoginForm({ onSuccess, onError }) {
               <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
                 We sent a 6-digit code to <strong>{otpMobile}</strong> via WhatsApp.
               </Typography>
-              <Link component="button" type="button" variant="subtitle2" onClick={handleChangeNumber}>
+              <Link
+                component="button"
+                type="button"
+                variant="subtitle2"
+                onClick={handleChangeNumber}
+              >
                 Change number
               </Link>
             </Stack>
@@ -204,7 +220,12 @@ export function WhatsAppLoginForm({ onSuccess, onError }) {
                   Resend in {countdown}s
                 </Typography>
               ) : (
-                <Link component="button" type="button" variant="subtitle2" onClick={handleResendOtp}>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="subtitle2"
+                  onClick={handleResendOtp}
+                >
                   Resend code
                 </Link>
               )}

@@ -69,7 +69,14 @@ export default function StandardESignedLRPDF({ subtrip, tenant, mapImageUrl }) {
       ],
     ];
 
-    return <PDFTable styles={styles} headers={headers} data={data} columnWidths={[2, 2, 1, 1, 1, 1, 2, 2]} />;
+    return (
+      <PDFTable
+        styles={styles}
+        headers={headers}
+        data={data}
+        columnWidths={[2, 2, 1, 1, 1, 1, 2, 2]}
+      />
+    );
   };
 
   const renderTables = () => {

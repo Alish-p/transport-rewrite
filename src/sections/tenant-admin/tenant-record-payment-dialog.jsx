@@ -37,7 +37,11 @@ const RecordPaymentSchema = zod.object({
 
 const PAYMENT_METHODS = [
   { value: 'UPI', label: 'UPI (GPay / PhonePe / Paytm)', icon: 'solar:smartphone-bold' },
-  { value: 'BankTransfer', label: 'Bank Transfer (NEFT / RTGS / IMPS)', icon: 'solar:banknote-2-bold' },
+  {
+    value: 'BankTransfer',
+    label: 'Bank Transfer (NEFT / RTGS / IMPS)',
+    icon: 'solar:banknote-2-bold',
+  },
   { value: 'Card', label: 'Credit / Debit Card', icon: 'solar:card-2-bold' },
   { value: 'Cash', label: 'Cash Payment', icon: 'solar:wallet-money-bold' },
 ];
@@ -161,11 +165,7 @@ export function TenantRecordPaymentDialog({ open, onClose, tenant, onSubmit }) {
                     }}
                     sx={{ flex: 1 }}
                   />
-                  <Field.DatePicker
-                    name="paymentDate"
-                    label="Payment Date"
-                    sx={{ flex: 1 }}
-                  />
+                  <Field.DatePicker name="paymentDate" label="Payment Date" sx={{ flex: 1 }} />
                 </Stack>
 
                 <Field.Select name="paymentMethod" label="Payment Method">
@@ -210,11 +210,7 @@ export function TenantRecordPaymentDialog({ open, onClose, tenant, onSubmit }) {
                   ))}
                 </Field.Select>
 
-                <Field.DatePicker
-                  name="validTill"
-                  label="Valid Till Date"
-                  sx={{ flex: 1 }}
-                />
+                <Field.DatePicker name="validTill" label="Valid Till Date" sx={{ flex: 1 }} />
               </Stack>
             </Box>
 
@@ -239,14 +235,20 @@ export function TenantRecordPaymentDialog({ open, onClose, tenant, onSubmit }) {
 
                   {sendEmail && (
                     <Box sx={{ pl: 4 }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: 'block', mb: 1 }}
+                      >
                         Receipt will be delivered to:
                       </Typography>
                       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                         <Chip
                           size="small"
                           icon={<Iconify icon="solar:letter-bold" />}
-                          label={tenantEmail ? `Tenant: ${tenantEmail}` : 'Tenant: No email configured'}
+                          label={
+                            tenantEmail ? `Tenant: ${tenantEmail}` : 'Tenant: No email configured'
+                          }
                           color={tenantEmail ? 'default' : 'warning'}
                           variant="soft"
                         />
@@ -284,5 +286,3 @@ export function TenantRecordPaymentDialog({ open, onClose, tenant, onSubmit }) {
     </Dialog>
   );
 }
-
-export default TenantRecordPaymentDialog;

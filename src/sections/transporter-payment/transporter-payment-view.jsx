@@ -292,7 +292,12 @@ function RenderFooter() {
 }
 
 export default function TransporterPaymentPreview({ transporterPayment }) {
-  const { transporterId: transporter, issueDate, paidDate, billingPeriod } = transporterPayment || {};
+  const {
+    transporterId: transporter,
+    issueDate,
+    paidDate,
+    billingPeriod,
+  } = transporterPayment || {};
   const tenant = useTenantContext();
   return (
     <Card sx={{ pt: 5, px: 5 }}>

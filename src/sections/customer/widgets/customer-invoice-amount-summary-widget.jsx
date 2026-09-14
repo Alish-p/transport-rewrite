@@ -5,5 +5,3 @@ export function CustomerInvoiceAmountSummaryWidget({ customer }) {
 
   return <AppInvoiceAmountSummary customerId={customerId} />;
 }
-
-export default CustomerInvoiceAmountSummaryWidget;

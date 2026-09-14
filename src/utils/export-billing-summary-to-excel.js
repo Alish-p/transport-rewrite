@@ -118,5 +118,3 @@ export const exportBillingSummaryToExcel = async (
     fileName
   );
 };
-
-export default exportBillingSummaryToExcel;

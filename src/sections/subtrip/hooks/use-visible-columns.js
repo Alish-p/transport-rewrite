@@ -22,5 +22,3 @@ export function useVisibleColumns() {
 
   return { ...visibility, tableColumns, managesMarketVehicles };
 }
-
-export default useVisibleColumns;

@@ -19,14 +19,5 @@ export function DriverBasicWidget({ driver }) {
     [driverCellNo, driverLicenceNo, driverName, driverPresentAddress, permanentAddress]
   );
 
-  return (
-    <DetailCard
-      title="Basic Details"
-      icon="solar:user-bold"
-      showCopy
-      fields={fields}
-    />
-  );
+  return <DetailCard title="Basic Details" icon="solar:user-bold" showCopy fields={fields} />;
 }
-
-export default DriverBasicWidget;

@@ -87,7 +87,8 @@ export function UserListView() {
     order: table.order,
     name: filters.name || undefined,
     designation: filters.designation || undefined,
-    permission: (filters.permission && filters.permission.length) ? filters.permission.join(',') : undefined,
+    permission:
+      filters.permission && filters.permission.length ? filters.permission.join(',') : undefined,
   });
 
   const users = data?.users;
@@ -102,8 +103,6 @@ export function UserListView() {
   }, [users]);
 
   const notFound = !isLoading && !tableData.length;
-
-
 
   const handleViewRow = useCallback(
     (id) => {
@@ -125,206 +124,208 @@ export function UserListView() {
 
   return (
     <DashboardContent>
-        <CustomBreadcrumbs
-          heading="List"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
-            { name: 'List' },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.user.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New user
-            </Button>
-          }
-          sx={{ mb: { xs: 3, md: 5 } }}
-        />
+      <CustomBreadcrumbs
+        heading="List"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'User', href: paths.dashboard.user.root },
+          { name: 'List' },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.user.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            New user
+          </Button>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
 
-        <Card>
-          <UserTableToolbar filters={filters} onFilters={handleFilters} />
+      <Card>
+        <UserTableToolbar filters={filters} onFilters={handleFilters} />
 
-          {canReset && (
-            <UserTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={resetFilters}
-              totalResults={totalCount}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
+        {canReset && (
+          <UserTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={resetFilters}
+            totalResults={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
 
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) => {
-                if (!checked) {
-                  setSelectAllMode(false);
-                }
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row._id)
-                );
-              }}
-              label={
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="subtitle2">
-                    {selectAllMode
-                      ? `All ${totalCount} selected`
-                      : `${table.selected.length} selected`}
-                  </Typography>
-
-                  {!selectAllMode &&
-                    table.selected.length === tableData.length &&
-                    totalCount > tableData.length && (
-                      <Link
-                        component="button"
-                        variant="subtitle2"
-                        onClick={() => {
-                          setSelectAllMode(true);
-                        }}
-                        sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
-                      >
-                        Select all {totalCount} users
-                      </Link>
-                    )}
-                </Stack>
+        <Box sx={{ position: 'relative' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={tableData.length}
+            onSelectAllRows={(checked) => {
+              if (!checked) {
+                setSelectAllMode(false);
               }
-              action={
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Export to Excel">
-                    <IconButton
-                      color="primary"
-                      disabled={isDownloading}
-                      onClick={async () => {
-                        if (selectAllMode) {
-                          try {
-                            setIsDownloading(true);
-                            toast.info('Export started... Please wait.');
-                            const response = await axios.get('/api/users/export', {
-                              params: {
-                                name: filters.name || undefined,
-                                designation: filters.designation || undefined,
-                                permission: (filters.permission && filters.permission.length) ? filters.permission.join(',') : undefined,
-                                order: table.order,
-                                orderBy: table.orderBy,
-                              },
-                              responseType: 'blob',
-                            });
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', 'Users.xlsx');
-                            document.body.appendChild(link);
-                            link.click();
-                            link.remove();
-                            setIsDownloading(false);
-                            toast.success('Export completed!');
-                          } catch (error) {
-                            console.error('Failed to download excel', error);
-                            setIsDownloading(false);
-                            toast.error('Failed to export users.');
-                          }
-                        } else {
-                          const selectedRows = tableData.filter(
-                            (r) => table.selected.includes(r._id) || table.selected.includes(r.id)
-                          );
-                          exportToExcel(
-                            prepareDataForExport(
-                              selectedRows,
-                              [
-                                { id: 'name', label: 'Name', getter: (r) => r.name },
-                                { id: 'email', label: 'Email', getter: (r) => r.email },
-                                { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
-                                { id: 'address', label: 'Address', getter: (r) => r.address },
-                                {
-                                  id: 'designation',
-                                  label: 'Designation',
-                                  getter: (r) => r.designation,
-                                },
-                                {
-                                  id: 'lastSeen',
-                                  label: 'Last Seen',
-                                  getter: (r) => r.lastSeen ? fDateTime(r.lastSeen) : 'Never',
-                                },
-                              ],
-                              ['name', 'email', 'mobile', 'address', 'designation', 'lastSeen'],
-                              []
-                            ),
-                            'Users-selected-list'
-                          );
-                        }
+              table.onSelectAllRows(
+                checked,
+                tableData.map((row) => row._id)
+              );
+            }}
+            label={
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2">
+                  {selectAllMode
+                    ? `All ${totalCount} selected`
+                    : `${table.selected.length} selected`}
+                </Typography>
+
+                {!selectAllMode &&
+                  table.selected.length === tableData.length &&
+                  totalCount > tableData.length && (
+                    <Link
+                      component="button"
+                      variant="subtitle2"
+                      onClick={() => {
+                        setSelectAllMode(true);
                       }}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 'bold' }}
                     >
-                      <Iconify icon="file-icons:microsoft-excel" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              }
-            />
+                      Select all {totalCount} users
+                    </Link>
+                  )}
+              </Stack>
+            }
+            action={
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Tooltip title="Export to Excel">
+                  <IconButton
+                    color="primary"
+                    disabled={isDownloading}
+                    onClick={async () => {
+                      if (selectAllMode) {
+                        try {
+                          setIsDownloading(true);
+                          toast.info('Export started... Please wait.');
+                          const response = await axios.get('/api/users/export', {
+                            params: {
+                              name: filters.name || undefined,
+                              designation: filters.designation || undefined,
+                              permission:
+                                filters.permission && filters.permission.length
+                                  ? filters.permission.join(',')
+                                  : undefined,
+                              order: table.order,
+                              orderBy: table.orderBy,
+                            },
+                            responseType: 'blob',
+                          });
+                          const url = window.URL.createObjectURL(new Blob([response.data]));
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.setAttribute('download', 'Users.xlsx');
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                          setIsDownloading(false);
+                          toast.success('Export completed!');
+                        } catch (error) {
+                          console.error('Failed to download excel', error);
+                          setIsDownloading(false);
+                          toast.error('Failed to export users.');
+                        }
+                      } else {
+                        const selectedRows = tableData.filter(
+                          (r) => table.selected.includes(r._id) || table.selected.includes(r.id)
+                        );
+                        exportToExcel(
+                          prepareDataForExport(
+                            selectedRows,
+                            [
+                              { id: 'name', label: 'Name', getter: (r) => r.name },
+                              { id: 'email', label: 'Email', getter: (r) => r.email },
+                              { id: 'mobile', label: 'Mobile', getter: (r) => r.mobile },
+                              { id: 'address', label: 'Address', getter: (r) => r.address },
+                              {
+                                id: 'designation',
+                                label: 'Designation',
+                                getter: (r) => r.designation,
+                              },
+                              {
+                                id: 'lastSeen',
+                                label: 'Last Seen',
+                                getter: (r) => (r.lastSeen ? fDateTime(r.lastSeen) : 'Never'),
+                              },
+                            ],
+                            ['name', 'email', 'mobile', 'address', 'designation', 'lastSeen'],
+                            []
+                          ),
+                          'Users-selected-list'
+                        );
+                      }
+                    }}
+                  >
+                    <Iconify icon="file-icons:microsoft-excel" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            }
+          />
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row._id)
-                    )
-                  }
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={TABLE_HEAD}
+                rowCount={tableData.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row._id)
+                  )
+                }
+              />
+
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
+                      <TableSkeleton key={i} />
+                    ))
+                  : tableData.map((row) => (
+                      <UserTableRow
+                        key={row._id}
+                        row={row}
+                        selected={table.selected.includes(row._id)}
+                        onSelectRow={() => table.onSelectRow(row._id)}
+                        onDeleteRow={() => deleteUser(row._id)}
+                        onViewRow={() => handleViewRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                      />
+                    ))}
+
+                <TableEmptyRows
+                  height={table.dense ? 56 : 56 + 20}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
                 />
 
-                <TableBody>
-                  {isLoading
-                    ? Array.from({ length: table.rowsPerPage }).map((_, i) => (
-                        <TableSkeleton key={i} />
-                      ))
-                    : tableData.map((row) => (
-                        <UserTableRow
-                          key={row._id}
-                          row={row}
-                          selected={table.selected.includes(row._id)}
-                          onSelectRow={() => table.onSelectRow(row._id)}
-                          onDeleteRow={() => deleteUser(row._id)}
-                          onViewRow={() => handleViewRow(row._id)}
-                          onEditRow={() => handleEditRow(row._id)}
-                        />
-                      ))}
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </Box>
 
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
-
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={totalCount}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
-      </DashboardContent>
-
+        <TablePaginationCustom
+          page={table.page}
+          dense={table.dense}
+          count={totalCount}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onChangeDense={table.onChangeDense}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
 }

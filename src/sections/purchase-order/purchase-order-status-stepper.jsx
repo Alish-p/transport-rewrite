@@ -4,13 +4,7 @@ import { Iconify } from 'src/components/iconify';
 
 import { SimpleStepper } from 'src/sections/subtrip/widgets/subtrip-completion-stepper';
 
-const STATUS_ORDER = [
-  'pending-approval',
-  'rejected',
-  'approved',
-  'received',
-  'closed',
-];
+const STATUS_ORDER = ['pending-approval', 'rejected', 'approved', 'received', 'closed'];
 
 const STATUS_DESCRIPTIONS = {
   'pending-approval': 'Purchase order has been created and is awaiting approval',

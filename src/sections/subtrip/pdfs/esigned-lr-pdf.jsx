@@ -17,11 +17,6 @@ export default function ESignedLRPDF({ subtrip, tenant, mapImageUrl, ...props })
   }
 
   return (
-    <StandardESignedLRPDF
-      subtrip={subtrip}
-      tenant={tenant}
-      mapImageUrl={mapImageUrl}
-      {...props}
-    />
+    <StandardESignedLRPDF subtrip={subtrip} tenant={tenant} mapImageUrl={mapImageUrl} {...props} />
   );
 }

@@ -714,7 +714,8 @@ export default function WorkOrderForm({ currentWorkOrder }) {
         {issueFields.length === 0 ? (
           <Stack spacing={1}>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              No issues added. Use &quot;Add Issue&quot; to capture reported problems or observations.
+              No issues added. Use &quot;Add Issue&quot; to capture reported problems or
+              observations.
             </Typography>
             {methods.formState.errors.issues?.message && (
               <Alert severity="error" sx={{ mt: 1 }}>

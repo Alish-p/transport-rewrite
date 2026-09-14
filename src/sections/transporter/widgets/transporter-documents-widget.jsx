@@ -580,5 +580,3 @@ export function TransporterDocumentsWidget({ transporter }) {
     </>
   );
 }
-
-export default TransporterDocumentsWidget;

@@ -105,5 +105,3 @@ export const exportTransporterPaymentSummaryToExcel = async (
     fileName
   );
 };
-
-export default exportTransporterPaymentSummaryToExcel;

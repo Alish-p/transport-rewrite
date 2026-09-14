@@ -149,5 +149,3 @@ export function CustomerMaterialSummaryWidget({ customer }) {
     </Card>
   );
 }
-
-export default CustomerMaterialSummaryWidget;

@@ -30,12 +30,6 @@ export function CustomerFinanceWidget({ customer }) {
   );
 
   return (
-    <BankDetailsCard
-      title="Finance Details"
-      bankDetails={bankDetails}
-      extraFields={extraFields}
-    />
+    <BankDetailsCard title="Finance Details" bankDetails={bankDetails} extraFields={extraFields} />
   );
 }
-
-export default CustomerFinanceWidget;

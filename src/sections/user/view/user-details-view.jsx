@@ -120,5 +120,3 @@ export function UserDetailView({ user }) {
     </DashboardContent>
   );
 }
-
-export default UserDetailView;

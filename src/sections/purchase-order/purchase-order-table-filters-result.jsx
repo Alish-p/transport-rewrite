@@ -50,8 +50,6 @@ export default function PurchaseOrderTableFiltersResult({
     onFilters('approvedBy', '');
   };
 
-
-
   const handleRemovePurchaseOrderNo = () => {
     onFilters('purchaseOrderNo', '');
   };
@@ -170,8 +168,6 @@ export default function PurchaseOrderTableFiltersResult({
             />
           </Block>
         )}
-
-
 
         <Button
           color="error"

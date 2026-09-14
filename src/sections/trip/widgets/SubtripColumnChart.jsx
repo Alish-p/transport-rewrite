@@ -15,8 +15,11 @@ export default function ProfitExpenseChart({ subtrips, title, subheader }) {
     },
     {
       name: 'Expenses',
-      data: subtrips?.map((subtrip) =>
-        subtrip?.expenses?.filter(e => e.status !== 'Cancelled').reduce((total, expense) => total + expense.amount, 0) || 0
+      data: subtrips?.map(
+        (subtrip) =>
+          subtrip?.expenses
+            ?.filter((e) => e.status !== 'Cancelled')
+            .reduce((total, expense) => total + expense.amount, 0) || 0
       ),
     },
   ];

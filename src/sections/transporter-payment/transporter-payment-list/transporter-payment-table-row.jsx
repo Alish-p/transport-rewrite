@@ -120,7 +120,8 @@ export default function TransporterPaymentTableRow({
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
               <Typography variant="body2">
-                Mark payment <strong>{row.paymentId}</strong> as paid. Please select the payment date:
+                Mark payment <strong>{row.paymentId}</strong> as paid. Please select the payment
+                date:
               </Typography>
               <DatePicker
                 label="Paid Date"

@@ -62,7 +62,11 @@ export function PasswordLoginForm({ onSuccess, onError }) {
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={3}>
-        <Field.Text name="email" label="Email or Mobile Number" InputLabelProps={{ shrink: true }} />
+        <Field.Text
+          name="email"
+          label="Email or Mobile Number"
+          InputLabelProps={{ shrink: true }}
+        />
 
         <Stack spacing={1.5}>
           <Link

@@ -50,5 +50,3 @@ export function PumpBasicWidget({ pump }) {
     </Card>
   );
 }
-
-export default PumpBasicWidget;

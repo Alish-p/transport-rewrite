@@ -48,4 +48,3 @@ export const DEPARTMENTS = [
     color: 'success',
   },
 ];
-

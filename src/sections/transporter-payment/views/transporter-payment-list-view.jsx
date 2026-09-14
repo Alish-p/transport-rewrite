@@ -83,7 +83,8 @@ export function TransporterPaymentListView() {
   const learn = useBoolean();
   const deleteTransporterPayment = useDeleteTransporterPayment();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters);
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } =
+    useFilters(defaultFilters);
 
   const {
     visibleColumns,
@@ -173,7 +174,11 @@ export function TransporterPaymentListView() {
       setTableData((prev) =>
         prev.map((row) =>
           row._id === cancelTarget._id
-            ? { ...row, status: 'cancelled', cancellationRemarks: cancellationRemarks.trim() || undefined }
+            ? {
+                ...row,
+                status: 'cancelled',
+                cancellationRemarks: cancellationRemarks.trim() || undefined,
+              }
             : row
         )
       );

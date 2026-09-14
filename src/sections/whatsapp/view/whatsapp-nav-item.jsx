@@ -9,14 +9,8 @@ import { formatPhoneDisplay, formatMessageSnippet } from '../utils/whatsapp-form
 // ----------------------------------------------------------------------
 
 export function WhatsAppNavItem({ conversation, selected, onSelect, collapsed }) {
-  const {
-    displayName,
-    contactPhone,
-    tenant,
-    senderEntity,
-    lastMessage,
-    unreadCount,
-  } = conversation;
+  const { displayName, contactPhone, tenant, senderEntity, lastMessage, unreadCount } =
+    conversation;
 
   const contactName = displayName || senderEntity?.entityName;
   const entityType = senderEntity?.entityType;

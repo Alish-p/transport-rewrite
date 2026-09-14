@@ -429,7 +429,10 @@ function EmptyDropzone({ onDrop, onDropRejected, disabled }) {
       />
       <Typography
         variant="caption"
-        sx={{ color: isDragActive ? 'primary.main' : 'text.secondary', fontWeight: 'fontWeightMedium' }}
+        sx={{
+          color: isDragActive ? 'primary.main' : 'text.secondary',
+          fontWeight: 'fontWeightMedium',
+        }}
       >
         {isDragActive ? 'Drop files here' : 'Drop or select documents'}
       </Typography>
@@ -656,5 +659,3 @@ export function SubtripDocumentsWidget({ subtrip, publicMode = false, sx }) {
     </>
   );
 }
-
-export default SubtripDocumentsWidget;

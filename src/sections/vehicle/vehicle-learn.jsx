@@ -126,8 +126,8 @@ export default function VehicleLearn({ open, onClose }) {
               What is a Vehicle?
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-              A Vehicle represents a truck, tractor, or trailer in your fleet. Vehicles are linked to
-              trips, jobs, fuel, maintenance work orders, and tyre layout assignments.
+              A Vehicle represents a truck, tractor, or trailer in your fleet. Vehicles are linked
+              to trips, jobs, fuel, maintenance work orders, and tyre layout assignments.
             </Typography>
           </Box>
         </Box>
@@ -328,17 +328,24 @@ export default function VehicleLearn({ open, onClose }) {
           {
             color: 'info',
             label: 'Own Vehicles',
-            description: 'Operated directly by your fleet. Tracks driver advances, fuel receipts, maintenance work orders, tyre mounting, and actual trip expenses.',
+            description:
+              'Operated directly by your fleet. Tracks driver advances, fuel receipts, maintenance work orders, tyre mounting, and actual trip expenses.',
           },
           {
             color: 'primary',
             label: 'Market Vehicles',
-            description: 'Outsourced from external transporters. Billed via Transporter Payment Receipts. Maintenance, tyre tracking, and driver salary tools are bypassed.',
+            description:
+              'Outsourced from external transporters. Billed via Transporter Payment Receipts. Maintenance, tyre tracking, and driver salary tools are bypassed.',
           },
         ].map((item) => (
           <Box key={item.label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Box sx={{ width: 130, flexShrink: 0, pt: 0.2 }}>
-              <Label variant="soft" color={item.color} fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+              <Label
+                variant="soft"
+                color={item.color}
+                fullWidth
+                sx={{ textTransform: 'none', py: 1.5 }}
+              >
                 {item.label}
               </Label>
             </Box>
@@ -403,10 +410,22 @@ export default function VehicleLearn({ open, onClose }) {
   );
 
   const TABS = [
-    { value: 'overview', label: 'Overview', icon: <Iconify icon="solar:settings-bold" width={16} /> },
-    { value: 'fields', label: 'Key Fields', icon: <Iconify icon="solar:checklist-bold" width={16} /> },
+    {
+      value: 'overview',
+      label: 'Overview',
+      icon: <Iconify icon="solar:settings-bold" width={16} />,
+    },
+    {
+      value: 'fields',
+      label: 'Key Fields',
+      icon: <Iconify icon="solar:checklist-bold" width={16} />,
+    },
     { value: 'ownership', label: 'Ownership', icon: <Iconify icon="solar:user-bold" width={16} /> },
-    { value: 'faqs', label: 'FAQs', icon: <Iconify icon="solar:chat-round-dots-bold" width={16} /> },
+    {
+      value: 'faqs',
+      label: 'FAQs',
+      icon: <Iconify icon="solar:chat-round-dots-bold" width={16} />,
+    },
   ];
 
   return (

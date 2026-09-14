@@ -24,7 +24,13 @@ import { CUSTOMER_TYPE_LABELS } from '../../customer/customer.constant';
 
 const ITEM_HEIGHT = 64;
 
-export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, onCustomerChange, customerType }) {
+export function KanbanCustomerDialog({
+  selectedCustomer = null,
+  open,
+  onClose,
+  onCustomerChange,
+  customerType,
+}) {
   const scrollRef = useRef(null);
   const [searchCustomer, setSearchCustomer] = useState('');
   const debouncedSearch = useDebounce(searchCustomer);
@@ -39,7 +45,11 @@ export function KanbanCustomerDialog({ selectedCustomer = null, open, onClose, o
       !blockedPrefixes.some((prefix) => debouncedSearch.startsWith(prefix)));
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteCustomers(
-    { customerName: debouncedSearch || undefined, rowsPerPage: 50, ...(customerType ? { customerType } : {}) },
+    {
+      customerName: debouncedSearch || undefined,
+      rowsPerPage: 50,
+      ...(customerType ? { customerType } : {}),
+    },
     { enabled: shouldFetch }
   );
 

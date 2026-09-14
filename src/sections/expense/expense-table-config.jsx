@@ -38,7 +38,6 @@ function ExpenseTypeCell({ expenseType = '-' }) {
 }
 
 export const TABLE_COLUMNS = [
-
   {
     id: 'vehicleNo',
     label: 'Vehicle No',

@@ -42,12 +42,7 @@ function getVehicleIcon(type) {
 
 // ----------------------------------------------------------------------
 
-export function TransporterVehiclesWidget({
-  transporterId,
-  title = 'Vehicles',
-  sx,
-  ...other
-}) {
+export function TransporterVehiclesWidget({ transporterId, title = 'Vehicles', sx, ...other }) {
   const { data: vehicles = [], isLoading } = useTransporterVehicles(transporterId);
   const [showAll, setShowAll] = useState(false);
   const displayed = showAll ? vehicles : vehicles.slice(0, 5);
@@ -69,7 +64,11 @@ export function TransporterVehiclesWidget({
           p: 2.5,
           '& .MuiCardHeader-avatar': { mr: 1 },
           '& .MuiCardHeader-title': { fontWeight: 'fontWeightBold' },
-          '& .MuiCardHeader-subheader': { typography: 'caption', color: 'text.secondary', mt: 0.25 },
+          '& .MuiCardHeader-subheader': {
+            typography: 'caption',
+            color: 'text.secondary',
+            mt: 0.25,
+          },
         }}
       />
 
@@ -299,5 +298,3 @@ function EmptyVehicles() {
     </Box>
   );
 }
-
-export default TransporterVehiclesWidget;

@@ -117,13 +117,13 @@ export function TransporterPaymentsWidget({ transporterId, title = 'Payments', .
                           {row.status}
                         </Label>
                       </TableCell>
-                    <TableCell>{fDate(new Date(row.issueDate))}</TableCell>
-                    <TableCell align="right">
-                      {fCurrency(row.summary?.netIncome ?? row.amount)}
-                    </TableCell>
-                    <TableCell align="right">
-                      {fCurrency(row.taxBreakup?.tds?.amount ?? 0)}
-                    </TableCell>
+                      <TableCell>{fDate(new Date(row.issueDate))}</TableCell>
+                      <TableCell align="right">
+                        {fCurrency(row.summary?.netIncome ?? row.amount)}
+                      </TableCell>
+                      <TableCell align="right">
+                        {fCurrency(row.taxBreakup?.tds?.amount ?? 0)}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -160,5 +160,3 @@ export function TransporterPaymentsWidget({ transporterId, title = 'Payments', .
     </Card>
   );
 }
-
-export default TransporterPaymentsWidget;

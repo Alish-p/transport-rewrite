@@ -205,5 +205,3 @@ export function AppMonthlySummaryTabs() {
     </Card>
   );
 }
-
-export default AppMonthlySummaryTabs;

@@ -106,8 +106,6 @@ export function WorkOrderDetailView({ workOrder }) {
     router.push(paths.dashboard.workOrder.edit(_id));
   }, [_id, router]);
 
-
-
   const handleConfirmAddExpense = useCallback(async () => {
     if (!_id) return;
     try {
@@ -120,8 +118,6 @@ export function WorkOrderDetailView({ workOrder }) {
       setIsAddingExpense(false);
     }
   }, [_id, addExpenseDialog, addWorkOrderExpense]);
-
-
 
   return (
     <DashboardContent>
@@ -212,327 +208,327 @@ export function WorkOrderDetailView({ workOrder }) {
         <WorkOrderStatusStepper status={status} />
 
         <Card sx={{ p: 3 }}>
-        <Box
-          rowGap={3}
-          display="grid"
-          alignItems="center"
-          gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
-          sx={{ mb: 3 }}
-        >
           <Box
-            component="img"
-            alt="logo"
-            src={getTenantLogoUrl(tenant)}
-            sx={{
-              width: 60,
-              height: 60,
-              bgcolor: 'background.neutral',
-              borderRadius: '10px',
-            }}
-          />
-          <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-            <Label variant="soft" color={statusColor}>
-              {statusLabel}
-            </Label>
-            <Typography variant="h6">Work Order</Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {workOrderNo ? `Work Order No: ${workOrderNo}` : 'Work Order No: -'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {createdAt ? fDate(createdAt) : '-'}
-            </Typography>
-          </Stack>
-        </Box>
-
-        <Stack
-          spacing={{ xs: 3, md: 5 }}
-          direction={{ xs: 'column', md: 'row' }}
-          divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
-        >
-          <Stack sx={{ width: 1 }}>
-            <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-              From:
-            </Typography>
-            <Stack spacing={1}>
-              <Typography variant="subtitle2">{tenant?.name}</Typography>
-              <Typography variant="body2">{tenant?.address?.line1}</Typography>
-              <Typography variant="body2">{tenant?.address?.line2}</Typography>
-              <Typography variant="body2">{tenant?.address?.state}</Typography>
-              <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
+            rowGap={3}
+            display="grid"
+            alignItems="center"
+            gridTemplateColumns={{ xs: '1fr', sm: '1fr auto' }}
+            sx={{ mb: 3 }}
+          >
+            <Box
+              component="img"
+              alt="logo"
+              src={getTenantLogoUrl(tenant)}
+              sx={{
+                width: 60,
+                height: 60,
+                bgcolor: 'background.neutral',
+                borderRadius: '10px',
+              }}
+            />
+            <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
+              <Label variant="soft" color={statusColor}>
+                {statusLabel}
+              </Label>
+              <Typography variant="h6">Work Order</Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {workOrderNo ? `Work Order No: ${workOrderNo}` : 'Work Order No: -'}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {createdAt ? fDate(createdAt) : '-'}
+              </Typography>
             </Stack>
-          </Stack>
+          </Box>
 
-          <Stack sx={{ width: 1 }}>
-            <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-              Vehicle & Assignee:
-            </Typography>
-            <Stack spacing={1}>
-              <Stack direction="row" spacing={1}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
-                  Vehicle:
-                </Typography>
-                <Typography variant="subtitle2">
-                  {vehicle?.vehicleNo
-                    ? `${vehicle.vehicleNo}${vehicle.vehicleType ? ` (${vehicle.vehicleType})` : ''}`
-                    : '-'}
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
-                  Odometer:
-                </Typography>
-                <Typography variant="body2">
-                  {typeof odometerReading === 'number' ? `${odometerReading} km` : '-'}
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
-                  Scheduled:
-                </Typography>
-                <Typography variant="body2">
-                  {scheduledStartDate ? fDate(scheduledStartDate) : '-'}
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
-                  Actual Start:
-                </Typography>
-                <Typography variant="body2">
-                  {actualStartDate ? fDate(actualStartDate) : '-'}
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
-                  Completed On:
-                </Typography>
-                <Typography variant="body2">
-                  {completedDate ? fDate(completedDate) : '-'}
-                </Typography>
+          <Stack
+            spacing={{ xs: 3, md: 5 }}
+            direction={{ xs: 'column', md: 'row' }}
+            divider={<Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed' }} />}
+          >
+            <Stack sx={{ width: 1 }}>
+              <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                From:
+              </Typography>
+              <Stack spacing={1}>
+                <Typography variant="subtitle2">{tenant?.name}</Typography>
+                <Typography variant="body2">{tenant?.address?.line1}</Typography>
+                <Typography variant="body2">{tenant?.address?.line2}</Typography>
+                <Typography variant="body2">{tenant?.address?.state}</Typography>
+                <Typography variant="body2">Phone: {tenant?.contactDetails?.phone}</Typography>
               </Stack>
             </Stack>
-          </Stack>
-        </Stack>
 
-        <Stack
-          spacing={{ xs: 3, md: 5 }}
-          direction={{ xs: 'column', md: 'row' }}
-          divider={
-            <Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed', mt: 4 }} />
-          }
-          sx={{ mt: 4 }}
-        >
-          <Stack sx={{ width: 1 }}>
-            <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-              Category
-            </Typography>
-            <Typography variant="subtitle2">{category || '-'}</Typography>
-          </Stack>
-
-          <Stack sx={{ width: 1 }}>
-            <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-              Priority
-            </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor:
-                    priorityColor === 'default'
-                      ? 'text.disabled'
-                      : (theme) => theme.palette[priorityColor]?.main || 'text.disabled',
-                }}
-              />
-              <Typography variant="subtitle2">{priorityLabel}</Typography>
-            </Stack>
-          </Stack>
-
-          {category === 'External Workshop' && (
-            <>
-              <Stack sx={{ width: 1 }}>
-                <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-                  Workshop Name
-                </Typography>
-                <Typography variant="subtitle2">{workshopName || '-'}</Typography>
-              </Stack>
-              <Stack sx={{ width: 1 }}>
-                <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-                  Bill No.
-                </Typography>
-                <Typography variant="subtitle2">{billNo || '-'}</Typography>
-              </Stack>
-            </>
-          )}
-        </Stack>
-
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-            Issues
-          </Typography>
-          {!issues || issues.length === 0 ? (
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              No issues recorded for this work order.
-            </Typography>
-          ) : (
-            <Stack spacing={1.5}>
-              {issues.map((issue, index) => (
-                <Stack key={index} direction="row" spacing={1} alignItems="flex-start">
-                  <Typography variant="body2" sx={{ color: 'text.secondary', minWidth: 20 }}>
-                    {index + 1}.
+            <Stack sx={{ width: 1 }}>
+              <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                Vehicle & Assignee:
+              </Typography>
+              <Stack spacing={1}>
+                <Stack direction="row" spacing={1}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                    Vehicle:
                   </Typography>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="body2">
-                      {typeof issue === 'string' ? issue : issue.issue}
-                    </Typography>
-                    {issue &&
-                      typeof issue === 'object' &&
-                      Array.isArray(issue.assignedTo) &&
-                      issue.assignedTo.length > 0 && (
-                        <Typography
-                          variant="caption"
-                          sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}
-                        >
-                          Assigned to:{' '}
-                          {issue.assignedTo
-                            .map((user) => user.name || user.customerName)
-                            .filter(Boolean)
-                            .join(', ')}
-                        </Typography>
-                      )}
-                  </Box>
+                  <Typography variant="subtitle2">
+                    {vehicle?.vehicleNo
+                      ? `${vehicle.vehicleNo}${vehicle.vehicleType ? ` (${vehicle.vehicleType})` : ''}`
+                      : '-'}
+                  </Typography>
                 </Stack>
-              ))}
-            </Stack>
-          )}
-        </Box>
-
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
-            Parts Used
-          </Typography>
-          {category === 'External Workshop' && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;,
-              inventory for these parts will not be deducted.
-            </Alert>
-          )}
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Part</TableCell>
-                <TableCell>Part No.</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell align="right">Qty</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Amount</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {parts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ color: 'text.secondary' }}>
-                    No parts added.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                parts.map((line, index) => {
-                  const displayPartName =
-                    line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
-                  const displayPartNumber =
-                    line.partSnapshot?.partNumber ?? line.part?.partNumber ?? '-';
-                  const displayUnit =
-                    line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
-
-                  return (
-                    <TableRow key={line._id || index}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>
-                        {line.part?._id ? (
-                          <Link
-                            component={RouterLink}
-                            to={paths.dashboard.part.details(line.part._id)}
-                            variant="body2"
-                            noWrap
-                            sx={{ color: 'success.dark' }}
-                          >
-                            {displayPartName}
-                          </Link>
-                        ) : (
-                          <Typography variant="body2">{displayPartName}</Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>{displayPartNumber}</TableCell>
-                      <TableCell>{line.partLocation?.name || '-'}</TableCell>
-                      <TableCell align="right">
-                        {line.quantity || 0}
-                        {displayUnit !== '-' ? ` ${displayUnit}` : ''}
-                      </TableCell>
-                      <TableCell align="right">{fCurrency(line.price || 0)}</TableCell>
-                      <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </Box>
-
-        <Box
-          sx={{
-            mt: 4,
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-            gap: 3,
-          }}
-        >
-          <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
-            <Stack spacing={1.5} sx={{ height: 1 }}>
-              <Typography variant="subtitle2" color="green">
-                Description / Notes
-              </Typography>
-              <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    whiteSpace: 'pre-wrap',
-                    color: description ? 'text.primary' : 'text.disabled',
-                    lineHeight: 1.7,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 5,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {description || 'No description provided'}
-                </Typography>
-              </Box>
-            </Stack>
-          </Card>
-
-          <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
-            <Stack spacing={2} sx={{ height: 1 }}>
-              <Typography variant="subtitle2" color="green">
-                Cost Summary
-              </Typography>
-              <Stack spacing={1.5} sx={{ flexGrow: 1, justifyContent: 'center' }}>
-                <SummaryRow label="Parts Cost" value={fCurrency(computed.partsCost)} />
-                <SummaryRow label="Labour Charge" value={fCurrency(computed.labourCharge)} />
-                <Divider sx={{ my: 0.5 }} />
-                <SummaryRow
-                  label="Total Cost"
-                  value={fCurrency(computed.totalCost)}
-                  bold
-                  highlight
-                />
+                <Stack direction="row" spacing={1}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                    Odometer:
+                  </Typography>
+                  <Typography variant="body2">
+                    {typeof odometerReading === 'number' ? `${odometerReading} km` : '-'}
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                    Scheduled:
+                  </Typography>
+                  <Typography variant="body2">
+                    {scheduledStartDate ? fDate(scheduledStartDate) : '-'}
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                    Actual Start:
+                  </Typography>
+                  <Typography variant="body2">
+                    {actualStartDate ? fDate(actualStartDate) : '-'}
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', width: 120 }}>
+                    Completed On:
+                  </Typography>
+                  <Typography variant="body2">
+                    {completedDate ? fDate(completedDate) : '-'}
+                  </Typography>
+                </Stack>
               </Stack>
             </Stack>
-          </Card>
-        </Box>
-      </Card>
-    </Stack>
+          </Stack>
+
+          <Stack
+            spacing={{ xs: 3, md: 5 }}
+            direction={{ xs: 'column', md: 'row' }}
+            divider={
+              <Divider flexItem orientation="vertical" sx={{ borderStyle: 'dashed', mt: 4 }} />
+            }
+            sx={{ mt: 4 }}
+          >
+            <Stack sx={{ width: 1 }}>
+              <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                Category
+              </Typography>
+              <Typography variant="subtitle2">{category || '-'}</Typography>
+            </Stack>
+
+            <Stack sx={{ width: 1 }}>
+              <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                Priority
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor:
+                      priorityColor === 'default'
+                        ? 'text.disabled'
+                        : (theme) => theme.palette[priorityColor]?.main || 'text.disabled',
+                  }}
+                />
+                <Typography variant="subtitle2">{priorityLabel}</Typography>
+              </Stack>
+            </Stack>
+
+            {category === 'External Workshop' && (
+              <>
+                <Stack sx={{ width: 1 }}>
+                  <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                    Workshop Name
+                  </Typography>
+                  <Typography variant="subtitle2">{workshopName || '-'}</Typography>
+                </Stack>
+                <Stack sx={{ width: 1 }}>
+                  <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+                    Bill No.
+                  </Typography>
+                  <Typography variant="subtitle2">{billNo || '-'}</Typography>
+                </Stack>
+              </>
+            )}
+          </Stack>
+
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+              Issues
+            </Typography>
+            {!issues || issues.length === 0 ? (
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                No issues recorded for this work order.
+              </Typography>
+            ) : (
+              <Stack spacing={1.5}>
+                {issues.map((issue, index) => (
+                  <Stack key={index} direction="row" spacing={1} alignItems="flex-start">
+                    <Typography variant="body2" sx={{ color: 'text.secondary', minWidth: 20 }}>
+                      {index + 1}.
+                    </Typography>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="body2">
+                        {typeof issue === 'string' ? issue : issue.issue}
+                      </Typography>
+                      {issue &&
+                        typeof issue === 'object' &&
+                        Array.isArray(issue.assignedTo) &&
+                        issue.assignedTo.length > 0 && (
+                          <Typography
+                            variant="caption"
+                            sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}
+                          >
+                            Assigned to:{' '}
+                            {issue.assignedTo
+                              .map((user) => user.name || user.customerName)
+                              .filter(Boolean)
+                              .join(', ')}
+                          </Typography>
+                        )}
+                    </Box>
+                  </Stack>
+                ))}
+              </Stack>
+            )}
+          </Box>
+
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="subtitle2" color="green" sx={{ mb: 1 }}>
+              Parts Used
+            </Typography>
+            {category === 'External Workshop' && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Note: Since this work order is categorized as &lsquo;External Workshop&rsquo;,
+                inventory for these parts will not be deducted.
+              </Alert>
+            )}
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Part</TableCell>
+                  <TableCell>Part No.</TableCell>
+                  <TableCell>Location</TableCell>
+                  <TableCell align="right">Qty</TableCell>
+                  <TableCell align="right">Price</TableCell>
+                  <TableCell align="right">Amount</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {parts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ color: 'text.secondary' }}>
+                      No parts added.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  parts.map((line, index) => {
+                    const displayPartName =
+                      line.partSnapshot?.name ?? line.part?.name ?? 'Unknown Part';
+                    const displayPartNumber =
+                      line.partSnapshot?.partNumber ?? line.part?.partNumber ?? '-';
+                    const displayUnit =
+                      line.partSnapshot?.measurementUnit ?? line.part?.measurementUnit ?? '-';
+
+                    return (
+                      <TableRow key={line._id || index}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>
+                          {line.part?._id ? (
+                            <Link
+                              component={RouterLink}
+                              to={paths.dashboard.part.details(line.part._id)}
+                              variant="body2"
+                              noWrap
+                              sx={{ color: 'success.dark' }}
+                            >
+                              {displayPartName}
+                            </Link>
+                          ) : (
+                            <Typography variant="body2">{displayPartName}</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>{displayPartNumber}</TableCell>
+                        <TableCell>{line.partLocation?.name || '-'}</TableCell>
+                        <TableCell align="right">
+                          {line.quantity || 0}
+                          {displayUnit !== '-' ? ` ${displayUnit}` : ''}
+                        </TableCell>
+                        <TableCell align="right">{fCurrency(line.price || 0)}</TableCell>
+                        <TableCell align="right">{fCurrency(line.amount || 0)}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </Box>
+
+          <Box
+            sx={{
+              mt: 4,
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 3,
+            }}
+          >
+            <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
+              <Stack spacing={1.5} sx={{ height: 1 }}>
+                <Typography variant="subtitle2" color="green">
+                  Description / Notes
+                </Typography>
+                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      color: description ? 'text.primary' : 'text.disabled',
+                      lineHeight: 1.7,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 5,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {description || 'No description provided'}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Card>
+
+            <Card variant="outlined" sx={{ p: 2.5, height: 1, bgcolor: 'background.neutral' }}>
+              <Stack spacing={2} sx={{ height: 1 }}>
+                <Typography variant="subtitle2" color="green">
+                  Cost Summary
+                </Typography>
+                <Stack spacing={1.5} sx={{ flexGrow: 1, justifyContent: 'center' }}>
+                  <SummaryRow label="Parts Cost" value={fCurrency(computed.partsCost)} />
+                  <SummaryRow label="Labour Charge" value={fCurrency(computed.labourCharge)} />
+                  <Divider sx={{ my: 0.5 }} />
+                  <SummaryRow
+                    label="Total Cost"
+                    value={fCurrency(computed.totalCost)}
+                    bold
+                    highlight
+                  />
+                </Stack>
+              </Stack>
+            </Card>
+          </Box>
+        </Card>
+      </Stack>
 
       <WorkOrderCloseDialog
         open={closeDialog.value}

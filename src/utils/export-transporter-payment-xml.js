@@ -36,7 +36,9 @@ function getGuidFromId(id) {
   if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) {
     return id;
   }
-  const clean = String(id).replace(/[^0-9a-fA-F]/g, '').padEnd(32, '0');
+  const clean = String(id)
+    .replace(/[^0-9a-fA-F]/g, '')
+    .padEnd(32, '0');
   return `${clean.slice(0, 8)}-${clean.slice(8, 12)}-${clean.slice(12, 16)}-${clean.slice(16, 20)}-${clean.slice(20, 32)}`;
 }
 
@@ -46,7 +48,9 @@ function getPaymentGuidFromId(id) {
   // Increment the last segment by 1 to get a distinct but related GUID
   const parts = base.split('-');
   const lastHex = parseInt(parts[4], 16);
-  parts[4] = String(lastHex + 7).padStart(12, '0').slice(-12);
+  parts[4] = String(lastHex + 7)
+    .padStart(12, '0')
+    .slice(-12);
   return parts.join('-');
 }
 
@@ -534,8 +538,3 @@ export function downloadTransporterPaymentsXml(paymentsInput, fileNameInput, ten
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-
-export default {
-  buildTransporterPaymentsXml,
-  downloadTransporterPaymentsXml,
-};

@@ -142,5 +142,3 @@ export const exportToExcel = async (sheets, fileName = 'data') => {
   const buffer = await workbook.xlsx.writeBuffer();
   saveAs(new Blob([buffer]), `${fileName}.xlsx`);
 };
-
-export default exportToExcel;

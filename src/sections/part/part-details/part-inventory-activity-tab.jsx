@@ -64,9 +64,12 @@ export function PartInventoryActivityTab({ partId }) {
     defaultRowsPerPage: 10,
   });
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const {
     visibleColumns,

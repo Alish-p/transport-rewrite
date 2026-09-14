@@ -19,7 +19,6 @@ export const _faqs = [...Array(8)].map((_, index) => ({
 }));
 // ----------------------------------------------------------------------
 
-
 export const _notifications = [...Array(9)].map((_, index) => ({
   id: _mock.id(index),
   avatarUrl: [
@@ -68,7 +67,6 @@ export const _notifications = [...Array(9)].map((_, index) => ({
 }));
 
 // ----------------------------------------------------------------------
-
 
 export const _socials = [
   {

@@ -115,7 +115,15 @@ export function AuthProvider({ children }) {
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
     }),
-    [checkUserSession, state.user, state.tenant, state.accessibleTenants, switchTenant, status, hasPermission]
+    [
+      checkUserSession,
+      state.user,
+      state.tenant,
+      state.accessibleTenants,
+      switchTenant,
+      status,
+      hasPermission,
+    ]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

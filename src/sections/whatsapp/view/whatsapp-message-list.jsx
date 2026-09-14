@@ -109,7 +109,8 @@ export function WhatsAppMessageList({
       }
     } else {
       // New incoming/sent messages at bottom: if user was near bottom, auto-scroll down
-      const isNearBottom = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight < 200;
+      const isNearBottom =
+        scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight < 200;
       if (isNearBottom) {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
@@ -202,11 +203,7 @@ export function WhatsAppMessageList({
             </Stack>
 
             {groupedMessages[date].map((msg) => (
-              <WhatsAppMessageItem
-                key={msg._id}
-                message={msg}
-                onImageClick={handleImageClick}
-              />
+              <WhatsAppMessageItem key={msg._id} message={msg} onImageClick={handleImageClick} />
             ))}
           </Box>
         ))}

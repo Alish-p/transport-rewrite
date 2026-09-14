@@ -151,5 +151,3 @@ export function TransporterSubtripsWidget({ transporterId, title = 'Jobs', ...ot
     </Card>
   );
 }
-
-export default TransporterSubtripsWidget;

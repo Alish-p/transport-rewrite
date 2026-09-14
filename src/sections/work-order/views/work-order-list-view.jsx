@@ -93,9 +93,12 @@ export function WorkOrderListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc', syncToUrl: true });
   const learn = useBoolean();
 
-  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(defaultFilters, {
-    onResetPage: table.onResetPage,
-  });
+  const { filters, setFilters, handleFilters, handleResetFilters, canReset } = useFilters(
+    defaultFilters,
+    {
+      onResetPage: table.onResetPage,
+    }
+  );
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedPart, setSelectedPart] = useState(null);
@@ -326,7 +329,9 @@ export function WorkOrderListView() {
         <WorkOrderTableToolbar
           filters={filters}
           onFilters={handleFilters}
-          onApplyStartDateRange={(start, end) => setFilters({ startDateStart: start, startDateEnd: end })}
+          onApplyStartDateRange={(start, end) =>
+            setFilters({ startDateStart: start, startDateEnd: end })
+          }
           onApplyEndDateRange={(start, end) => setFilters({ endDateStart: start, endDateEnd: end })}
           visibleColumns={visibleColumns}
           disabledColumns={disabledColumns}
