@@ -57,7 +57,7 @@ import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
-import { FinancialLinksWidget } from '../widgets/financial-links-widget';
+import { FinancialLinksWidget } from '../widgets/subtrip-financial-links-widget';
 import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
 import { SubtripDocumentsWidget } from '../widgets/subtrip-documents-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
@@ -353,12 +353,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
             // Show Trip only when associated (non-market vehicles)
             ...(hasTrip
               ? [
-                  {
-                    icon: 'mdi:routes',
-                    label: `Trip #${subtrip.tripId.tripNo}`,
-                    href: paths.dashboard.trip.details(subtrip.tripId._id),
-                  },
-                ]
+                {
+                  icon: 'mdi:routes',
+                  label: `Trip #${subtrip.tripId.tripNo}`,
+                  href: paths.dashboard.trip.details(subtrip.tripId._id),
+                },
+              ]
               : []),
           ].filter((m) => (publicMode ? m.label !== 'Actions' : true))}
           menus={[
@@ -369,12 +369,12 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                 a.divider
                   ? { divider: true, key: `action-divider-${idx}` }
                   : {
-                      label: a.label,
-                      icon: a.icon,
-                      onClick: a.action,
-                      disabled: a.disabled,
-                      color: a.color,
-                    }
+                    label: a.label,
+                    icon: a.icon,
+                    onClick: a.action,
+                    disabled: a.disabled,
+                    color: a.color,
+                  }
               ),
             },
             {
