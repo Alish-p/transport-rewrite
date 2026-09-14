@@ -1,5 +1,3 @@
-import ExcelJS from 'exceljs';
-
 export async function parseImportFile(file, columns = []) {
   const jsonData = [];
 
@@ -60,6 +58,7 @@ export async function parseImportFile(file, columns = []) {
     }
   } else {
     // XLSX
+    const { default: ExcelJS } = await import('exceljs');
     const workbook = new ExcelJS.Workbook();
     const arrayBuffer = await file.arrayBuffer();
     await workbook.xlsx.load(arrayBuffer);
@@ -99,6 +98,7 @@ export async function parseImportFile(file, columns = []) {
 }
 
 export async function generateTemplate(columns) {
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Template');
 

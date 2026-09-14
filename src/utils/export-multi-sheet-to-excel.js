@@ -1,4 +1,3 @@
-import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 const C = {
@@ -131,6 +130,7 @@ export function addSheet(workbook, sheetName, data, options = {}) {
 }
 
 export const exportToExcel = async (sheets, fileName = 'data') => {
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Tranzit';
   workbook.created = new Date();

@@ -1,12 +1,12 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
-import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 import { fNumber } from './format-number';
 
 // ===== ExcelJS version (professional styling) =====
 export const exportToExcel = async (data, fileName) => {
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Tranzit';
   workbook.created = new Date();

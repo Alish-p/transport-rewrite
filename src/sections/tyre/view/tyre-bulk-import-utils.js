@@ -1,6 +1,5 @@
-import ExcelJS from 'exceljs';
-
 export async function generateTyreTemplate() {
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Tyre Import Template');
 

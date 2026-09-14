@@ -1,9 +1,10 @@
-import ExcelJS from 'exceljs';
-
 import axios from 'src/utils/axios';
 
 export async function generateVehicleKmTemplate() {
-  const { data } = await axios.get('/api/vehicles/km-template');
+  const [{ data }, { default: ExcelJS }] = await Promise.all([
+    axios.get('/api/vehicles/km-template'),
+    import('exceljs'),
+  ]);
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Vehicle KM Template');
 

@@ -1,4 +1,16 @@
-import { StyleSheet } from '@react-pdf/renderer';
+import { Font, StyleSheet } from '@react-pdf/renderer';
+
+try {
+  Font.register({
+    family: 'Roboto',
+    fonts: [
+      { src: '/fonts/Roboto-Regular.ttf', fontWeight: 400 },
+      { src: '/fonts/Roboto-Bold.ttf', fontWeight: 700 },
+    ],
+  });
+} catch (e) {
+  // Font already registered or SSR
+}
 
 const pdfStyles = {
   // ------------------------------------------
