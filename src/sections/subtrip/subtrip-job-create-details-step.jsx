@@ -25,6 +25,7 @@ export function SubtripJobCreateDetailsStep({
   recentDrivers,
   handleDriverChange,
   isLoadedJob,
+  allowBillingPartySelection,
   onSelectCustomerClick,
   selectedCustomer,
   getLabel,
@@ -86,7 +87,7 @@ export function SubtripJobCreateDetailsStep({
           />
         )}
 
-        {isLoadedJob && (
+        {isLoadedJob && allowBillingPartySelection && (
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
               Billing Party
@@ -107,7 +108,7 @@ export function SubtripJobCreateDetailsStep({
 
         <Field.MobileDateTimePicker name="startDate" label="Start Date *" maxDate={dayjs()} />
 
-        <Field.Configurable entity="subtrip" name="remarks" customerId={selectedCustomer?._id}>
+        <Field.Configurable entity="subtrip" name="remarks">
           <Field.Text name="remarks" label={getLabel('remarks', 'Remarks')} />
         </Field.Configurable>
       </Box>

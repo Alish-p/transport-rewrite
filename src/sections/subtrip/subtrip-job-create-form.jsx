@@ -76,6 +76,9 @@ export function SubtripJobCreateForm() {
   const isEwayIntegrationEnabled = Boolean(tenant?.integrations?.ewayBill?.enabled);
   const { pumps: managesPumps } = useSystemFeatures();
 
+  const allowBillingPartySelection = Boolean(tenant?.config?.subtrip?.allowBillingPartySelection);
+  const defaultBillingParty = tenant?.config?.subtrip?.defaultBillingParty || 'consignor';
+
   // Step state
   const [activeStep, setActiveStep] = useState(0);
 
@@ -118,7 +121,10 @@ export function SubtripJobCreateForm() {
   const isFetchingTargetTrip = fromTripId ? fetchingForcedTrip : fetchingActiveTrip;
 
   // Form state for job details + step selections
-  const defaultFormValues = useMemo(createJobDefaultValues, []);
+  const defaultFormValues = useMemo(
+    () => createJobDefaultValues({ defaultBillingParty }),
+    [defaultBillingParty]
+  );
 
   const methods = useForm({
     resolver: zodResolver(jobCreateSchema),
@@ -275,7 +281,7 @@ export function SubtripJobCreateForm() {
       setSelectedVehicle(vehicle);
       setValue('tripDecision', 'attach');
       setValue('loadType', 'loaded');
-      setValue('billingParty', 'consignor');
+      setValue('billingParty', defaultBillingParty);
       setValue('startKm', '');
       setValue('consignee', null);
       setSelectedCustomer(null);
@@ -309,6 +315,7 @@ export function SubtripJobCreateForm() {
       setSelectedDriver,
       setSelectedPump,
       setValue,
+      defaultBillingParty,
       freightConfig?.defaultModel,
     ]
   );
@@ -624,6 +631,7 @@ export function SubtripJobCreateForm() {
               recentDrivers={recentDrivers}
               handleDriverChange={handleDriverChange}
               isLoadedJob={isLoadedJob}
+              allowBillingPartySelection={allowBillingPartySelection}
               onSelectCustomerClick={customerDialog.onTrue}
               selectedCustomer={selectedCustomer}
               getLabel={getLabel}

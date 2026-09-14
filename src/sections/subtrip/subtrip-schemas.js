@@ -349,13 +349,13 @@ export const jobCreateSchema = zod
     }
   });
 
-export const createJobDefaultValues = () => ({
+export const createJobDefaultValues = (overrides = {}) => ({
   diNumber: '',
   remarks: '',
   startDate: new Date(),
   tripDecision: 'attach',
   loadType: 'loaded',
-  billingParty: 'consignor',
+  billingParty: overrides.defaultBillingParty || 'consignor',
   startKm: '',
   consignee: null,
   vehicleAssignment: 'schedule',

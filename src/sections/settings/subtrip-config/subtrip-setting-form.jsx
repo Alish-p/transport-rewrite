@@ -9,6 +9,7 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import TableRow from '@mui/material/TableRow';
 import MenuItem from '@mui/material/MenuItem';
 import TableBody from '@mui/material/TableBody';
@@ -26,6 +27,7 @@ import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { useTenant, useUpdateTenant } from 'src/query/use-tenant';
 
+import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 import { FREIGHT_MODEL_OPTIONS } from 'src/sections/subtrip/constants';
@@ -66,6 +68,8 @@ const SubtripSettingSchema = zod.object({
         });
       }
     }),
+  allowBillingPartySelection: zod.boolean().optional(),
+  defaultBillingParty: zod.enum(['consignor', 'consignee']).default('consignor'),
   lrTemplate: zod.string().optional(),
   fields: zod.record(
     zod.string(),
@@ -98,6 +102,8 @@ export default function SubtripSettingForm() {
         allowedModels: subtripConfig?.allowedFreightModels || ['per_ton'],
         defaultModel: subtripConfig?.defaultFreightModel || 'per_ton',
       },
+      allowBillingPartySelection: subtripConfig?.allowBillingPartySelection ?? false,
+      defaultBillingParty: subtripConfig?.defaultBillingParty || 'consignor',
       lrTemplate: subtripConfig?.lrTemplate || 'standard',
       fields: fieldsInit,
     };
@@ -137,6 +143,8 @@ export default function SubtripSettingForm() {
           materialOptions: formData.materialOptions,
           allowedFreightModels: formData.freightConfig.allowedModels,
           defaultFreightModel: formData.freightConfig.defaultModel,
+          allowBillingPartySelection: formData.allowBillingPartySelection ?? false,
+          defaultBillingParty: formData.defaultBillingParty || 'consignor',
           lrTemplate: formData.lrTemplate,
           fields: formData.fields,
         },
@@ -214,6 +222,51 @@ export default function SubtripSettingForm() {
                       {model.label}
                     </MenuItem>
                   ))}
+                </Field.Select>
+              </Grid>
+            </Grid>
+          </Card>
+
+          {/* Billing Party Configuration */}
+          <Card sx={{ p: 3 }}>
+            <CardHeader
+              title="Billing Party Configuration"
+              subheader="Configure whether to allow selecting between Consignor and Consignee billing during Job Creation."
+              sx={{ px: 0, pt: 0, mb: 3 }}
+            />
+            <Divider sx={{ mb: 3 }} />
+
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Field.Switch
+                  name="allowBillingPartySelection"
+                  labelPlacement="start"
+                  label={
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      Allow selecting Billing Party (Consignor vs Consignee) during Job Creation
+                      <Tooltip title="If disabled, Job Creation will automatically use the Default Billing Party without prompting.">
+                        <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Iconify
+                            icon="eva:info-outline"
+                            width={16}
+                            sx={{ color: 'text.disabled', ml: 0.5 }}
+                          />
+                        </Box>
+                      </Tooltip>
+                    </Stack>
+                  }
+                  sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Field.Select
+                  name="defaultBillingParty"
+                  label="Default Billing Party"
+                  fullWidth
+                >
+                  <MenuItem value="consignor">Consignor (Loading Customer)</MenuItem>
+                  <MenuItem value="consignee">Consignee (Delivery Customer)</MenuItem>
                 </Field.Select>
               </Grid>
             </Grid>
