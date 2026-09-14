@@ -57,9 +57,9 @@ import { BasicExpenseTable } from '../widgets/basic-expense-table';
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
 import { ResolveSubtripDialog } from '../subtrip-resolve-dialogue-form';
 import { SubtripStatusStepper } from '../widgets/subtrip-status-stepper';
-import { FinancialLinksWidget } from '../widgets/subtrip-financial-links-widget';
 import { SubtripRouteMapWidget } from '../widgets/subtrip-route-map-widget';
 import { SubtripDocumentsWidget } from '../widgets/subtrip-documents-widget';
+import { FinancialLinksWidget } from '../widgets/subtrip-financial-links-widget';
 import { EmptySubtripStatusStepper } from '../widgets/empty-subtrip-status-stepper';
 
 // ----------------------------------------------------------------------
