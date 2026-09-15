@@ -24,7 +24,7 @@ export function VehicleDocumentGridContent() {
   const { ref: loadMoreRef, inView } = useInView({ threshold: 0 });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteVehicles(
-    { rowsPerPage: VEHICLE_PAGE_SIZE, isOwn: true },
+    { rowsPerPage: VEHICLE_PAGE_SIZE, isOwn: true, includeDocStatus: true },
     { enabled: true }
   );
 
