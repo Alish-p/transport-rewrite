@@ -457,7 +457,6 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     orderNo = '',
     startDate = new Date(),
     unloadingPoint = '',
-    materialType = '',
     packagingType = '',
     packaging = '',
     hsnCode = '',
