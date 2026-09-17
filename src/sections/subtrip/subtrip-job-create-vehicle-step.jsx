@@ -107,6 +107,7 @@ export function SubtripJobCreateVehicleStep({
           consignee,
           loadingWeight,
           quantity,
+          quantityUnit,
           materialType,
           grade,
           vehicleNumber,
@@ -147,6 +148,7 @@ export function SubtripJobCreateVehicleStep({
         if (loadingWeight !== undefined) {
           setValue('loadingWeight', loadingWeight, { shouldDirty: true, shouldValidate: true });
           setValue('quantity', quantity, { shouldDirty: true, shouldValidate: false });
+          setValue('quantityUnit', quantityUnit || 'bags', { shouldDirty: true, shouldValidate: false });
         }
         if (materialType) {
           setValue('materialType', materialType, { shouldDirty: true, shouldValidate: true });

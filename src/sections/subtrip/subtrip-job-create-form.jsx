@@ -297,6 +297,7 @@ export function SubtripJobCreateForm() {
       setValue('ewayExpiryDate', null);
       setValue('materialType', '');
       setValue('quantity', '');
+      setValue('quantityUnit', 'bags');
       setValue('grade', '');
       setValue('shipmentNo', '');
       setValue('orderNo', '');
@@ -480,6 +481,7 @@ export function SubtripJobCreateForm() {
           ewayExpiryDate: form.ewayExpiryDate,
           materialType: form.materialType,
           quantity: toNumber(form.quantity),
+          quantityUnit: form.quantityUnit || 'bags',
           grade: form.grade || undefined,
           driverAdvance: toNumber(form.driverAdvance),
           driverAdvanceGivenBy: form.driverAdvanceGivenBy,

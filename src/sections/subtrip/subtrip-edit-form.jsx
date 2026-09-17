@@ -46,6 +46,7 @@ import { KanbanCustomerDialog } from '../kanban/components/kanban-customer-dialo
 import {
   SUBTRIP_STATUS,
   FREIGHT_MODEL_OPTIONS,
+  QUANTITY_UNIT_OPTIONS,
   DRIVER_ADVANCE_GIVEN_BY_OPTIONS,
 } from './constants';
 
@@ -84,6 +85,7 @@ const loadedSchemaBase = baseSchema.extend({
     .optional(),
   loadingWeight: numericInputSchema,
   quantity: numericInputSchema,
+  quantityUnit: z.enum(['bags', 'box', 'loose', 'other']).nullable().optional(),
   freightDetails: freightDetailsSchema.nullable().optional(),
   ewayBill: z.string().max(100).nullable().optional(),
   ewayExpiryDate: schemaHelper.dateOptional(),
@@ -230,6 +232,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
       intentFuelPump: currentSubtrip?.intentFuelPump?._id,
       remarks: currentSubtrip?.remarks || '',
       errorRemarks: currentSubtrip?.errorRemarks || '',
+      quantityUnit: currentSubtrip?.quantityUnit || 'bags',
       vehicleAssignment: currentSubtrip?.vehicleAssignment || 'schedule',
       freightDetails: currentSubtrip?.freightDetails || {
         freightModel: 'per_ton',
@@ -669,13 +672,13 @@ export default function SubtripEditForm({ currentSubtrip }) {
                       name="quantity"
                       customerId={currentSubtrip?.customerId?._id}
                     >
-                      <Field.Text
+                      <Field.InputWithUnit
                         name="quantity"
+                        unitName="quantityUnit"
                         label={getLabel('quantity', 'Quantity')}
-                        type="number"
-                        InputProps={{
-                          endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
-                        }}
+                        placeholder="0"
+                        unitOptions={QUANTITY_UNIT_OPTIONS}
+                        defaultUnit="bags"
                       />
                     </Field.Configurable>
                   )}

@@ -7,9 +7,10 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import StepContent from '@mui/material/StepContent';
-import InputAdornment from '@mui/material/InputAdornment';
 
 import { Field } from 'src/components/hook-form';
+
+import { QUANTITY_UNIT_OPTIONS } from 'src/sections/subtrip/constants';
 
 import { getFreightStepError } from './subtrip-job-create-freight-step';
 
@@ -35,13 +36,13 @@ export function SubtripJobCreateMaterialStep({
     <StepContent>
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
         <Field.Configurable entity="subtrip" name="quantity" customerId={selectedCustomer?._id}>
-          <Field.Text
+          <Field.InputWithUnit
             name="quantity"
+            unitName="quantityUnit"
             label={getLabel('quantity', 'Quantity')}
-            type="number"
-            InputProps={{
-              endAdornment: <InputAdornment position="end">Bags</InputAdornment>,
-            }}
+            placeholder="0"
+            unitOptions={QUANTITY_UNIT_OPTIONS}
+            defaultUnit="bags"
           />
         </Field.Configurable>
 

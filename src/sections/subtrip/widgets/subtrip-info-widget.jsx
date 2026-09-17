@@ -15,6 +15,8 @@ import { fCurrency } from 'src/utils/format-number';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
+import { getQuantityUnitLabel } from 'src/sections/subtrip/constants';
+
 // ----------------------------------------------------------------------
 
 export default function LRInfoCard({ subtrip, sx, ...other }) {
@@ -29,6 +31,7 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
     unloadingPoint,
     materialType,
     quantity,
+    quantityUnit,
     grade,
     tripId = {},
     vehicleId,
@@ -248,7 +251,13 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
       <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
         <InfoRow icon="mdi:cube" label="Material" value={materialType} />
         {grade ? <InfoRow icon="mdi:star" label="Grade" value={grade} /> : null}
-        {quantity ? <InfoRow icon="mdi:scale" label="Quantity" value={quantity} /> : null}
+        {quantity ? (
+          <InfoRow
+            icon="mdi:scale"
+            label="Quantity"
+            value={`${quantity} ${getQuantityUnitLabel(quantityUnit)}`}
+          />
+        ) : null}
         {rate ? (
           <InfoRow icon="mdi:currency-inr" label="Freight Rate" value={fCurrency(rate)} />
         ) : null}

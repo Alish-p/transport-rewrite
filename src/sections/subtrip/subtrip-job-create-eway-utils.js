@@ -32,6 +32,15 @@ export const extractEwayBillDetails = (message, ewayNo, materialOptions = []) =>
 
   const firstItem = Array.isArray(message.itemList) ? message.itemList[0] : undefined;
   const qty = firstItem?.quantity;
+  const rawUnit = (firstItem?.qtyUnit || firstItem?.unit || '').toString().trim().toLowerCase();
+  let quantityUnit = 'bags';
+  if (['box', 'boxes', 'ctn', 'carton', 'cartons'].includes(rawUnit)) {
+    quantityUnit = 'box';
+  } else if (['loose', 'nos', 'loose quantity'].includes(rawUnit)) {
+    quantityUnit = 'loose';
+  } else if (['bag', 'bags', 'bgs'].includes(rawUnit)) {
+    quantityUnit = 'bags';
+  }
   const desc = firstItem?.product_description;
 
   const consignorAddr1 = (message.address1_of_consignor || '').trim();
@@ -53,6 +62,7 @@ export const extractEwayBillDetails = (message, ewayNo, materialOptions = []) =>
       : undefined,
     loadingWeight: qty,
     quantity: qty,
+    quantityUnit,
     materialType: matchedMaterialOpt ? matchedMaterialOpt.value : undefined,
     grade: desc || undefined,
     vehicleNumber: vehicleNoFromEwb,

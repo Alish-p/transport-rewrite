@@ -5,6 +5,7 @@ import { fDate } from 'src/utils/format-time';
 
 import TenantLogo from 'src/pdfs/common/TenantLogo';
 
+import { getQuantityUnitLabel } from 'src/sections/subtrip/constants';
 import { loadingWeightUnit } from 'src/sections/vehicle/vehicle-config';
 
 const isBrowser = typeof window !== 'undefined';
@@ -461,6 +462,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     packaging = '',
     hsnCode = '',
     quantity,
+    quantityUnit,
     vehicleId = {},
     freightDetails = {},
     remarks = '',
@@ -528,7 +530,10 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
     : '35.000 MTS';
   const displayMaterial = 'AS PER TAX INVOICE'; // Clients Requirement
-  const displayPackaging = packagingType || packaging || 'BAGS';
+  const displayPackaging = getQuantityUnitLabel(
+    quantityUnit || packagingType || packaging,
+    'Bags'
+  ).toUpperCase();
   const displayQuantity = quantity !== undefined && quantity !== null ? quantity : '-';
   const totalQuantity = quantity !== undefined && quantity !== null ? quantity : '0';
 

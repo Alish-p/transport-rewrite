@@ -35,3 +35,19 @@ export const FREIGHT_MODEL_OPTIONS = [
 export const CONCRETE_FREIGHT_MODEL_OPTIONS = FREIGHT_MODEL_OPTIONS.filter(
   (opt) => opt.value !== 'to_be_billed'
 );
+
+export const QUANTITY_UNIT_OPTIONS = [
+  { value: 'bags', label: 'Bags' },
+  { value: 'box', label: 'Box' },
+  { value: 'loose', label: 'Loose' },
+  { value: 'other', label: 'Other' },
+];
+
+export const getQuantityUnitLabel = (unit, defaultLabel = 'Bags') => {
+  if (!unit) return defaultLabel;
+  const match = QUANTITY_UNIT_OPTIONS.find(
+    (opt) => opt.value.toLowerCase() === String(unit).toLowerCase()
+  );
+  if (match) return match.label;
+  return 'Other';
+};

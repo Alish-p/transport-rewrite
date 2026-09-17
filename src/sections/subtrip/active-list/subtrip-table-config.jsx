@@ -10,8 +10,8 @@ import { fDate, fTime, fDateTime, fDateTimeDuration } from 'src/utils/format-tim
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
-import { SUBTRIP_STATUS_COLORS } from '../constants';
 import { fFreightRate, getFreightExplanation } from '../utils';
+import { getQuantityUnitLabel, SUBTRIP_STATUS_COLORS } from '../constants';
 
 export const TABLE_COLUMNS = [
   {
@@ -241,7 +241,7 @@ export const TABLE_COLUMNS = [
     label: 'Quantity',
     defaultVisible: false,
     disabled: false,
-    getter: (row) => row?.quantity || '-',
+    getter: (row) => (row?.quantity ? `${row.quantity} ${getQuantityUnitLabel(row.quantityUnit)}` : '-'),
     align: 'center',
     showTotal: true,
   },
