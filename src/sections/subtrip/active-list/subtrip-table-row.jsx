@@ -120,7 +120,13 @@ export default function SubtripTableRow({
         rowProps={
           isCancelled
             ? {
-                sx: { textDecoration: 'line-through', opacity: 0.6 },
+                sx: {
+                  textDecoration: 'line-through',
+                  opacity: 0.6,
+                  '& *': {
+                    textDecoration: 'inherit',
+                  },
+                },
               }
             : {}
         }
