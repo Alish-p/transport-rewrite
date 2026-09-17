@@ -50,9 +50,11 @@ import { DashboardTotalWidget } from 'src/sections/overview/app/app-total-widget
 import TenantLogoCardAdmin from './tenant-logo-card-admin';
 import { PaymentFormDialog } from './tenant-admin-payments';
 import { TenantUserFormDialog } from './tenant-admin-users';
-import { TenantSubscriptionWidget } from './tenant-subscription-widget';
+import { TenantOnboardingWidget } from './tenant-onboarding-widget';
 import { TenantSubscriptionDialog } from './tenant-subscription-dialog';
+import { TenantSubscriptionWidget } from './tenant-subscription-widget';
 import { TenantRecordPaymentDialog } from './tenant-record-payment-dialog';
+import { exportTenantOnboardingToExcel } from './utils/tenant-onboarding-tracker';
 
 const PAYMENT_METHOD_ICONS = {
   UPI: 'solar:smartphone-bold',
@@ -202,6 +204,16 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
   const counts = stats?.counts || {};
   const totals = stats?.totals || {};
 
+  const handleDownloadTracker = async () => {
+    try {
+      await exportTenantOnboardingToExcel(localTenant, localUsers, stats);
+      toast.success('Onboarding Progress Tracker downloaded successfully');
+    } catch (error) {
+      console.error('Failed to export onboarding tracker:', error);
+      toast.error('Failed to download onboarding tracker');
+    }
+  };
+
   return (
     <DashboardContent>
       <HeroHeader
@@ -210,6 +222,11 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
         icon="solar:buildings-2-bold"
         meta={meta}
         actions={[
+          {
+            label: 'Download Onboarding Tracker',
+            icon: 'solar:file-download-bold',
+            onClick: handleDownloadTracker,
+          },
           {
             label: 'Edit',
             icon: 'solar:pen-bold',
@@ -220,6 +237,15 @@ export default function TenantAdminDetailView({ tenant, users, stats }) {
 
       <Box sx={{ mt: 3 }}>
         <Grid container spacing={3}>
+          {/* Onboarding Progress Tracker */}
+          <Grid xs={12}>
+            <TenantOnboardingWidget
+              tenant={localTenant}
+              users={localUsers}
+              stats={stats}
+            />
+          </Grid>
+
           {/* Row 1: Identity, Subscription & Basic Details */}
           <Grid xs={12} md={4}>
             <TenantLogoCardAdmin
