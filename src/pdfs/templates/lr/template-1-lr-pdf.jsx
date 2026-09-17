@@ -486,13 +486,13 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const cityStatePin =
     tenant?.address?.city || tenant?.address?.state
       ? [
-          tenant?.address?.city,
-          tenant?.address?.state
-            ? `${tenant.address.state}${tenant?.address?.pincode ? ` - ${tenant.address.pincode}` : ''}`
-            : tenant?.address?.pincode,
-        ]
-          .filter(Boolean)
-          .join(', ')
+        tenant?.address?.city,
+        tenant?.address?.state
+          ? `${tenant.address.state}${tenant?.address?.pincode ? ` - ${tenant.address.pincode}` : ''}`
+          : tenant?.address?.pincode,
+      ]
+        .filter(Boolean)
+        .join(', ')
       : 'Jharkhand - 828202';
 
   // Legal Numbers
@@ -528,7 +528,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const formattedChargeWeight = loadingWeight
     ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
     : '35.000 MTS';
-  const displayMaterial = materialType || 'AS PER TAX INVOICE';
+  const displayMaterial = 'AS PER TAX INVOICE'; // Clients Requirement
   const displayPackaging = packagingType || packaging || 'BAGS';
   const displayQuantity = quantity !== undefined && quantity !== null ? quantity : '-';
   const totalQuantity = quantity !== undefined && quantity !== null ? quantity : '0';
