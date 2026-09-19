@@ -256,9 +256,12 @@ export function SubtripJobCreateForm() {
 
     if (candidate) {
       setSelectedCustomer(candidate);
+      if (candidate.address && !getValues('loadingPoint')) {
+        setValue('loadingPoint', candidate.address, { shouldValidate: true, shouldDirty: true });
+      }
       setSearchCustomerParams(null);
     }
-  }, [customerLookupData, searchCustomerParams, setSelectedCustomer]);
+  }, [customerLookupData, searchCustomerParams, setSelectedCustomer, getValues, setValue]);
 
   // Pre-fill if forced Trip ID is present
   useEffect(() => {
@@ -284,6 +287,8 @@ export function SubtripJobCreateForm() {
       setValue('billingParty', defaultBillingParty);
       setValue('startKm', '');
       setValue('consignee', null);
+      setValue('loadingPoint', '');
+      setValue('unloadingPoint', []);
       setSelectedCustomer(null);
       setSelectedConsignee(null);
       setSelectedDriver(null);
@@ -327,13 +332,30 @@ export function SubtripJobCreateForm() {
   );
 
   const handleCustomerChange = useCallback(
-    (customer) => setSelectedCustomer(customer),
-    [setSelectedCustomer]
+    (customer) => {
+      setSelectedCustomer(customer);
+      if (customer?.address) {
+        setValue('loadingPoint', customer.address, { shouldValidate: true, shouldDirty: true });
+      }
+      setValue('consignee', null);
+      setValue('unloadingPoint', []);
+      setSelectedConsignee(null);
+    },
+    [setSelectedCustomer, setSelectedConsignee, setValue]
   );
 
   const handleConsigneeChange = useCallback(
-    (customer) => setSelectedConsignee(customer),
-    [setSelectedConsignee]
+    (customer) => {
+      setSelectedConsignee(customer);
+      if (customer?.address) {
+        setValue(
+          'unloadingPoint',
+          [{ label: customer.address, value: customer.address }],
+          { shouldValidate: true, shouldDirty: true }
+        );
+      }
+    },
+    [setSelectedConsignee, setValue]
   );
 
   const handlePumpChange = useCallback(
@@ -548,6 +570,31 @@ export function SubtripJobCreateForm() {
       ? !getRouteStepError(watchedForm, validatorContext)
       : false;
 
+  // Auto-populate unloading point when consignee is selected in consignor billing mode
+  const consigneeFormValue = watchedForm.consignee;
+  useEffect(() => {
+    if (billingParty !== 'consignor' || !selectedCustomer) return;
+
+    const consigneeName =
+      typeof consigneeFormValue === 'string'
+        ? consigneeFormValue.trim()
+        : consigneeFormValue?.value?.trim() || consigneeFormValue?.label?.trim();
+
+    if (!consigneeName) return;
+
+    const matchedConsignee = (selectedCustomer?.consignees || []).find(
+      (c) => c.name?.toLowerCase() === consigneeName.toLowerCase()
+    );
+
+    if (matchedConsignee?.address) {
+      setValue(
+        'unloadingPoint',
+        [{ label: matchedConsignee.address, value: matchedConsignee.address }],
+        { shouldValidate: true, shouldDirty: true }
+      );
+    }
+  }, [consigneeFormValue, selectedCustomer, billingParty, setValue]);
+
   // Clear customer on load type change
   useEffect(() => {
     if (!selectedVehicle?.isOwn) return;
@@ -556,6 +603,8 @@ export function SubtripJobCreateForm() {
       setSelectedConsignee(null);
       setValue('consignee', null);
       setValue('billingParty', 'consignor');
+      setValue('loadingPoint', '');
+      setValue('unloadingPoint', []);
     }
   }, [loadType, selectedVehicle, setSelectedCustomer, setSelectedConsignee, setValue]);
 
@@ -566,6 +615,7 @@ export function SubtripJobCreateForm() {
     } else {
       setValue('consignee', null);
     }
+    setValue('unloadingPoint', []);
   }, [billingParty, setSelectedConsignee, setValue]);
 
   // Prepopulate driver from active trip when attaching

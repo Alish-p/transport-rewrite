@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -25,6 +27,17 @@ export function SubtripJobCreateRouteStep({
   selectedConsignee,
 }) {
   const isConsigneeBilling = billingParty === 'consignee';
+
+  const unloadingOptions = useMemo(() => {
+    if (isConsigneeBilling) {
+      return selectedConsignee?.address
+        ? [{ label: selectedConsignee.address, value: selectedConsignee.address }]
+        : [];
+    }
+    return Array.from(
+      new Set((consignees || []).map(({ address }) => address).filter(Boolean))
+    ).map((addr) => ({ label: addr, value: addr }));
+  }, [isConsigneeBilling, selectedConsignee, consignees]);
 
   return (
     <StepContent>
@@ -61,9 +74,7 @@ export function SubtripJobCreateRouteStep({
             name="unloadingPoint"
             label={getLabel('unloadingPoint', 'Unloading Point')}
             placeholder="Add unloading points..."
-            options={Array.from(
-              new Set((consignees || []).map(({ address }) => address).filter(Boolean))
-            ).map((addr) => ({ label: addr, value: addr }))}
+            options={unloadingOptions}
             helperText={isLoadedJob ? "Consignee's Address" : undefined}
           />
         </Field.Configurable>
