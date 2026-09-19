@@ -6,6 +6,7 @@ import { fDate, fDateTime, fDateTimeDuration, fDateRangeShortLabel } from 'src/u
 
 import { PDFTitle, PDFTable, PDFHeader, PDFStyles, NewPDFTable } from 'src/pdfs/common';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { getTripTotalKm } from 'src/sections/trip/utils/trip-utils';
 
 import { SUBTRIP_EXPENSE_TYPES } from '../../expense/expense-config';
@@ -29,8 +30,12 @@ export default function TripSheetPdf({ trip, tenant }) {
     subtrips = [],
   } = trip || {};
 
+  const activeSubtrips = (subtrips || []).filter(
+    (st) => st?.subtripStatus !== SUBTRIP_STATUS.CANCELLED
+  );
+
   const uniqueDriversMap = new Map();
-  subtrips.forEach((st) => {
+  activeSubtrips.forEach((st) => {
     if (st?.driverId?._id) {
       uniqueDriversMap.set(st.driverId._id, st.driverId);
     }
@@ -93,7 +98,7 @@ export default function TripSheetPdf({ trip, tenant }) {
     },
   ];
 
-  const subtripData = subtrips.map((st, idx) => {
+  const subtripData = activeSubtrips.map((st, idx) => {
     const rate = st.freightDetails?.rate || 0;
     const income = st.freightDetails?.freightAmount || 0;
     const expenseTotal = Array.isArray(st.expenses)
@@ -147,7 +152,7 @@ export default function TripSheetPdf({ trip, tenant }) {
     { header: 'Remarks', accessor: 'remarks', width: '50%' },
   ];
 
-  const allExpenses = subtrips.flatMap((st) =>
+  const allExpenses = activeSubtrips.flatMap((st) =>
     (st.expenses || [])
       .filter((e) => e.status !== 'Cancelled')
       .map((e) => {
@@ -166,7 +171,7 @@ export default function TripSheetPdf({ trip, tenant }) {
 
   // Calculate total distance (moved to Trip) and diesel consumption
   const totalKm = getTripTotalKm(trip);
-  const totalDiesel = subtrips.reduce(
+  const totalDiesel = activeSubtrips.reduce(
     (sum, st) =>
       sum +
       (Array.isArray(st.expenses)
@@ -185,7 +190,7 @@ export default function TripSheetPdf({ trip, tenant }) {
   // Amount per Ton per Km
   // Formula: Total Freight Amount / (Total Weight × Total Distance)
   // Exclude subtrips that don't have positive weight, distance, or rate
-  const validForRate = subtrips.filter((st) => {
+  const validForRate = activeSubtrips.filter((st) => {
     const weight = Number(st?.loadingWeight) || 0;
     const rate = Number(st?.freightDetails?.rate) || 0;
     return weight > 0 && rate > 0;

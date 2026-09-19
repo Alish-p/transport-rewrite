@@ -4,18 +4,24 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Chart, useChart } from 'src/components/chart';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+
 // ----------------------------------------------------------------------
 
 export default function ProfitExpenseChart({ subtrips, title, subheader }) {
+  const activeSubtrips = (subtrips || []).filter(
+    (st) => st?.subtripStatus !== SUBTRIP_STATUS.CANCELLED
+  );
+
   // Calculate profit and expenses for each subtrip
   const series = [
     {
       name: 'Profit',
-      data: subtrips?.map((subtrip) => subtrip.freightDetails?.freightAmount || 0),
+      data: activeSubtrips.map((subtrip) => subtrip.freightDetails?.freightAmount || 0),
     },
     {
       name: 'Expenses',
-      data: subtrips?.map(
+      data: activeSubtrips.map(
         (subtrip) =>
           subtrip?.expenses
             ?.filter((e) => e.status !== 'Cancelled')
@@ -31,7 +37,7 @@ export default function ProfitExpenseChart({ subtrips, title, subheader }) {
       colors: ['transparent'],
     },
     xaxis: {
-      categories: subtrips.map((subtrip) => subtrip.subtripNo),
+      categories: activeSubtrips.map((subtrip) => subtrip.subtripNo),
     },
     yaxis: {
       labels: {

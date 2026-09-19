@@ -14,6 +14,7 @@ import { fNumber } from 'src/utils/format-number';
 
 import { usePaginatedExpenses } from 'src/query/use-expense';
 
+import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
 import {
   useTable,
@@ -49,6 +50,7 @@ export function TripExpensesWidget({ tripId, title = 'Expenses', ...other }) {
               { id: 'dieselLtr', label: 'Diesel Ltr' },
               { id: 'date', label: 'Date' },
               { id: 'amount', label: 'Amount', align: 'right' },
+              { id: 'status', label: 'Status', align: 'center' },
             ]}
           />
           <TableBody>
@@ -56,30 +58,54 @@ export function TripExpensesWidget({ tripId, title = 'Expenses', ...other }) {
               <TableSkeleton />
             ) : expenses.length ? (
               <>
-                {expenses.map((row, idx) => (
-                  <TableRow key={row._id}>
-                    <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
-                    <TableCell>
-                      {row?.subtripId?.subtripNo ? (
-                        <Link
-                          component={RouterLink}
-                          to={paths.dashboard.subtrip.details(row?.subtripId?._id)}
-                          variant="body2"
-                          noWrap
-                          sx={{ color: 'primary.main' }}
+                {expenses.map((row, idx) => {
+                  const isCancelled = row?.status === 'Cancelled';
+
+                  return (
+                    <TableRow
+                      key={row._id}
+                      sx={
+                        isCancelled
+                          ? {
+                              opacity: 0.6,
+                              textDecoration: 'line-through',
+                              '& .MuiTableCell-root': { textDecoration: 'line-through' },
+                            }
+                          : undefined
+                      }
+                    >
+                      <TableCell>{table.page * table.rowsPerPage + idx + 1}</TableCell>
+                      <TableCell>
+                        {row?.subtripId?.subtripNo ? (
+                          <Link
+                            component={RouterLink}
+                            to={paths.dashboard.subtrip.details(row?.subtripId?._id)}
+                            variant="body2"
+                            noWrap
+                            sx={{ color: 'primary.main' }}
+                          >
+                            {row?.subtripId?.subtripNo}
+                          </Link>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell>{row.expenseType || '-'}</TableCell>
+                      <TableCell>{row.dieselLtr || '-'}</TableCell>
+                      <TableCell>{row.date ? fDate(new Date(row.date)) : '-'}</TableCell>
+                      <TableCell align="right">{fNumber(row.amount)}</TableCell>
+                      <TableCell align="center">
+                        <Label
+                          variant="soft"
+                          color={isCancelled ? 'error' : 'success'}
+                          sx={{ textDecoration: 'none' }}
                         >
-                          {row?.subtripId?.subtripNo}
-                        </Link>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>{row.expenseType || '-'}</TableCell>
-                    <TableCell>{row.dieselLtr || '-'}</TableCell>
-                    <TableCell>{row.date ? fDate(new Date(row.date)) : '-'}</TableCell>
-                    <TableCell align="right">{fNumber(row.amount)}</TableCell>
-                  </TableRow>
-                ))}
+                          {row.status || 'Active'}
+                        </Label>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </>
             ) : (
               <TableNoData notFound />

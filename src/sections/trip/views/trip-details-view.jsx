@@ -16,6 +16,7 @@ import { Iconify } from 'src/components/iconify';
 import { HeroHeader } from 'src/components/hero-header-card';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
 import { getTripTotalKm } from 'src/sections/trip/utils/trip-utils';
 import { SUBTRIP_EXPENSE_TYPES } from 'src/sections/expense/expense-config';
 
@@ -35,43 +36,50 @@ import { TripGpsTimelineWidget } from '../widgets/trip-gps-timeline-widget';
 // ----------------------------------------------------------------------
 // Helper function to calculate trip dashboard data
 function getTripDashboardData(trip) {
-  const totalJobs = trip?.subtrips?.length || 0;
-  const totalAdblueAmt = trip?.subtrips?.reduce((sum, st) => sum + (st.totalAdblueAmt || 0), 0);
+  const activeSubtrips =
+    trip?.subtrips?.filter((st) => st?.subtripStatus !== SUBTRIP_STATUS.CANCELLED) || [];
 
-  const totalExpenses =
-    trip?.subtrips?.reduce((sum, subtrip) => {
-      const subtripExpenses =
-        subtrip.expenses
-          ?.filter((e) => e.status !== 'Cancelled')
-          .reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
-      return sum + subtripExpenses;
-    }, 0) || 0;
+  const totalJobs = activeSubtrips.length;
 
-  const totalIncome =
-    trip?.subtrips?.reduce(
-      (sum, subtrip) => sum + (subtrip.freightDetails?.freightAmount || 0),
-      0
-    ) || 0;
+  const totalAdblueAmt = activeSubtrips.reduce((sum, subtrip) => {
+    const adblueExpenses =
+      subtrip.expenses
+        ?.filter((e) => e.status !== 'Cancelled')
+        .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.ADBLUE)
+        .reduce((subSum, expense) => subSum + (expense.amount || 0), 0) || 0;
+    return sum + adblueExpenses;
+  }, 0);
 
-  const totalDieselAmt =
-    trip?.subtrips?.reduce((sum, subtrip) => {
-      const dieselExpenses =
-        subtrip.expenses
-          ?.filter((e) => e.status !== 'Cancelled')
-          .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
-          .reduce((subSum, expense) => subSum + (expense.amount || 0), 0) || 0;
-      return sum + dieselExpenses;
-    }, 0) || 0;
+  const totalExpenses = activeSubtrips.reduce((sum, subtrip) => {
+    const subtripExpenses =
+      subtrip.expenses
+        ?.filter((e) => e.status !== 'Cancelled')
+        .reduce((subSum, expense) => subSum + expense.amount, 0) || 0;
+    return sum + subtripExpenses;
+  }, 0);
 
-  const totalDieselLtr =
-    trip?.subtrips?.reduce((sum, subtrip) => {
-      const dieselLtrs =
-        subtrip.expenses
-          ?.filter((e) => e.status !== 'Cancelled')
-          .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
-          .reduce((subSum, expense) => subSum + (expense.dieselLtr || 0), 0) || 0;
-      return sum + dieselLtrs;
-    }, 0) || 0;
+  const totalIncome = activeSubtrips.reduce(
+    (sum, subtrip) => sum + (subtrip.freightDetails?.freightAmount || 0),
+    0
+  );
+
+  const totalDieselAmt = activeSubtrips.reduce((sum, subtrip) => {
+    const dieselExpenses =
+      subtrip.expenses
+        ?.filter((e) => e.status !== 'Cancelled')
+        .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
+        .reduce((subSum, expense) => subSum + (expense.amount || 0), 0) || 0;
+    return sum + dieselExpenses;
+  }, 0);
+
+  const totalDieselLtr = activeSubtrips.reduce((sum, subtrip) => {
+    const dieselLtrs =
+      subtrip.expenses
+        ?.filter((e) => e.status !== 'Cancelled')
+        .filter((expense) => expense.expenseType === SUBTRIP_EXPENSE_TYPES.DIESEL)
+        .reduce((subSum, expense) => subSum + (expense.dieselLtr || 0), 0) || 0;
+    return sum + dieselLtrs;
+  }, 0);
 
   const totalKm = getTripTotalKm(trip);
 
@@ -104,9 +112,12 @@ export function TripDetailView({ trip }) {
   const { vehicleId = {}, _id, tripStatus, subtrips, tripNo } = trip;
 
   const subtripsArr = Array.isArray(trip?.subtrips) ? trip.subtrips : [];
+  const activeSubtrips = subtripsArr.filter(
+    (st) => st?.subtripStatus !== SUBTRIP_STATUS.CANCELLED
+  );
   const uniqueDriversMap = new Map();
 
-  subtripsArr.forEach((st) => {
+  activeSubtrips.forEach((st) => {
     if (st?.driverId?._id) {
       uniqueDriversMap.set(st.driverId._id, st.driverId);
     }
@@ -122,7 +133,7 @@ export function TripDetailView({ trip }) {
 
   const isOwnVehicle = Boolean(trip?.vehicleId?.isOwn);
   const allSubtripsBilled =
-    subtripsArr.length > 0 && subtripsArr.every((st) => st?.subtripStatus === 'billed');
+    activeSubtrips.length > 0 && activeSubtrips.every((st) => st?.subtripStatus === 'billed');
   const canViewTripSheet = isOwnVehicle && allSubtripsBilled;
 
   const tripSheetTooltipTitle = !isOwnVehicle
@@ -336,7 +347,7 @@ export function TripDetailView({ trip }) {
 
         {/* Trip Route Map */}
         <Grid item xs={12}>
-          <TripRouteMapWidget subtrips={subtrips} />
+          <TripRouteMapWidget subtrips={activeSubtrips} />
         </Grid>
 
         {/* GPS Journey Timeline — Own vehicles only */}
@@ -358,7 +369,7 @@ export function TripDetailView({ trip }) {
           </Grid>
           <Grid item xs={12} md={4}>
             <ProfitExpenseChart
-              subtrips={subtrips}
+              subtrips={activeSubtrips}
               title="Job Profit/Expense"
               subheader="Profit and expense Job wise"
             />

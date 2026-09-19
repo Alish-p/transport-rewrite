@@ -20,6 +20,8 @@ import axios from 'src/utils/axios';
 import { Iconify } from 'src/components/iconify';
 import MapWithMultiRoute from 'src/components/map/map-with-multi-route';
 
+import { SUBTRIP_STATUS } from 'src/sections/subtrip/constants';
+
 // -----------------------------------------------------------------------
 
 const ROUTE_COLORS = [
@@ -64,8 +66,10 @@ async function fetchRouteForSubtrip(ewayBill) {
 
 // status: 'ok' | 'no-ewaybill' | 'geocode-failed' | 'loading'
 function useSubtripRoutes(subtrips = []) {
-  // Build metadata for every subtrip so we can show them all in order
-  const allMeta = subtrips.map((st) => ({
+  const activeSubtrips = subtrips.filter((st) => st?.subtripStatus !== SUBTRIP_STATUS.CANCELLED);
+
+  // Build metadata for every active subtrip so we can show them all in order
+  const allMeta = activeSubtrips.map((st) => ({
     id: st._id,
     ewayBill: st.ewayBill || null,
     subtripNo: st.subtripNo,
