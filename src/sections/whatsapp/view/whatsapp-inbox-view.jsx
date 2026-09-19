@@ -5,11 +5,12 @@ import { Box } from '@mui/material';
 import { useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useDebounce } from 'src/hooks/use-debounce';
 
 import {
-  useWhatsAppConversations,
   useMarkConversationAsRead,
   useWhatsAppInfiniteMessages,
+  useWhatsAppInfiniteConversations,
 } from 'src/query/use-whatsapp';
 
 import { WhatsAppNav } from './whatsapp-nav';
@@ -33,18 +34,20 @@ export default function WhatsAppInboxView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [entityFilter, setEntityFilter] = useState('');
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const markAsRead = useMarkConversationAsRead();
 
-  // Fetch conversations
-  const conversationsQuery = useWhatsAppConversations({
-    q: searchQuery || undefined,
+  // Fetch conversations with infinite scrolling
+  const infiniteConversationsQuery = useWhatsAppInfiniteConversations({
+    q: debouncedSearchQuery || undefined,
     entityType: entityFilter || undefined,
   });
 
-  const conversations = useMemo(
-    () => conversationsQuery.data?.data || [],
-    [conversationsQuery.data]
-  );
+  const conversations = useMemo(() => {
+    if (!infiniteConversationsQuery.data?.pages) return [];
+    return infiniteConversationsQuery.data.pages.flatMap((page) => page?.data || []);
+  }, [infiniteConversationsQuery.data]);
 
   // Find the selected conversation object
   const selectedConversation = conversations.find((c) => c._id === selectedConversationId) || null;
@@ -116,7 +119,10 @@ export default function WhatsAppInboxView() {
             onEntityFilterChange={setEntityFilter}
             collapsed={navCollapsed.value}
             onToggleCollapse={navCollapsed.onToggle}
-            isLoading={conversationsQuery.isLoading}
+            isLoading={infiniteConversationsQuery.isLoading}
+            isFetchingNextPage={infiniteConversationsQuery.isFetchingNextPage}
+            hasNextPage={infiniteConversationsQuery.hasNextPage}
+            fetchNextPage={infiniteConversationsQuery.fetchNextPage}
           />
         }
         header={

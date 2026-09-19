@@ -91,6 +91,28 @@ export function useWhatsAppInfiniteMessages(conversationId, options = {}) {
   });
 }
 
+export function useWhatsAppInfiniteConversations(params = {}, options = {}) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEY, 'infinite-conversations', params],
+    queryFn: async ({ pageParam = 1 }) => {
+      const queryParams = { ...params, page: pageParam, limit: 20 };
+      return getConversations(queryParams);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const pagination = lastPage?.pagination;
+      if (!pagination) return undefined;
+      const { page, pages } = pagination;
+      if (page && pages && page < pages) {
+        return page + 1;
+      }
+      return undefined;
+    },
+    refetchInterval: 5000,
+    ...options,
+  });
+}
+
 export function useSendWhatsAppMessage() {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
@@ -98,6 +120,7 @@ export function useSendWhatsAppMessage() {
     onSuccess: () => {
       toast.success('Message sent successfully!');
       queryClient.invalidateQueries([QUERY_KEY, 'conversations']);
+      queryClient.invalidateQueries([QUERY_KEY, 'infinite-conversations']);
       queryClient.invalidateQueries([QUERY_KEY, 'messages']);
       queryClient.invalidateQueries([QUERY_KEY, 'infinite-messages']);
     },
@@ -115,6 +138,7 @@ export function useMarkConversationAsRead() {
     mutationFn: markAsRead,
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEY, 'conversations']);
+      queryClient.invalidateQueries([QUERY_KEY, 'infinite-conversations']);
     },
   });
   return mutateAsync;

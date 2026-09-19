@@ -1,3 +1,5 @@
+import { useRef, useEffect, useCallback } from 'react';
+
 import { Box, Chip, Stack, Skeleton, InputBase, IconButton } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
@@ -18,8 +20,30 @@ export function WhatsAppNav({
   collapsed,
   onToggleCollapse,
   isLoading,
+  isFetchingNextPage,
+  hasNextPage,
+  fetchNextPage,
 }) {
   const FILTERS = ['All', 'Driver', 'Transporter', 'Customer'];
+  const scrollRef = useRef(null);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    if (isNearBottom && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
 
   return (
     <>
@@ -66,7 +90,11 @@ export function WhatsAppNav({
         )}
       </Stack>
 
-      <Scrollbar sx={{ flex: 1 }}>
+      <Scrollbar
+        ref={scrollRef}
+        scrollableNodeProps={{ ref: scrollRef }}
+        sx={{ flex: 1 }}
+      >
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
               <Stack key={i} direction="row" spacing={2} sx={{ p: 2, alignItems: 'center' }}>
@@ -79,15 +107,37 @@ export function WhatsAppNav({
                 )}
               </Stack>
             ))
-          : conversations?.map((conv) => (
-              <WhatsAppNavItem
-                key={conv._id}
-                conversation={conv}
-                selected={selectedId === conv._id}
-                onSelect={() => onSelect(conv._id)}
-                collapsed={collapsed}
-              />
-            ))}
+          : (
+            <>
+              {conversations?.map((conv) => (
+                <WhatsAppNavItem
+                  key={conv._id}
+                  conversation={conv}
+                  selected={selectedId === conv._id}
+                  onSelect={() => onSelect(conv._id)}
+                  collapsed={collapsed}
+                />
+              ))}
+
+              {isFetchingNextPage &&
+                Array.from({ length: 3 }).map((_, i) => (
+                  <Stack
+                    key={`next-page-skeleton-${i}`}
+                    direction="row"
+                    spacing={2}
+                    sx={{ p: 2, alignItems: 'center' }}
+                  >
+                    <Skeleton variant="circular" width={48} height={48} />
+                    {!collapsed && (
+                      <Stack spacing={1} flex={1}>
+                        <Skeleton variant="text" width="60%" />
+                        <Skeleton variant="text" width="90%" />
+                      </Stack>
+                    )}
+                  </Stack>
+                ))}
+            </>
+          )}
       </Scrollbar>
 
       <Box
