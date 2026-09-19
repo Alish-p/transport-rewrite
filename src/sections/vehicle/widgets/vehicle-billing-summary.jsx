@@ -99,7 +99,8 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
     page: 1,
     rowsPerPage: 500,
   });
-  const expenses = expData?.expenses || [];
+  const expensesRaw = expData?.expenses || [];
+  const expenses = expensesRaw.filter((e) => e.status !== 'Cancelled');
 
   const [currentTab, setCurrentTab] = useState('profits');
   const monthLabel = rangePicker.shortLabel;
@@ -109,9 +110,7 @@ export function VehicleBillingSummary({ vehicleId, vehicleNo }) {
     (sum, st) => sum + (st.amt || 0) - (st.totalExpense || 0),
     0
   );
-  const totalLoss = expenses
-    .filter((e) => e.status !== 'Cancelled')
-    .reduce((sum, e) => sum + (e.amount || 0), 0);
+  const totalLoss = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
   const overall = totalNetProfit - totalLoss;
 
   return (

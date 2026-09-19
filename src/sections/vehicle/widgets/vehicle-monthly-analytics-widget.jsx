@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Skeleton from '@mui/material/Skeleton';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
@@ -17,6 +18,8 @@ import { fCurrency, fShortenNumber } from 'src/utils/format-number';
 
 import { useVehicleAnalytics } from 'src/query/use-vehicle';
 
+import { Label } from 'src/components/label';
+import { Iconify } from 'src/components/iconify';
 import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
@@ -116,7 +119,7 @@ export function VehicleMonthlyAnalyticsWidget({ vehicleId, ...other }) {
   const yearFromDate = dayjs(`${selectedYear}-01-01`).startOf('year').toISOString();
   const yearToDate = dayjs(`${selectedYear}-12-31`).endOf('year').toISOString();
 
-  const jobsLink = `${paths.dashboard.subtrip.list}?vehicleNo=${vehicleId}&fromDate=${yearFromDate}&toDate=${yearToDate}`;
+  const jobsLink = `${paths.dashboard.subtrip.list}?vehicleNo=${vehicleId}&fromDate=${yearFromDate}&toDate=${yearToDate}&subtripStatus=billed`;
   const expenseLink = `${paths.dashboard.expense.list}?vehicleId=${vehicleId}&startDate=${yearFromDate}&endDate=${yearToDate}`;
 
   // Summary cards data
@@ -142,7 +145,61 @@ export function VehicleMonthlyAnalyticsWidget({ vehicleId, ...other }) {
   return (
     <Card {...other}>
       <CardHeader
-        title="Monthly Analytics"
+        title={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="h6">Monthly Analytics</Typography>
+            <Tooltip
+              arrow
+              slotProps={{
+                tooltip: { sx: { bgcolor: 'grey.800', p: 1.25, maxWidth: 300 } },
+                arrow: { sx: { color: 'grey.800' } },
+              }}
+              title={
+                <Typography variant="caption" sx={{ lineHeight: 1.7, display: 'block' }}>
+                  Only jobs with completed billing (
+                  <Label
+                    color="success"
+                    variant="soft"
+                    sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}
+                  >
+                    Billed
+                  </Label>
+                  ) are counted in calculations. Active jobs in{' '}
+                  <Label
+                    color="info"
+                    variant="soft"
+                    sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}
+                  >
+                    Loaded
+                  </Label>{' '}
+                  or{' '}
+                  <Label
+                    color="primary"
+                    variant="soft"
+                    sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}
+                  >
+                    Received
+                  </Label>{' '}
+                  status and{' '}
+                  <Label
+                    color="error"
+                    variant="soft"
+                    sx={{ fontSize: '0.6rem', height: 16, px: 0.5 }}
+                  >
+                    Cancelled
+                  </Label>{' '}
+                  jobs/expenses are not included.
+                </Typography>
+              }
+            >
+              <Iconify
+                icon="eva:info-outline"
+                width={18}
+                sx={{ color: 'text.disabled', cursor: 'help' }}
+              />
+            </Tooltip>
+          </Stack>
+        }
         subheader="Yearly performance"
         sx={{ mb: 1 }}
         action={
