@@ -513,8 +513,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const consigneeName = consignee || '';
   const consigneeGst = subtrip?.consigneeCustomerId?.GSTNo || '-';
   const consigneeMobile = subtrip?.consigneeCustomerId?.cellNo || '-';
-  const consigneeAddress =
-    unloadingPoint || '';
+  const consigneeAddress = subtrip?.consigneeCustomerId?.address || '-';
 
   // Bank Details
   const bankName = tenant?.bankDetails?.name || '';
@@ -549,14 +548,6 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
-
-  // Locations (extract clean names for From / To to prevent overflow)
-  const fromDisplay = loadingPoint
-    ? (loadingPoint.split(',')[0] || loadingPoint).trim().toUpperCase()
-    : 'CHIRKUNDA';
-  const toDisplay = unloadingPoint
-    ? (unloadingPoint.split(',')[0] || unloadingPoint).trim().toUpperCase()
-    : 'SONEBHADRA';
 
   return (
     <Document>
@@ -648,11 +639,11 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>From</Text>
-                <Text style={styles.metaValue}>{fromDisplay}</Text>
+                <Text style={styles.metaValue}>{loadingPoint}</Text>
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>To</Text>
-                <Text style={styles.metaValue}>{toDisplay}</Text>
+                <Text style={styles.metaValue}>{unloadingPoint}</Text>
               </View>
             </View>
           </View>
