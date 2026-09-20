@@ -60,6 +60,7 @@ export const receiveSchema = zod
     isOwn: zod.boolean().optional(),
     unloadingWeightRequired: zod.boolean().optional(),
     remarksRequired: zod.boolean().optional(),
+    advanceFromCustomer: preprocessOptionalNumber(zod.number().optional()),
   })
   .superRefine((values, ctx) => {
     const effectiveFreightModel = values.freightDetails?.freightModel || values.freightModel || '';
@@ -268,6 +269,7 @@ export const jobCreateSchema = zod
     initialAdvanceDiesel: numericInputSchema,
     initialAdvanceDieselUnit: zod.enum(['litre', 'amount']).optional(),
     pumpCd: zod.string().optional(),
+    advanceFromCustomer: numericInputSchema,
   })
   .superRefine((data, ctx) => {
     const dieselAdvance = toNumber(data.initialAdvanceDiesel);
@@ -383,4 +385,5 @@ export const createJobDefaultValues = (overrides = {}) => ({
   initialAdvanceDiesel: '',
   initialAdvanceDieselUnit: 'litre',
   pumpCd: '',
+  advanceFromCustomer: '',
 });

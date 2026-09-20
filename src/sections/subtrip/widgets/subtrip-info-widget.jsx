@@ -274,28 +274,28 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
       {Boolean(
         invoiceNo || orderNo || shipmentNo || diNumber || ewayBill || referenceSubtripNo
       ) && (
-        <>
-          <Divider sx={{ borderStyle: 'dashed' }} />
-          <SectionHeader icon="solar:file-check-bold" title="Documents & References" />
-          <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
-            {referenceSubtripNo ? (
-              <InfoRow icon="mdi:link-variant" label="Reference Job" value={referenceSubtripNo} />
-            ) : null}
-            {shipmentNo ? (
-              <InfoRow icon="mdi:truck-delivery" label="Shipment No" value={shipmentNo} />
-            ) : null}
-            {invoiceNo ? (
-              <InfoRow icon="mdi:file-document-outline" label="Invoice No" value={invoiceNo} />
-            ) : null}
-            {orderNo ? <InfoRow icon="mdi:numeric" label="Order No" value={orderNo} /> : null}
-            {diNumber ? <InfoRow icon="mdi:ticket" label="DI No" value={diNumber} /> : null}
-            {ewayBill ? <InfoRow icon="mdi:barcode" label="E-Way Bill" value={ewayBill} /> : null}
-            {ewayExpiryDate ? (
-              <InfoRow icon="mdi:calendar" label="E-Way Expiry" value={fDateTime(ewayExpiryDate)} />
-            ) : null}
-          </Stack>
-        </>
-      )}
+          <>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            <SectionHeader icon="solar:file-check-bold" title="Documents & References" />
+            <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
+              {referenceSubtripNo ? (
+                <InfoRow icon="mdi:link-variant" label="Reference Job" value={referenceSubtripNo} />
+              ) : null}
+              {shipmentNo ? (
+                <InfoRow icon="mdi:truck-delivery" label="Shipment No" value={shipmentNo} />
+              ) : null}
+              {invoiceNo ? (
+                <InfoRow icon="mdi:file-document-outline" label="Invoice No" value={invoiceNo} />
+              ) : null}
+              {orderNo ? <InfoRow icon="mdi:numeric" label="Order No" value={orderNo} /> : null}
+              {diNumber ? <InfoRow icon="mdi:ticket" label="DI No" value={diNumber} /> : null}
+              {ewayBill ? <InfoRow icon="mdi:barcode" label="E-Way Bill" value={ewayBill} /> : null}
+              {ewayExpiryDate ? (
+                <InfoRow icon="mdi:calendar" label="E-Way Expiry" value={fDateTime(ewayExpiryDate)} />
+              ) : null}
+            </Stack>
+          </>
+        )}
 
       {/* 5. Weight & Shortage Section */}
       {Boolean(loadingWeight || unloadingWeight || shortageWeight || shortageAmount) && (

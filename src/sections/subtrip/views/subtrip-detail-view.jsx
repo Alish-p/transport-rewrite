@@ -228,6 +228,13 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   const freightDisplay = getFreightDisplay(subtrip);
   const commissionDisplay = isMarketVehicle ? getCommissionDisplay(subtrip) : null;
 
+  const advanceFromCustomer = subtrip?.advanceFromCustomer || 0;
+  const customerName = subtrip?.customerId?.customerName;
+  const advanceInfoNote =
+    advanceFromCustomer > 0
+      ? `${fCurrency(advanceFromCustomer)} advance already received from ${customerName || 'transporter'} (will be deducted on invoice)`
+      : null;
+
   const expenseDescription = isMarketVehicle
     ? `Total advances paid to transporter`
     : `Total expenses incurred on this job`;
@@ -720,6 +727,7 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
                   icon="eva:diagonal-arrow-right-up-fill"
                   total={freightDisplay.value}
                   description={freightDisplay.description}
+                  infoNote={advanceInfoNote}
                   badge={isMarketVehicle ? 'Market Vehicle' : 'Own Vehicle'}
                   badgeColor={isMarketVehicle ? 'secondary' : 'primary'}
                   chart={{

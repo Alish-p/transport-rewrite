@@ -87,7 +87,7 @@ export function SubtripJobCreateDetailsStep({
           />
         )}
 
-        {isLoadedJob && allowBillingPartySelection && (
+        {isLoadedJob && allowBillingPartySelection && selectedCustomer?.customerType !== 'transporter' && (
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
               Billing Party

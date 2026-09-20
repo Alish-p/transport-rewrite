@@ -18,6 +18,7 @@ export function SubtripReceiveSettlementSummary({
   shortageAmount,
   shortageWeight,
   endDate,
+  advanceFromCustomer,
 }) {
   if (!selectedSubtrip) return null;
 
@@ -28,7 +29,8 @@ export function SubtripReceiveSettlementSummary({
   const grossFreight = Number(freightDetails?.freightAmount || 0);
   const commission = isOwn ? 0 : Number(commissionDetails?.commissionAmount || 0);
   const shortage = hasShortage && shortageAmount ? Number(shortageAmount) : 0;
-  const netPayable = grossFreight - commission - shortage;
+  const advance = isOwn ? Number(advanceFromCustomer || 0) : 0;
+  const netPayable = grossFreight - commission - shortage - advance;
 
   const getFreightExplanation = () => {
     if (freightModel === 'to_be_billed' || !freightModel) {
@@ -172,6 +174,23 @@ export function SubtripReceiveSettlementSummary({
             </Box>
             <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'error.main' }}>
               -{fCurrency(shortage)}
+            </Typography>
+          </Stack>
+        )}
+
+        {/* Customer Advance Deduction (only for Own vehicles) */}
+        {isOwn && advanceFromCustomer > 0 && (
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 'medium', color: 'error.main' }}>
+                Advance from Customer
+              </Typography>
+              <Typography variant="caption" color="text.secondary" component="div">
+                (Deducted from Final Freight)
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'error.main' }}>
+              -{fCurrency(advanceFromCustomer)}
             </Typography>
           </Stack>
         )}

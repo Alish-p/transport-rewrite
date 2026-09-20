@@ -1,4 +1,8 @@
+import { useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
+
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -18,6 +22,8 @@ import { getMaterialStepError } from './subtrip-job-create-material-step';
 
 export function SubtripJobCreateAdvanceStep({
   isLoadedJob,
+  isOwnVehicle,
+  selectedCustomer,
   managesPumps,
   initialAdvanceDieselUnit,
   onSelectPumpClick,
@@ -28,9 +34,30 @@ export function SubtripJobCreateAdvanceStep({
   canSubmit,
   onPrevStep,
 }) {
+  const { watch } = useFormContext();
+  const driverAdvanceGivenBy = watch('driverAdvanceGivenBy');
+
+  const givenByOptions = useMemo(() => Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).filter((option) => {
+      if (option === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP && !managesPumps) {
+        return false;
+      }
+      if (
+        option === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER &&
+        !isOwnVehicle &&
+        selectedCustomer?.customerType !== 'transporter'
+      ) {
+        return false;
+      }
+      return true;
+    }), [managesPumps, isOwnVehicle, selectedCustomer]);
+
   if (!isLoadedJob) {
     return null;
   }
+
+  const isTransporterAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER;
+  const isPumpAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP;
+  const isSelfAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF;
 
   return (
     <StepContent>
@@ -55,16 +82,39 @@ export function SubtripJobCreateAdvanceStep({
               }}
             />
             <Field.Select name="driverAdvanceGivenBy" label="Given By">
-              {Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)
-                .filter(
-                  (option) => managesPumps || option !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
-                )
-                .map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
+              {givenByOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
             </Field.Select>
+          </Box>
+
+          <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+            {isTransporterAdvance && (
+              <Chip
+                label="Advance from Customer (Will be deducted on Customer Invoice)"
+                color="info"
+                size="small"
+                variant="soft"
+              />
+            )}
+            {isSelfAdvance && (
+              <Chip
+                label="Trip Expense (Recorded in company trip expenses)"
+                color="default"
+                size="small"
+                variant="soft"
+              />
+            )}
+            {isPumpAdvance && (
+              <Chip
+                label="Trip Expense (Via Fuel Pump)"
+                color="warning"
+                size="small"
+                variant="soft"
+              />
+            )}
           </Box>
         </Box>
 

@@ -234,10 +234,21 @@ export default function SimplerNewInvoiceForm() {
 
   const { cgst, sgst, igst } = calculateTaxBreakup(selectedCustomer);
   const selectedSubtrips = subtrips.filter((st) => st.selected);
+
+  const advanceDeductions = selectedSubtrips
+    .filter((st) => st.advanceFromCustomer && Number(st.advanceFromCustomer) > 0)
+    .map((st) => ({
+      label: `Advance to Driver (${st.subtripNo})`,
+      amount: -Number(st.advanceFromCustomer),
+      isAuto: true,
+    }));
+
+  const allAdditionalItems = [...advanceDeductions, ...additionalItems];
+
   const summary = calculateInvoiceSummary({
     subtripIds: selectedSubtrips,
     customer: selectedCustomer,
-    additionalItems,
+    additionalItems: allAdditionalItems,
   });
 
   const totalWeightLabel = calculateTotalWeight(selectedSubtrips);
@@ -554,6 +565,27 @@ export default function SimplerNewInvoiceForm() {
                     <TableCell colSpan={1} />
                   </StyledTableRow>
                 )}
+
+                {advanceDeductions.map((item, idx) => (
+                  <StyledTableRow key={`adv-${idx}`}>
+                    <TableCell colSpan={11} />
+                    <TableCell colSpan={1} align="center">
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        {item.label}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ color: 'error.main' }}>
+                        {fCurrency(item.amount)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip title="Auto-deducted from job" placement="top">
+                        <Iconify icon="eva:info-outline" sx={{ color: 'text.disabled' }} />
+                      </Tooltip>
+                    </TableCell>
+                  </StyledTableRow>
+                ))}
 
                 {additionalFields.map((item, idx) => (
                   <StyledTableRow key={idx}>

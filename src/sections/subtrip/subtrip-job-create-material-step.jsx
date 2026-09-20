@@ -46,43 +46,57 @@ export function SubtripJobCreateMaterialStep({
           />
         </Field.Configurable>
 
-        {!isEwayIntegrationEnabled && (
-          <Field.Configurable entity="subtrip" name="ewayBill" customerId={selectedCustomer?._id}>
-            <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
-          </Field.Configurable>
+        {selectedCustomer?.customerType !== 'transporter' && (
+          <>
+            {!isEwayIntegrationEnabled && (
+              <Field.Configurable entity="subtrip" name="ewayBill" customerId={selectedCustomer?._id}>
+                <Field.Text name="ewayBill" label={getLabel('ewayBill', 'Eway Bill')} />
+              </Field.Configurable>
+            )}
+
+            <Field.Configurable
+              entity="subtrip"
+              name="ewayExpiryDate"
+              customerId={selectedCustomer?._id}
+            >
+              <Field.DatePicker
+                name="ewayExpiryDate"
+                label={getLabel('ewayExpiryDate', 'Eway Expiry Date')}
+                minDate={dayjs()}
+              />
+            </Field.Configurable>
+            <Field.Configurable entity="subtrip" name="invoiceNo" customerId={selectedCustomer?._id}>
+              <Field.Text name="invoiceNo" label={getLabel('invoiceNo', 'Invoice No')} />
+            </Field.Configurable>
+            <Field.Configurable entity="subtrip" name="shipmentNo" customerId={selectedCustomer?._id}>
+              <Field.Text name="shipmentNo" label={getLabel('shipmentNo', 'Shipment No')} />
+            </Field.Configurable>
+            <Field.Configurable entity="subtrip" name="orderNo" customerId={selectedCustomer?._id}>
+              <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
+            </Field.Configurable>
+          </>
         )}
 
-        <Field.Configurable
-          entity="subtrip"
-          name="ewayExpiryDate"
-          customerId={selectedCustomer?._id}
-        >
-          <Field.DatePicker
-            name="ewayExpiryDate"
-            label={getLabel('ewayExpiryDate', 'Eway Expiry Date')}
-            minDate={dayjs()}
-          />
-        </Field.Configurable>
-        <Field.Configurable entity="subtrip" name="invoiceNo" customerId={selectedCustomer?._id}>
-          <Field.Text name="invoiceNo" label={getLabel('invoiceNo', 'Invoice No')} />
-        </Field.Configurable>
-        <Field.Configurable entity="subtrip" name="shipmentNo" customerId={selectedCustomer?._id}>
-          <Field.Text name="shipmentNo" label={getLabel('shipmentNo', 'Shipment No')} />
-        </Field.Configurable>
-        <Field.Configurable entity="subtrip" name="orderNo" customerId={selectedCustomer?._id}>
-          <Field.Text name="orderNo" label={getLabel('orderNo', 'Order No')} />
-        </Field.Configurable>
-        <Field.Configurable
-          entity="subtrip"
-          name="referenceSubtripNo"
-          customerId={selectedCustomer?._id}
-        >
+        {/* Transporter LR No: always visible for transporters, configurable for others */}
+        {selectedCustomer?.customerType === 'transporter' ? (
           <Field.Text
             name="referenceSubtripNo"
-            label={getLabel('referenceSubtripNo', 'Reference Job No')}
-            placeholder="Enter original job no (if created by another transporter)"
+            label="Transporter LR No *"
+            placeholder="Enter transporter's LR number"
           />
-        </Field.Configurable>
+        ) : (
+          <Field.Configurable
+            entity="subtrip"
+            name="referenceSubtripNo"
+            customerId={selectedCustomer?._id}
+          >
+            <Field.Text
+              name="referenceSubtripNo"
+              label={getLabel('referenceSubtripNo', 'Reference Job No')}
+              placeholder="Enter original job no (if created by another transporter)"
+            />
+          </Field.Configurable>
+        )}
 
         <Field.Configurable entity="subtrip" name="materialType" customerId={selectedCustomer?._id}>
           <Field.Select name="materialType" label={getLabel('materialType', 'Material Type')}>
@@ -99,10 +113,11 @@ export function SubtripJobCreateMaterialStep({
           <Field.Text name="grade" label={getLabel('grade', 'Grade')} />
         </Field.Configurable>
 
-        {/* DI/DO No as the last field in Step 4 */}
-        <Field.Configurable entity="subtrip" name="diNumber" customerId={selectedCustomer?._id}>
-          <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
-        </Field.Configurable>
+        {selectedCustomer?.customerType !== 'transporter' && (
+          <Field.Configurable entity="subtrip" name="diNumber" customerId={selectedCustomer?._id}>
+            <Field.Text name="diNumber" label={getLabel('diNumber', 'DI/DO No')} />
+          </Field.Configurable>
+        )}
       </Box>
 
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
@@ -151,9 +166,48 @@ export function getMaterialStepError(
     return false;
   };
 
-  if (isFieldRequired('invoiceNo') && !form.invoiceNo) {
-    return 'Please enter invoice number';
+  const isTransporterCustomer = selectedCustomer?.customerType === 'transporter';
+
+  // Transporter LR No is required for transporter customers
+  if (isTransporterCustomer && !form.referenceSubtripNo) {
+    return 'Please enter Transporter LR No';
   }
+
+  // Skip validation for fields hidden in transporter flow
+  if (!isTransporterCustomer) {
+    if (isFieldRequired('invoiceNo') && !form.invoiceNo) {
+      return 'Please enter invoice number';
+    }
+    if (!isEwayIntegrationEnabled && isFieldRequired('ewayBill') && !form.ewayBill) {
+      return 'Please enter eway bill';
+    }
+    if (form.ewayBill && !form.ewayExpiryDate) {
+      return 'Please select eway expiry date';
+    }
+    if (isFieldRequired('ewayExpiryDate') && !form.ewayExpiryDate) {
+      return 'Please select eway expiry date';
+    }
+    if (isFieldRequired('shipmentNo') && !form.shipmentNo) {
+      return 'Please enter shipment number';
+    }
+    if (isFieldRequired('orderNo') && !form.orderNo) {
+      return 'Please enter order number';
+    }
+    if (isFieldRequired('referenceSubtripNo') && !form.referenceSubtripNo) {
+      return 'Please enter reference job number';
+    }
+    if (isFieldRequired('diNumber') && !form.diNumber) {
+      return 'Please enter DI/DO number';
+    }
+
+    const eway = form.ewayExpiryDate ? new Date(form.ewayExpiryDate) : null;
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (form.ewayBill && (!eway || eway < startOfToday)) {
+      return 'Eway Expiry Date must be today or later';
+    }
+  }
+
   if (isFieldRequired('materialType') && !form.materialType) {
     return 'Please select material type';
   }
@@ -163,36 +217,8 @@ export function getMaterialStepError(
   ) {
     return 'Please enter quantity';
   }
-  if (!isEwayIntegrationEnabled && isFieldRequired('ewayBill') && !form.ewayBill) {
-    return 'Please enter eway bill';
-  }
-  if (form.ewayBill && !form.ewayExpiryDate) {
-    return 'Please select eway expiry date';
-  }
-  if (isFieldRequired('ewayExpiryDate') && !form.ewayExpiryDate) {
-    return 'Please select eway expiry date';
-  }
   if (isFieldRequired('grade') && !form.grade) {
     return 'Please enter grade';
-  }
-  if (isFieldRequired('shipmentNo') && !form.shipmentNo) {
-    return 'Please enter shipment number';
-  }
-  if (isFieldRequired('orderNo') && !form.orderNo) {
-    return 'Please enter order number';
-  }
-  if (isFieldRequired('referenceSubtripNo') && !form.referenceSubtripNo) {
-    return 'Please enter reference job number';
-  }
-  if (isFieldRequired('diNumber') && !form.diNumber) {
-    return 'Please enter DI/DO number';
-  }
-
-  const eway = form.ewayExpiryDate ? new Date(form.ewayExpiryDate) : null;
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (form.ewayBill && (!eway || eway < startOfToday)) {
-    return 'Eway Expiry Date must be today or later';
   }
 
   return null;

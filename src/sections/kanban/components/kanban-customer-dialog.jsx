@@ -2,6 +2,7 @@ import { useInView } from 'react-intersection-observer';
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
@@ -20,7 +21,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { LoadingSpinner } from 'src/components/loading-spinner';
 import { SearchNotFound } from 'src/components/search-not-found';
 
-import { CUSTOMER_TYPE_LABELS } from '../../customer/customer.constant';
+import { CUSTOMER_TYPE_LABELS, CUSTOMER_TYPE_COLORS } from '../../customer/customer.constant';
 
 const ITEM_HEIGHT = 64;
 
@@ -48,7 +49,9 @@ export function KanbanCustomerDialog({
     {
       customerName: debouncedSearch || undefined,
       rowsPerPage: 50,
-      ...(customerType ? { customerType } : {}),
+      ...(customerType
+        ? { customerType: Array.isArray(customerType) ? customerType : customerType }
+        : {}),
     },
     { enabled: shouldFetch }
   );
@@ -100,7 +103,7 @@ export function KanbanCustomerDialog({
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{ pb: 0 }}>
-        {CUSTOMER_TYPE_LABELS[customerType] || 'Customers'}{' '}
+        {(Array.isArray(customerType) ? 'Customers' : CUSTOMER_TYPE_LABELS[customerType]) || 'Customers'}{' '}
         <Typography component="span" sx={{ color: 'text.secondary' }}>
           ({data?.pages?.[0]?.total || 0})
         </Typography>
@@ -149,6 +152,14 @@ export function KanbanCustomerDialog({
                       primary={customer.customerName}
                       secondary={`${customer.state} • ${customer.cellNo}`}
                     />
+                    {Array.isArray(customerType) && customer.customerType && (
+                      <Chip
+                        label={CUSTOMER_TYPE_LABELS[customer.customerType] || customer.customerType}
+                        color={CUSTOMER_TYPE_COLORS[customer.customerType] || 'default'}
+                        size="small"
+                        variant="soft"
+                      />
+                    )}
                     <Button
                       size="small"
                       color={isSelected ? 'primary' : 'inherit'}

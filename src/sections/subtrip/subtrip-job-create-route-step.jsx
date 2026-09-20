@@ -39,10 +39,12 @@ export function SubtripJobCreateRouteStep({
     ).map((addr) => ({ label: addr, value: addr }));
   }, [isConsigneeBilling, selectedConsignee, consignees]);
 
+  const isTransporterCustomer = selectedCustomer?.customerType === 'transporter';
+
   return (
     <StepContent>
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
-        {isLoadedJob && !isConsigneeBilling && (
+        {isLoadedJob && !isConsigneeBilling && !isTransporterCustomer && (
           <Field.Configurable entity="subtrip" name="consignee" customerId={selectedCustomer?._id}>
             <Field.AutocompleteFreeSolo
               name="consignee"
@@ -53,7 +55,7 @@ export function SubtripJobCreateRouteStep({
           </Field.Configurable>
         )}
 
-        {isLoadedJob && isConsigneeBilling && (
+        {isLoadedJob && isConsigneeBilling && !isTransporterCustomer && (
           <DialogSelectButton
             onClick={onSelectConsigneeClick}
             placeholder="Select Consignee *"

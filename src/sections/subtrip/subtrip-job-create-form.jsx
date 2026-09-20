@@ -340,6 +340,15 @@ export function SubtripJobCreateForm() {
       setValue('consignee', null);
       setValue('unloadingPoint', []);
       setSelectedConsignee(null);
+      if (customer?.customerType === 'transporter') {
+        setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER, {
+          shouldDirty: true,
+        });
+      } else {
+        setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF, {
+          shouldDirty: true,
+        });
+      }
     },
     [setSelectedCustomer, setSelectedConsignee, setValue]
   );
@@ -510,6 +519,10 @@ export function SubtripJobCreateForm() {
           initialAdvanceDiesel: toNumber(form.initialAdvanceDiesel),
           initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
           pumpCd: form.pumpCd || undefined,
+          advanceFromCustomer:
+            isOwn && form.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER
+              ? toNumber(form.driverAdvance)
+              : undefined,
         }
       : {};
 
@@ -754,6 +767,8 @@ export function SubtripJobCreateForm() {
               <StepLabel>{STEPS[5].label}</StepLabel>
               <SubtripJobCreateAdvanceStep
                 isLoadedJob={isLoadedJob}
+                isOwnVehicle={selectedVehicle?.isOwn}
+                selectedCustomer={selectedCustomer}
                 managesPumps={managesPumps}
                 initialAdvanceDieselUnit={initialAdvanceDieselUnit}
                 onSelectPumpClick={pumpDialog.onTrue}

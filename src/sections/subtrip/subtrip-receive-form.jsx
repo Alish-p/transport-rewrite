@@ -116,6 +116,7 @@ const getInitialReceiveValues = (subtrip, isRequired) => {
     remarks: subtrip.remarks || '',
     errorRemarks: subtrip.errorRemarks || '',
     docs: subtrip.docs || [],
+    advanceFromCustomer: subtrip.advanceFromCustomer || '',
 
     // Schema helper context fields
     freightModel,
@@ -492,6 +493,21 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               </Field.Configurable>
             )}
 
+            {isOwn && (
+              <Field.Text
+                name="advanceFromCustomer"
+                label="Advance from Customer"
+                type="number"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Iconify icon="mdi:currency-inr" sx={{ color: 'text.disabled' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+
             <Field.MobileDateTimePicker name="endDate" label="LR Receive Date *" />
 
             {(activeFreightModel === 'per_km' || activeFreightModel === 'hybrid') && (
@@ -515,6 +531,7 @@ const ReceiveFormFields = ({ selectedSubtrip, methods, errors, subtripDialog, is
               shortageAmount={shortageAmount}
               shortageWeight={shortageWeight}
               endDate={endDate}
+              advanceFromCustomer={watch('advanceFromCustomer')}
             />
           </>
         )}

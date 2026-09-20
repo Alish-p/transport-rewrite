@@ -1,6 +1,6 @@
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Card, Chip, Stack, Typography } from '@mui/material';
+import { Box, Card, Chip, Stack, Typography } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -17,6 +17,7 @@ export default function IncomeWidgetSummary({
   color = 'primary',
   chart,
   description,
+  infoNote,
   badge,
   badgeColor = 'default',
   sx,
@@ -113,6 +114,28 @@ export default function IncomeWidgetSummary({
           <Typography variant="caption" sx={{ opacity: 0.72, fontStyle: 'italic' }}>
             {description}
           </Typography>
+        )}
+
+        {infoNote && (
+          <Box
+            sx={{
+              mt: 0.5,
+              px: 1,
+              py: 0.5,
+              borderRadius: 0.75,
+              bgcolor: (t) =>
+                t.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.5,
+              width: 'fit-content',
+            }}
+          >
+            <Iconify icon="eva:info-fill" width={14} sx={{ flexShrink: 0 }} />
+            <Typography variant="caption" sx={{ fontWeight: 600, fontSize: 11 }}>
+              {infoNote}
+            </Typography>
+          </Box>
         )}
       </Stack>
 

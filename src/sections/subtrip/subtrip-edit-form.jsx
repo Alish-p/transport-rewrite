@@ -10,6 +10,7 @@ import {
   Box,
   Card,
   Grid,
+  Chip,
   Alert,
   Button,
   Divider,
@@ -96,7 +97,7 @@ const loadedSchemaBase = baseSchema.extend({
   materialType: z.string().max(100).nullable().optional(),
   grade: z.string().max(100).nullable().optional(),
   driverAdvance: numericInputSchema,
-  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump']).nullable().optional(),
+  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump', 'Transporter']).nullable().optional(),
   initialAdvanceDiesel: numericInputSchema,
   intentFuelPump: z.string().nullable().optional(),
 });
@@ -426,6 +427,14 @@ export default function SubtripEditForm({ currentSubtrip }) {
 
       if (dirtyFields.commissionDetails) {
         changedFields.commissionDetails = data.commissionDetails;
+      }
+
+      if (dirtyFields.driverAdvance || dirtyFields.driverAdvanceGivenBy) {
+        if (data.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER) {
+          changedFields.advanceFromCustomer = data.driverAdvance || 0;
+        } else {
+          changedFields.advanceFromCustomer = 0;
+        }
       }
 
       await updateSubtrip({
@@ -917,6 +926,32 @@ export default function SubtripEditForm({ currentSubtrip }) {
                         )
                         .map((opt) => ({ label: opt, value: opt }))}
                     />
+                    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {values?.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER && (
+                        <Chip
+                          label="Advance from Customer (Will be deducted on Customer Invoice)"
+                          color="info"
+                          size="small"
+                          variant="soft"
+                        />
+                      )}
+                      {values?.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF && (
+                        <Chip
+                          label="Trip Expense (Recorded in company trip expenses)"
+                          color="default"
+                          size="small"
+                          variant="soft"
+                        />
+                      )}
+                      {values?.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP && (
+                        <Chip
+                          label="Trip Expense (Via Fuel Pump)"
+                          color="warning"
+                          size="small"
+                          variant="soft"
+                        />
+                      )}
+                    </Box>
                   </Box>
 
                   {hasPumps && (

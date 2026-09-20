@@ -511,9 +511,9 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
 
   // Consignee
   const consigneeName = consignee || '';
-  const consigneeGst = subtrip?.consigneeCustomerId?.GSTNo || '-';
-  const consigneeMobile = subtrip?.consigneeCustomerId?.cellNo || '-';
-  const consigneeAddress = subtrip?.consigneeCustomerId?.address || '-';
+  const consigneeGst = consigneeCustomerId?.GSTNo || '-';
+  const consigneeMobile = consigneeCustomerId?.cellNo || '-';
+  const consigneeAddress = consigneeCustomerId?.address || '-';
 
   // Bank Details
   const bankName = tenant?.bankDetails?.name || '';

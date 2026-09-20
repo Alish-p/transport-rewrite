@@ -44,7 +44,7 @@ export function SubtripJobCreateDialogs({
         onClose={customerDialog.onFalse}
         selectedCustomer={selectedCustomer}
         onCustomerChange={handleCustomerChange}
-        customerType="consignor"
+        customerType={['consignor', 'transporter']}
       />
 
       <KanbanCustomerDialog
