@@ -450,9 +450,10 @@ const TERMS_AND_CONDITIONS = [
 
 export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const {
-    subtripNo = '197',
+    subtripNo = '',
     customerId = {},
     consignee = '',
+    consigneeCustomerId = {},
     loadingPoint = '',
     loadingWeight,
     orderNo = '',
@@ -473,17 +474,17 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     subtrip?.loadingWeightUnit || (vehicleType && loadingWeightUnit[vehicleType]) || 'MTS';
 
   // Company Details
-  const companyName = tenant?.name || 'C & S LOGISTICS';
-  const companyPhone = tenant?.contactDetails?.phone || tenant?.phone || '9304791192';
-  const companyEmail = tenant?.contactDetails?.email || tenant?.email || 'cslogistics913@gmail.com';
+  const companyName = tenant?.name || '';
+  const companyPhone = tenant?.contactDetails?.phone || tenant?.phone || '';
+  const companyEmail = tenant?.contactDetails?.email || tenant?.email || '';
 
   const addressLine1 =
     typeof tenant?.address === 'string'
       ? tenant.address
-      : tenant?.address?.line1 || 'FLAT NO. - 102, SITA TOWER';
+      : tenant?.address?.line1 || '';
   const addressLine2 =
     tenant?.address?.line2 ||
-    (typeof tenant?.address === 'string' ? '' : 'PANCHET ROAD, CHIRKUNDA, DHANBAD');
+    (typeof tenant?.address === 'string' ? '' : '');
   const cityStatePin =
     tenant?.address?.city || tenant?.address?.state
       ? [
@@ -494,33 +495,31 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
       ]
         .filter(Boolean)
         .join(', ')
-      : 'Jharkhand - 828202';
+      : '';
 
   // Legal Numbers
-  const gstNo = tenant?.legalInfo?.gstNumber || tenant?.gstNumber || '20EADPS5035Q1ZE';
-  const panNo = tenant?.legalInfo?.panNumber || tenant?.panNumber || 'EADPS5035Q';
-  const udyamNo = tenant?.legalInfo?.udyamNumber || tenant?.udyamNo || 'JH-040025552';
+  const gstNo = tenant?.legalInfo?.gstNumber || tenant?.gstNumber || '';
+  const panNo = tenant?.legalInfo?.panNumber || tenant?.panNumber || '';
+  const udyamNo = tenant?.legalInfo?.udyamNumber || tenant?.udyamNo || '';
 
   // Consignor
-  const consignorName = customerId?.customerName || 'MAA KALYANESHWARI ENTERPRISES';
-  const consignorGst = customerId?.GSTNo || '20AAXFM7326C1ZC';
+  const consignorName = customerId?.customerName || '';
+  const consignorGst = customerId?.GSTNo || '';
   const consignorMobile = customerId?.cellNo || '-';
   const consignorAddress =
-    customerId?.address ||
-    'CHIRKUNDA, DHANBAD, JHARKHAND, DHANBAD - 828202, Chirkunda, Jharkhand, India - 828202';
+    customerId?.address || '';
 
   // Consignee
-  const consigneeName = consignee || 'M/S MAA JWALA ENTERPRISES';
-  const consigneeGst = subtrip?.consigneeGst || customerId?.consigneeGst || '-';
-  const consigneeMobile = subtrip?.consigneeMobile || subtrip?.consigneePhone || '-';
+  const consigneeName = consignee || '';
+  const consigneeGst = subtrip?.consigneeCustomerId?.GSTNo || '-';
+  const consigneeMobile = subtrip?.consigneeCustomerId?.cellNo || '-';
   const consigneeAddress =
-    unloadingPoint ||
-    'SHAKTINAGAR, SONEBHADRA, UTTAR PRADESH - 231222, SONEBHADRA, UTTAR PRADESH, India - 231222';
+    unloadingPoint || '';
 
   // Bank Details
-  const bankName = tenant?.bankDetails?.name || 'ICICI BANK';
-  const bankAccNo = tenant?.bankDetails?.accNo || '141005002128';
-  const bankIfsc = tenant?.bankDetails?.ifsc || 'ICIC0001410';
+  const bankName = tenant?.bankDetails?.name || '';
+  const bankAccNo = tenant?.bankDetails?.accNo || '';
+  const bankIfsc = tenant?.bankDetails?.ifsc || '';
 
   // Weights & Formats
   const formattedActualWeight = loadingWeight
