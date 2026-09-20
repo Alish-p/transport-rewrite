@@ -271,6 +271,28 @@ export default function SubtripFiltersDrawer({
               </Select>
             </FormControl>
 
+            <FormControl fullWidth>
+              <InputLabel id="subtrip-load-source-select-label">Load Source</InputLabel>
+              <Select
+                value={filters.loadSource || ''}
+                onChange={(event) => onFilters('loadSource', event.target.value)}
+                input={<OutlinedInput label="Load Source" />}
+                labelId="subtrip-load-source-select-label"
+                MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
+              >
+                <MenuItem value="direct">
+                  <Label variant="soft" color="default">
+                    Direct Customer
+                  </Label>
+                </MenuItem>
+                <MenuItem value="transporter_loaded">
+                  <Label variant="soft" color="info">
+                    🚚 Transporter Loaded
+                  </Label>
+                </MenuItem>
+              </Select>
+            </FormControl>
+
             {hasMarketVehicles && (
               <FormControl fullWidth>
                 <InputLabel id="subtrip-transporter-payment-select-label">

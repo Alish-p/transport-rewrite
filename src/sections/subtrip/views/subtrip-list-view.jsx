@@ -82,6 +82,7 @@ const defaultFilters = {
   commissionRateMin: '',
   commissionRateMax: '',
   freightModel: '',
+  loadSource: '',
 };
 
 // ----------------------------------------------------------------------
@@ -153,6 +154,7 @@ export function SubtripListView() {
     commissionRateMin: filters.commissionRateMin || undefined,
     commissionRateMax: filters.commissionRateMax || undefined,
     freightModel: filters.freightModel || undefined,
+    loadSource: filters.loadSource || undefined,
   });
 
   useEffect(() => {

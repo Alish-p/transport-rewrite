@@ -21,17 +21,34 @@ export const TABLE_COLUMNS = [
     disabled: true,
     getter: (row) => row?.subtripNo,
     align: 'center',
-    render: ({ _id, subtripNo }) => (
-      <Link
-        component={RouterLink}
-        to={paths.dashboard.subtrip.details(_id)}
-        variant="body2"
-        noWrap
-        sx={{ color: 'primary.main' }}
-      >
-        {subtripNo}
-      </Link>
-    ),
+    render: (row) => {
+      const isTransporter = row?.customerId?.customerType === 'transporter';
+      const lrLabel = isTransporter ? 'Transporter LR' : 'Ref';
+
+      return (
+        <Stack spacing={0.25} alignItems="center">
+          <Link
+            component={RouterLink}
+            to={paths.dashboard.subtrip.details(row?._id)}
+            variant="body2"
+            noWrap
+            sx={{ color: 'primary.main', fontWeight: 600 }}
+          >
+            {row?.subtripNo}
+          </Link>
+          {row?.referenceSubtripNo && (
+            <Tooltip title={`${lrLabel}: ${row.referenceSubtripNo}`} arrow>
+              <Typography
+                variant="caption"
+                sx={{ color: 'text.secondary', fontSize: 11, cursor: 'default' }}
+              >
+                {lrLabel}: {row.referenceSubtripNo}
+              </Typography>
+            </Tooltip>
+          )}
+        </Stack>
+      );
+    },
   },
   {
     id: 'tripId',
@@ -139,18 +156,39 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.customerId?.customerName || '-',
     align: 'center',
     render: (row) => {
-      const value = row?.customerId?._id;
-      if (!value) return row?.customerId?.customerName || '-';
+      const customer = row?.customerId;
+      const isTransporterLoaded = customer?.customerType === 'transporter';
+      const value = customer?._id;
+      const customerName = customer?.customerName || '-';
+
       return (
-        <Link
-          component={RouterLink}
-          to={paths.dashboard.customer.details(value)}
-          variant="body2"
-          noWrap
-          sx={{ color: 'primary.main' }}
-        >
-          {row?.customerId?.customerName}
-        </Link>
+        <Stack spacing={0.5} alignItems="center">
+          {value ? (
+            <Link
+              component={RouterLink}
+              to={paths.dashboard.customer.details(value)}
+              variant="body2"
+              noWrap
+              sx={{ color: 'primary.main', fontWeight: isTransporterLoaded ? 600 : 400 }}
+            >
+              {customerName}
+            </Link>
+          ) : (
+            <Typography variant="body2">{customerName}</Typography>
+          )}
+
+          {isTransporterLoaded && (
+            <Label variant="soft" color="info" sx={{ fontSize: 10, height: 18 }}>
+              🚚 Transporter Loaded
+            </Label>
+          )}
+
+          {isTransporterLoaded && row?.referenceSubtripNo && (
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: 11 }}>
+              LR: {row.referenceSubtripNo}
+            </Typography>
+          )}
+        </Stack>
       );
     },
   },

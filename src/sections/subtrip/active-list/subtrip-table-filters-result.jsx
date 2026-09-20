@@ -84,6 +84,10 @@ export default function SubtripTableFiltersResult({
     onFilters('vehicleOwnership', '');
   };
 
+  const handleRemoveLoadSource = () => {
+    onFilters('loadSource', '');
+  };
+
   const handleRemoveTransporterPaymentGenerated = () => {
     onFilters('transporterPaymentGenerated', '');
   };
@@ -263,6 +267,20 @@ export default function SubtripTableFiltersResult({
               size="small"
               label={filters.vehicleOwnership === 'Market' ? 'Market Jobs' : 'Own Jobs'}
               onDelete={handleRemoveVehicleOwnership}
+            />
+          </Block>
+        )}
+
+        {filters.loadSource && (
+          <Block label="Load Source:">
+            <Chip
+              size="small"
+              label={
+                filters.loadSource === 'transporter_loaded'
+                  ? '🚚 Transporter Loaded'
+                  : 'Direct Customer'
+              }
+              onDelete={handleRemoveLoadSource}
             />
           </Block>
         )}
