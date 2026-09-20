@@ -179,7 +179,7 @@ export const TABLE_COLUMNS = [
 
           {isTransporterLoaded && (
             <Label variant="soft" color="info" sx={{ fontSize: 10, height: 18 }}>
-              🚚 Transporter Loaded
+              Transporter Loaded
             </Label>
           )}
 
