@@ -143,14 +143,23 @@ export function getRouteStepError(
     return false;
   };
 
+  const isTransporterCustomer = selectedCustomer?.customerType === 'transporter';
+
   if (isLoaded) {
     if (!selectedCustomer) return 'Please select a consignor';
 
-    if (billingParty === 'consignee') {
-      if (!selectedConsignee?._id) return 'Please select a consignee';
-    } else if (isFieldRequired('consignee')) {
-      const hasConsignee = !!(form.consignee && (form.consignee.value || form.consignee.label));
-      if (!hasConsignee) return 'Please select a consignee';
+    if (!isTransporterCustomer) {
+      if (billingParty === 'consignee') {
+        if (!selectedConsignee?._id) return 'Please select a consignee';
+      } else if (isFieldRequired('consignee')) {
+        const hasConsignee = !!(
+          form.consignee &&
+          (typeof form.consignee === 'string'
+            ? form.consignee.trim()
+            : form.consignee.value || form.consignee.label)
+        );
+        if (!hasConsignee) return 'Please select a consignee';
+      }
     }
   }
 

@@ -130,27 +130,11 @@ export function SubtripJobCreateMaterialStep({
   );
 }
 
-export function getMaterialStepError(
-  form,
-  {
-    selectedVehicle,
-    fetchingActiveTrip,
-    activeTrip,
-    selectedDriver,
-    selectedCustomer,
-    fields,
-    isEwayIntegrationEnabled,
-  }
-) {
-  const freightStageError = getFreightStepError(form, {
-    selectedVehicle,
-    fetchingActiveTrip,
-    activeTrip,
-    selectedDriver,
-    selectedCustomer,
-    fields,
-  });
+export function getMaterialStepError(form, context) {
+  const freightStageError = getFreightStepError(form, context);
   if (freightStageError) return freightStageError;
+
+  const { selectedVehicle, selectedCustomer, fields, isEwayIntegrationEnabled } = context || {};
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;
   const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;

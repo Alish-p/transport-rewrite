@@ -189,19 +189,11 @@ const toNumber = (val) => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-export function getAdvanceStepError(
-  form,
-  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
-) {
-  const materialStageError = getMaterialStepError(form, {
-    selectedVehicle,
-    fetchingActiveTrip,
-    activeTrip,
-    selectedDriver,
-    selectedCustomer,
-    fields,
-  });
+export function getAdvanceStepError(form, context) {
+  const materialStageError = getMaterialStepError(form, context);
   if (materialStageError) return materialStageError;
+
+  const { selectedVehicle } = context || {};
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;
   const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;

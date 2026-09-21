@@ -203,19 +203,11 @@ export function SubtripJobCreateFreightStep({
   );
 }
 
-export function getFreightStepError(
-  form,
-  { selectedVehicle, fetchingActiveTrip, activeTrip, selectedDriver, selectedCustomer, fields }
-) {
-  const routeStageError = getRouteStepError(form, {
-    selectedVehicle,
-    fetchingActiveTrip,
-    activeTrip,
-    selectedDriver,
-    selectedCustomer,
-    fields,
-  });
+export function getFreightStepError(form, context) {
+  const routeStageError = getRouteStepError(form, context);
   if (routeStageError) return routeStageError;
+
+  const { selectedVehicle, fields } = context || {};
 
   const isOwnVehicle = !!selectedVehicle?.isOwn;
   const isLoaded = form.loadType === 'loaded' || !isOwnVehicle;

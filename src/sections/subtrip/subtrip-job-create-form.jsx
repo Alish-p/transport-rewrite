@@ -341,16 +341,18 @@ export function SubtripJobCreateForm() {
       setValue('unloadingPoint', []);
       setSelectedConsignee(null);
       if (customer?.customerType === 'transporter') {
+        setValue('billingParty', 'consignor', { shouldDirty: true });
         setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER, {
           shouldDirty: true,
         });
       } else {
+        setValue('billingParty', defaultBillingParty, { shouldDirty: true });
         setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF, {
           shouldDirty: true,
         });
       }
     },
-    [setSelectedCustomer, setSelectedConsignee, setValue]
+    [setSelectedCustomer, setSelectedConsignee, setValue, defaultBillingParty]
   );
 
   const handleConsigneeChange = useCallback(
@@ -488,7 +490,9 @@ export function SubtripJobCreateForm() {
           consignee:
             form.billingParty === 'consignee'
               ? selectedConsignee?.customerName
-              : form.consignee?.value || form.consignee?.label,
+              : typeof form.consignee === 'string'
+                ? form.consignee.trim()
+                : form.consignee?.value || form.consignee?.label,
           loadingPoint: form.loadingPoint,
           unloadingPoint: Array.isArray(form.unloadingPoint)
             ? form.unloadingPoint
