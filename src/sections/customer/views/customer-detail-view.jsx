@@ -1,5 +1,9 @@
+import { useNavigate } from 'react-router';
+
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
+
+import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -16,7 +20,8 @@ import {
 } from '../widgets';
 
 export function CustomerDetailView({ customer }) {
-  const { customerName, cellNo, address, status } = customer || {};
+  const navigate = useNavigate();
+  const { _id, customerName, cellNo, address, status } = customer || {};
 
   return (
     <DashboardContent>
@@ -28,6 +33,13 @@ export function CustomerDetailView({ customer }) {
         meta={[
           { icon: 'mdi:phone', label: cellNo },
           { icon: 'mdi:map-marker', label: address },
+        ]}
+        actions={[
+          {
+            label: 'Edit',
+            icon: 'solar:pen-bold',
+            onClick: () => navigate(paths.dashboard.customer.edit(_id)),
+          },
         ]}
       />
       <Box mt={2}>
