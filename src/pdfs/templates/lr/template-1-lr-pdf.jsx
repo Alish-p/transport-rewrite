@@ -451,6 +451,7 @@ const TERMS_AND_CONDITIONS = [
 export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const {
     subtripNo = '',
+    referenceSubtripNo = '',
     customerId = {},
     consignee = '',
     consigneeCustomerId = {},
@@ -468,6 +469,11 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     freightDetails = {},
     remarks = '',
   } = subtrip;
+
+  const lrNo =
+    (typeof referenceSubtripNo === 'string' ? referenceSubtripNo.trim() : referenceSubtripNo) ||
+    subtripNo ||
+    '-';
 
   const vehicleType = vehicleId?.vehicleType;
   const weightUnit =
@@ -631,7 +637,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>LR No</Text>
-                <Text style={styles.metaValue}>{subtripNo}</Text>
+                <Text style={styles.metaValue}>{lrNo}</Text>
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>Vehicle No</Text>

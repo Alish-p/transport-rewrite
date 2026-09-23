@@ -43,6 +43,11 @@ const getSubtripsByStatus = async (params) => {
   return data;
 };
 
+const getLastReferenceNumber = async (params) => {
+  const { data } = await axios.get(`${ENDPOINT}/last-reference-number`, { params });
+  return data;
+};
+
 // Unified Job creation (creates subtrip and handles trip logic server-side)
 const createJob = async (payload) => {
   const { data } = await axios.post(`${ENDPOINT}/jobs`, payload);
@@ -159,6 +164,17 @@ export function useInfiniteSubtripsByStatus(params, options = {}) {
     keepPreviousData: true,
     enabled: !!params,
     ...options,
+  });
+}
+
+export function useLastReferenceNumber(customerId, options = {}) {
+  const { excludeSubtripId, enabled = true, ...restOptions } = options;
+  return useQuery({
+    queryKey: [QUERY_KEY, 'last-reference-number', customerId, excludeSubtripId],
+    queryFn: () => getLastReferenceNumber({ customerId, excludeSubtripId }),
+    enabled: enabled && !!customerId,
+    staleTime: 60 * 1000,
+    ...restOptions,
   });
 }
 

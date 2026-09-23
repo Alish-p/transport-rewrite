@@ -31,7 +31,7 @@ import { useMaterialOptions } from 'src/hooks/use-material-options';
 
 import { paramCase } from 'src/utils/change-case';
 
-import { useUpdateSubtrip } from 'src/query/use-subtrip';
+import { useUpdateSubtrip, useLastReferenceNumber } from 'src/query/use-subtrip';
 
 import { APP_ICONS } from 'src/components/iconify/icons';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
@@ -220,6 +220,18 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const [selectedDriver, setSelectedDriver] = useState(currentSubtrip?.driverId);
   // Route selection removed
   const [selectedCustomer, setSelectedCustomer] = useState(currentSubtrip?.customerId);
+
+  const customerId = selectedCustomer?._id || currentSubtrip?.customerId?._id;
+  const { data: lastRefData, isLoading: isLoadingLastRef } = useLastReferenceNumber(customerId, {
+    excludeSubtripId: currentSubtrip?._id,
+    enabled: !!customerId,
+  });
+
+  const lastRefHelperText = customerId
+    ? isLoadingLastRef
+      ? 'Loading last reference number...'
+      : `Last reference number: ${lastRefData?.referenceSubtripNo || 'None'}`
+    : undefined;
 
   const defaultValues = useMemo(
     () => ({
@@ -849,6 +861,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     <Field.Text
                       name="referenceSubtripNo"
                       label={getLabel('referenceSubtripNo', 'Reference Job No')}
+                      helperText={lastRefHelperText}
                     />
                   </Field.Configurable>
 

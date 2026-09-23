@@ -8,6 +8,8 @@ import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import StepContent from '@mui/material/StepContent';
 
+import { useLastReferenceNumber } from 'src/query/use-subtrip';
+
 import { Field } from 'src/components/hook-form';
 
 import { QUANTITY_UNIT_OPTIONS } from 'src/sections/subtrip/constants';
@@ -24,6 +26,17 @@ export function SubtripJobCreateMaterialStep({
   onPrevStep,
   onNextStep,
 }) {
+  const customerId = selectedCustomer?._id;
+  const { data: lastRefData, isLoading: isLoadingLastRef } = useLastReferenceNumber(customerId, {
+    enabled: !!customerId,
+  });
+
+  const lastRefHelperText = customerId
+    ? isLoadingLastRef
+      ? 'Loading last reference number...'
+      : `Last reference number: ${lastRefData?.referenceSubtripNo || 'None'}`
+    : undefined;
+
   if (!isLoadedJob) {
     return (
       <StepContent>
@@ -83,6 +96,7 @@ export function SubtripJobCreateMaterialStep({
             name="referenceSubtripNo"
             label="Transporter LR No *"
             placeholder="Enter transporter's LR number"
+            helperText={lastRefHelperText}
           />
         ) : (
           <Field.Configurable
@@ -94,6 +108,7 @@ export function SubtripJobCreateMaterialStep({
               name="referenceSubtripNo"
               label={getLabel('referenceSubtripNo', 'Reference Job No')}
               placeholder="Enter original job no (if created by another transporter)"
+              helperText={lastRefHelperText}
             />
           </Field.Configurable>
         )}
