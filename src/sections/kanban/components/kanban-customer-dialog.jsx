@@ -152,12 +152,13 @@ export function KanbanCustomerDialog({
                       primary={customer.customerName}
                       secondary={`${customer.state} • ${customer.cellNo}`}
                     />
-                    {Array.isArray(customerType) && customer.customerType && (
+                    {customer.customerType && (
                       <Chip
                         label={CUSTOMER_TYPE_LABELS[customer.customerType] || customer.customerType}
                         color={CUSTOMER_TYPE_COLORS[customer.customerType] || 'default'}
                         size="small"
                         variant="soft"
+                        sx={{ flexShrink: 0 }}
                       />
                     )}
                     <Button

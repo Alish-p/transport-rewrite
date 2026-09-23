@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
@@ -24,14 +24,10 @@ export function RHFInputWithUnit({
     { label: 'Amount', value: 'amount' },
   ],
   defaultUnit = 'ltr',
+  disabledUnit = false,
   textFieldProps = {},
 }) {
-  const {
-    register,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
 
   const [menuEl, setMenuEl] = useState(null);
   const unit = watch(unitName) || defaultUnit;
@@ -50,84 +46,117 @@ export function RHFInputWithUnit({
 
   return (
     <>
-      <TextField
-        fullWidth
-        label={label}
-        placeholder={placeholder}
-        error={!!errors[name]}
-        helperText={errors[name]?.message ?? helperText}
-        type="text"
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          startAdornment:
-            unit === 'amount' ? <InputAdornment position="start">₹</InputAdornment> : undefined,
-          endAdornment: (
-            <InputAdornment position="end">
-              <Tooltip title="Change unit" arrow>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="inherit"
-                  onClick={handleOpenMenu}
-                  aria-haspopup="menu"
-                  aria-expanded={Boolean(menuEl)}
-                  aria-controls={`${name}-unit-menu`}
-                  sx={{
-                    minWidth: 0,
-                    px: 1,
-                    lineHeight: 1.5,
-                    textTransform: 'none',
-                    borderRadius: 1.25,
-                    fontWeight: 600,
-                  }}
-                >
-                  {unitLabel}
-                  <span aria-hidden="true" style={{ paddingLeft: 4 }}>
-                    ▾
-                  </span>
-                </Button>
-              </Tooltip>
-            </InputAdornment>
-          ),
+      <Controller
+        name={name}
+        control={control}
+        render={({ field, fieldState: { error } }) => {
+          const displayValue =
+            field.value === undefined || field.value === null || Number.isNaN(field.value)
+              ? ''
+              : field.value;
+
+          return (
+            <TextField
+              {...field}
+              value={displayValue}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '') {
+                  field.onChange('');
+                  return;
+                }
+                // Allow user to type numbers and an optional single decimal point
+                if (/^[0-9]*\.?[0-9]*$/.test(val)) {
+                  // Normalize leading zeros for integers e.g. "05" -> "5", while keeping "0" or "0."
+                  if (!val.includes('.') && val.length > 1 && val.startsWith('0')) {
+                    field.onChange(val.replace(/^0+(?=\d)/, ''));
+                  } else {
+                    field.onChange(val);
+                  }
+                }
+              }}
+              onBlur={() => {
+                field.onBlur();
+                // Strip trailing dot on blur if user typed e.g. "12."
+                if (typeof field.value === 'string' && field.value.endsWith('.')) {
+                  field.onChange(field.value.slice(0, -1));
+                }
+              }}
+              fullWidth
+              label={label}
+              placeholder={placeholder}
+              error={!!error}
+              helperText={error?.message ?? helperText}
+              type="text"
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                startAdornment:
+                  unit === 'amount' ? <InputAdornment position="start">₹</InputAdornment> : undefined,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip title={disabledUnit ? '' : 'Change unit'} arrow>
+                      <span>
+                        <Button
+                          disabled={disabledUnit}
+                          size="small"
+                          variant="outlined"
+                          color="inherit"
+                          onClick={handleOpenMenu}
+                          aria-haspopup="menu"
+                          aria-expanded={Boolean(menuEl)}
+                          aria-controls={`${name}-unit-menu`}
+                          sx={{
+                            minWidth: 0,
+                            px: 1,
+                            lineHeight: 1.5,
+                            textTransform: 'none',
+                            borderRadius: 1.25,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {unitLabel}
+                          {!disabledUnit && (
+                            <span aria-hidden="true" style={{ paddingLeft: 4 }}>
+                              ▾
+                            </span>
+                          )}
+                        </Button>
+                      </span>
+                    </Tooltip>
+                  </InputAdornment>
+                ),
+              }}
+              inputProps={{
+                inputMode: 'decimal',
+                pattern: '^[0-9]*\\.?[0-9]*$',
+                autoComplete: 'off',
+                onWheel: (e) => e.currentTarget.blur(),
+              }}
+              {...textFieldProps}
+            />
+          );
         }}
-        inputProps={{
-          inputMode: 'decimal',
-          pattern: '^[0-9]*\\.?[0-9]*$',
-          autoComplete: 'off',
-          onWheel: (e) => e.currentTarget.blur(),
-        }}
-        {...register(name, {
-          valueAsNumber: true,
-          setValueAs: (v) => {
-            if (v === '' || Number.isNaN(Number(v))) return undefined;
-            if (!v.includes('.')) return Number(v.replace(/^0+(?=\d)/, ''));
-            return Number(v);
-          },
-          validate: (n) =>
-            n === undefined ||
-            (!Number.isNaN(n) && typeof n === 'number') ||
-            'Must be a valid number',
-        })}
-        {...textFieldProps}
       />
-      <Menu
-        id={`${name}-unit-menu`}
-        open={Boolean(menuEl)}
-        anchorEl={menuEl}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        {unitOptions.map((opt) => (
-          <MenuItem
-            key={opt.value}
-            selected={opt.value === unit}
-            onClick={() => handleSelectUnit(opt.value)}
-          >
-            {opt.label}
-          </MenuItem>
-        ))}
-      </Menu>
+      {!disabledUnit && (
+        <Menu
+          id={`${name}-unit-menu`}
+          open={Boolean(menuEl)}
+          anchorEl={menuEl}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          {unitOptions.map((opt) => (
+            <MenuItem
+              key={opt.value}
+              selected={opt.value === unit}
+              onClick={() => handleSelectUnit(opt.value)}
+            >
+              {opt.label}
+            </MenuItem>
+          ))}
+        </Menu>
+      )}
     </>
   );
 }

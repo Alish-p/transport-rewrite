@@ -193,6 +193,31 @@ export const TABLE_COLUMNS = [
     },
   },
   {
+    id: 'billingParty',
+    label: 'Billing Party',
+    defaultVisible: false,
+    disabled: false,
+    getter: (row) => {
+      const party = row?.billingParty || (row?.customerId ? 'consignor' : null);
+      if (!party) return '-';
+      return party.charAt(0).toUpperCase() + party.slice(1);
+    },
+    align: 'center',
+    render: (row) => {
+      const party = row?.billingParty || (row?.customerId ? 'consignor' : null);
+      if (!party) return '-';
+      return (
+        <Label
+          variant="soft"
+          color={party === 'consignee' ? 'info' : 'primary'}
+          sx={{ textTransform: 'capitalize' }}
+        >
+          {party}
+        </Label>
+      );
+    },
+  },
+  {
     id: 'route',
     label: 'Route',
     defaultVisible: true,
