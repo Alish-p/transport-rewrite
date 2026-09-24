@@ -97,7 +97,7 @@ const loadedSchemaBase = baseSchema.extend({
   materialType: z.string().max(100).nullable().optional(),
   grade: z.string().max(100).nullable().optional(),
   driverAdvance: numericInputSchema,
-  driverAdvanceGivenBy: z.enum(['Self', 'Fuel Pump', 'Transporter']).nullable().optional(),
+  driverAdvanceGivenBy: z.enum(Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)).nullable().optional(),
   initialAdvanceDiesel: numericInputSchema,
   intentFuelPump: z.string().nullable().optional(),
 });
@@ -344,6 +344,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const {
     watch,
     setValue,
+    getValues,
     handleSubmit,
     formState: { isSubmitting, dirtyFields },
   } = methods;
@@ -394,7 +395,58 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const handleCustomerChange = (customer) => {
     setSelectedCustomer(customer);
     setValue('customerId', customer._id, { shouldDirty: true });
+    if (isOwn) {
+      const currentGivenBy = getValues('driverAdvanceGivenBy');
+      const isCustomerAdvance = [
+        DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER,
+        DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR,
+        DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE,
+      ].includes(currentGivenBy);
+
+      if (isCustomerAdvance) {
+        const billingParty = currentSubtrip?.billingParty || 'consignor';
+        const targetOption =
+          customer?.customerType === 'transporter'
+            ? DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER
+            : billingParty === 'consignee'
+              ? DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE
+              : DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR;
+
+        if (currentGivenBy !== targetOption) {
+          setValue('driverAdvanceGivenBy', targetOption, { shouldDirty: true });
+        }
+      }
+    }
   };
+
+  const givenByOptions = useMemo(() => {
+    const options = [DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF];
+    if (hasPumps) {
+      options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP);
+    }
+    if (isOwn) {
+      const activeCustomer = selectedCustomer || currentSubtrip?.customerId;
+      const billingParty = currentSubtrip?.billingParty || 'consignor';
+      if (activeCustomer?.customerType === 'transporter') {
+        options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER);
+      } else if (billingParty === 'consignee') {
+        options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE);
+      } else {
+        options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR);
+      }
+    }
+    if (values?.driverAdvanceGivenBy && !options.includes(values.driverAdvanceGivenBy)) {
+      options.push(values.driverAdvanceGivenBy);
+    }
+    return options.map((opt) => ({ label: opt, value: opt }));
+  }, [
+    hasPumps,
+    isOwn,
+    selectedCustomer,
+    currentSubtrip?.customerId,
+    currentSubtrip?.billingParty,
+    values?.driverAdvanceGivenBy,
+  ]);
 
   const handlePumpChange = (pump) => {
     setSelectedPump(pump);
@@ -442,7 +494,13 @@ export default function SubtripEditForm({ currentSubtrip }) {
       }
 
       if (dirtyFields.driverAdvance || dirtyFields.driverAdvanceGivenBy) {
-        if (data.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER) {
+        const isCustomerAdvance = [
+          DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER,
+          DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR,
+          DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE,
+        ].includes(data.driverAdvanceGivenBy);
+
+        if (isCustomerAdvance) {
           changedFields.advanceFromCustomer = data.driverAdvance || 0;
         } else {
           changedFields.advanceFromCustomer = 0;
@@ -933,16 +991,16 @@ export default function SubtripEditForm({ currentSubtrip }) {
                     <Field.RadioGroup
                       row
                       name="driverAdvanceGivenBy"
-                      options={Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS)
-                        .filter(
-                          (opt) => hasPumps || opt !== DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP
-                        )
-                        .map((opt) => ({ label: opt, value: opt }))}
+                      options={givenByOptions}
                     />
                     <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {values?.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER && (
+                      {[
+                        DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER,
+                        DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR,
+                        DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE,
+                      ].includes(values?.driverAdvanceGivenBy) && (
                         <Chip
-                          label="Advance from Customer (Will be deducted on Customer Invoice)"
+                          label={`Advance from ${values?.driverAdvanceGivenBy} (Will be deducted on Customer Invoice)`}
                           color="info"
                           size="small"
                           variant="soft"

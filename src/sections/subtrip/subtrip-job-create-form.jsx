@@ -342,14 +342,8 @@ export function SubtripJobCreateForm() {
       setSelectedConsignee(null);
       if (customer?.customerType === 'transporter') {
         setValue('billingParty', 'consignor', { shouldDirty: true });
-        setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER, {
-          shouldDirty: true,
-        });
       } else {
         setValue('billingParty', defaultBillingParty, { shouldDirty: true });
-        setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF, {
-          shouldDirty: true,
-        });
       }
     },
     [setSelectedCustomer, setSelectedConsignee, setValue, defaultBillingParty]
@@ -524,7 +518,12 @@ export function SubtripJobCreateForm() {
           initialAdvanceDieselUnit: form.initialAdvanceDieselUnit,
           pumpCd: form.pumpCd || undefined,
           advanceFromCustomer:
-            isOwn && form.driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER
+            isOwn &&
+            [
+              DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER,
+              DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR,
+              DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE,
+            ].includes(form.driverAdvanceGivenBy)
               ? toNumber(form.driverAdvance)
               : undefined,
         }
@@ -634,6 +633,38 @@ export function SubtripJobCreateForm() {
     }
     setValue('unloadingPoint', []);
   }, [billingParty, setSelectedConsignee, setValue]);
+
+  // Synchronize driverAdvanceGivenBy when vehicle type, customer type, or billing party changes
+  useEffect(() => {
+    const currentGivenBy = getValues('driverAdvanceGivenBy');
+    const isCustomerAdvance = [
+      DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER,
+      DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR,
+      DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE,
+    ].includes(currentGivenBy);
+
+    // For market vehicles, customer/billing party advance is disallowed; reset to Self
+    if (!selectedVehicle?.isOwn) {
+      if (isCustomerAdvance) {
+        setValue('driverAdvanceGivenBy', DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF, { shouldDirty: true });
+      }
+      return;
+    }
+
+    // For own vehicles, keep customer advance aligned with active billingParty / customerType
+    if (isCustomerAdvance) {
+      const targetOption =
+        selectedCustomer?.customerType === 'transporter'
+          ? DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER
+          : billingParty === 'consignee'
+            ? DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE
+            : DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR;
+
+      if (currentGivenBy !== targetOption) {
+        setValue('driverAdvanceGivenBy', targetOption, { shouldDirty: true });
+      }
+    }
+  }, [selectedVehicle?.isOwn, selectedCustomer?.customerType, billingParty, getValues, setValue]);
 
   // Prepopulate driver from active trip when attaching
   useEffect(() => {
@@ -773,6 +804,7 @@ export function SubtripJobCreateForm() {
                 isLoadedJob={isLoadedJob}
                 isOwnVehicle={selectedVehicle?.isOwn}
                 selectedCustomer={selectedCustomer}
+                billingParty={billingParty}
                 managesPumps={managesPumps}
                 initialAdvanceDieselUnit={initialAdvanceDieselUnit}
                 onSelectPumpClick={pumpDialog.onTrue}

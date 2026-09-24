@@ -21,6 +21,8 @@ export const DRIVER_ADVANCE_GIVEN_BY_OPTIONS = {
   SELF: 'Self',
   FUEL_PUMP: 'Fuel Pump',
   TRANSPORTER: 'Transporter',
+  CONSIGNOR: 'Consignor',
+  CONSIGNEE: 'Consignee',
 };
 
 export const FREIGHT_MODEL_OPTIONS = [

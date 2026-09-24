@@ -24,6 +24,7 @@ export function SubtripJobCreateAdvanceStep({
   isLoadedJob,
   isOwnVehicle,
   selectedCustomer,
+  billingParty,
   managesPumps,
   initialAdvanceDieselUnit,
   onSelectPumpClick,
@@ -37,25 +38,32 @@ export function SubtripJobCreateAdvanceStep({
   const { watch } = useFormContext();
   const driverAdvanceGivenBy = watch('driverAdvanceGivenBy');
 
-  const givenByOptions = useMemo(() => Object.values(DRIVER_ADVANCE_GIVEN_BY_OPTIONS).filter((option) => {
-      if (option === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP && !managesPumps) {
-        return false;
+  const givenByOptions = useMemo(() => {
+    const options = [DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF];
+    if (managesPumps) {
+      options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP);
+    }
+    if (isOwnVehicle) {
+      if (selectedCustomer?.customerType === 'transporter') {
+        options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER);
+      } else if (billingParty === 'consignee') {
+        options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE);
+      } else {
+        options.push(DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR);
       }
-      if (
-        option === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER &&
-        !isOwnVehicle &&
-        selectedCustomer?.customerType !== 'transporter'
-      ) {
-        return false;
-      }
-      return true;
-    }), [managesPumps, isOwnVehicle, selectedCustomer]);
+    }
+    return options;
+  }, [managesPumps, isOwnVehicle, selectedCustomer?.customerType, billingParty]);
 
   if (!isLoadedJob) {
     return null;
   }
 
-  const isTransporterAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER;
+  const isCustomerAdvance = [
+    DRIVER_ADVANCE_GIVEN_BY_OPTIONS.TRANSPORTER,
+    DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNOR,
+    DRIVER_ADVANCE_GIVEN_BY_OPTIONS.CONSIGNEE,
+  ].includes(driverAdvanceGivenBy);
   const isPumpAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.FUEL_PUMP;
   const isSelfAdvance = driverAdvanceGivenBy === DRIVER_ADVANCE_GIVEN_BY_OPTIONS.SELF;
 
@@ -91,9 +99,9 @@ export function SubtripJobCreateAdvanceStep({
           </Box>
 
           <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-            {isTransporterAdvance && (
+            {isCustomerAdvance && (
               <Chip
-                label="Advance from Customer (Will be deducted on Customer Invoice)"
+                label={`Advance from ${driverAdvanceGivenBy} (Will be deducted on Customer Invoice)`}
                 color="info"
                 size="small"
                 variant="soft"
