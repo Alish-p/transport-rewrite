@@ -212,7 +212,7 @@ export function useCreateJob() {
 
 export function useUpdateSubtrip() {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ id, data }) => updateSubtrip(id, data),
     onSuccess: (updatedSubtrip) => {
       queryClient.invalidateQueries([QUERY_KEY]);
@@ -226,7 +226,7 @@ export function useUpdateSubtrip() {
     },
   });
 
-  return mutate;
+  return mutateAsync;
 }
 
 export function useDeleteSubtrip() {

@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import {
@@ -247,9 +247,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
       errorRemarks: currentSubtrip?.errorRemarks || '',
       quantityUnit: currentSubtrip?.quantityUnit || 'bags',
       vehicleAssignment: currentSubtrip?.vehicleAssignment || 'schedule',
-      freightDetails: currentSubtrip?.freightDetails || {
+      freightDetails: {
         freightModel: 'per_ton',
-        rate: currentSubtrip?.freightDetails?.rate || 0,
+        rate: 0,
+        freightAmount: currentSubtrip?.freightAmount ?? 0,
+        ...currentSubtrip?.freightDetails,
       },
       commissionDetails: currentSubtrip?.commissionDetails || {
         commissionRate: currentSubtrip?.commissionDetails?.commissionRate || 0,
@@ -348,6 +350,15 @@ export default function SubtripEditForm({ currentSubtrip }) {
     handleSubmit,
     formState: { isSubmitting, dirtyFields },
   } = methods;
+
+  const lastLoadedIdRef = useRef(null);
+
+  useEffect(() => {
+    if (currentSubtrip?._id && currentSubtrip._id !== lastLoadedIdRef.current) {
+      lastLoadedIdRef.current = currentSubtrip._id;
+      methods.reset(defaultValues);
+    }
+  }, [currentSubtrip, defaultValues, methods]);
 
   const values = watch();
 
@@ -480,6 +491,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
           : data.unloadingPoint;
       }
 
+      const activeFreightModel =
+        data.freightDetails?.freightModel ||
+        currentSubtrip?.freightDetails?.freightModel ||
+        'per_ton';
+
       if (dirtyFields.freightDetails) {
         changedFields.freightDetails = { ...data.freightDetails };
         // Strip freightAmount for dynamically calculated models so the backend recalculates it correctly
@@ -487,6 +503,11 @@ export default function SubtripEditForm({ currentSubtrip }) {
         if (fm !== 'fixed' && fm !== 'hybrid') {
           delete changedFields.freightDetails.freightAmount;
         }
+      } else if (activeFreightModel === 'fixed' || activeFreightModel === 'hybrid') {
+        changedFields.freightDetails = {
+          ...currentSubtrip?.freightDetails,
+          ...data.freightDetails,
+        };
       }
 
       if (dirtyFields.commissionDetails) {
