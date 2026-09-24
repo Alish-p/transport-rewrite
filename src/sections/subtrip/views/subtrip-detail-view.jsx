@@ -2,7 +2,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 
 import {
@@ -229,10 +229,41 @@ export function SubtripDetailView({ subtrip, publicMode = false }) {
   const commissionDisplay = isMarketVehicle ? getCommissionDisplay(subtrip) : null;
 
   const advanceFromCustomer = subtrip?.advanceFromCustomer || 0;
-  const customerName = subtrip?.customerId?.customerName;
+
+  const advancePartyName = useMemo(() => {
+    const givenBy = (subtrip?.driverAdvanceGivenBy || '').toLowerCase();
+    const billingParty = (subtrip?.billingParty || 'consignor').toLowerCase();
+
+    const consigneeName =
+      subtrip?.consigneeCustomerId?.customerName ||
+      (typeof subtrip?.consignee === 'string'
+        ? subtrip.consignee
+        : subtrip?.consignee?.label || subtrip?.consignee?.value) ||
+      'consignee';
+
+    const consignorOrCustomerName = subtrip?.customerId?.customerName;
+
+    if (givenBy.includes('consignee') || (!givenBy && billingParty === 'consignee')) {
+      return consigneeName;
+    }
+
+    if (givenBy.includes('transporter')) {
+      return consignorOrCustomerName || 'transporter';
+    }
+
+    // Default to consignor / customer
+    return consignorOrCustomerName || 'consignor';
+  }, [
+    subtrip?.driverAdvanceGivenBy,
+    subtrip?.billingParty,
+    subtrip?.consigneeCustomerId,
+    subtrip?.consignee,
+    subtrip?.customerId,
+  ]);
+
   const advanceInfoNote =
     advanceFromCustomer > 0
-      ? `${fCurrency(advanceFromCustomer)} advance already received from ${customerName || 'transporter'} (will be deducted on invoice)`
+      ? `${fCurrency(advanceFromCustomer)} advance already received from ${advancePartyName} (will be deducted on invoice)`
       : null;
 
   const expenseDescription = isMarketVehicle
