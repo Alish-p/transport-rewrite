@@ -554,11 +554,9 @@ export function SubtripJobCreateForm() {
       const payload = buildPayload(data);
       const createdSubtrip = await createJob(payload);
 
-      toast.success('Job created successfully');
       window.location.assign(paths.dashboard.subtrip.details(createdSubtrip._id));
     } catch (error) {
       console.error(error);
-      toast.error(error?.message || 'Failed to create job');
     }
   });
 
