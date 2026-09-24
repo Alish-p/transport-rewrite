@@ -81,7 +81,7 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
 
                 const content = item.render ? null : (
                   <>
-                    {item.icon && <Iconify icon={item.icon} sx={{ mr: 1.5 }} />}
+                    {item.icon && <Iconify icon={item.icon} />}
                     {item.label}
                   </>
                 );
@@ -98,6 +98,7 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                     disabled={item.disabled}
                     onClick={item.render ? undefined : handleClick}
                     sx={{
+                      gap: 1,
                       ...(item.color === 'error' && { color: 'error.main' }),
                       ...item.sx,
                     }}
@@ -166,7 +167,7 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
 
                 const content = item.render ? null : (
                   <>
-                    {item.icon && <Iconify icon={item.icon} sx={{ mr: 1.5 }} />}
+                    {item.icon && <Iconify icon={item.icon} />}
                     {item.label}
                   </>
                 );
@@ -183,6 +184,7 @@ export function ActionMenuBar({ actions = [], menus = [], collapseAt = 'md' }) {
                     disabled={item.disabled}
                     onClick={item.render ? undefined : handleClick}
                     sx={{
+                      gap: 1,
                       ...(item.color === 'error' && { color: 'error.main' }),
                       ...item.sx,
                     }}
