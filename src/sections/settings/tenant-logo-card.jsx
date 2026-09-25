@@ -1,14 +1,22 @@
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Stack, Divider, CardHeader, Typography, CircularProgress } from '@mui/material';
 
-import { getTenantLogoUrl } from 'src/utils/tenant-branding';
+import { getTenantLogoUrl, getTenantSignatureUrl } from 'src/utils/tenant-branding';
 
-import { saveTenantLogo, getTenantLogoUploadUrl } from 'src/query/use-tenant';
+import { varAlpha } from 'src/theme/styles';
+import {
+  saveTenantLogo,
+  saveTenantSignature,
+  getTenantLogoUploadUrl,
+  getTenantSignatureUploadUrl,
+} from 'src/query/use-tenant';
 
+import { Iconify } from 'src/components/iconify';
 import { UploadAvatar } from 'src/components/upload';
 
 import { useAuthContext } from 'src/auth/hooks';
@@ -34,14 +42,26 @@ export default function TenantLogoCard({ tenant }) {
   const queryClient = useQueryClient();
   const { checkUserSession } = useAuthContext();
 
-  const [isUploading, setUploading] = useState(false);
-  const [isSaving, setSaving] = useState(false);
-  const [localFile, setLocalFile] = useState(null);
+  // Logo state
+  const [isLogoUploading, setLogoUploading] = useState(false);
+  const [isLogoSaving, setLogoSaving] = useState(false);
+  const [localLogoFile, setLocalLogoFile] = useState(null);
 
-  const hasRealLogo = !!tenant?.logoUrl;
+  // Signature state
+  const [isSigUploading, setSigUploading] = useState(false);
+  const [isSigSaving, setSigSaving] = useState(false);
+  const [localSigFile, setLocalSigFile] = useState(null);
+
+  const hasRealLogo = Boolean(tenant?.logoUrl);
   const currentLogoUrl = getTenantLogoUrl(tenant, { fallback: false });
 
-  const doUpload = async (file) => {
+  const hasRealSignature = Boolean(tenant?.signatureUrl);
+  const currentSignatureUrl = localSigFile
+    ? URL.createObjectURL(localSigFile)
+    : getTenantSignatureUrl(tenant);
+
+  // ---------------- Logo Handlers ----------------
+  const doUploadLogo = async (file) => {
     try {
       if (!ACCEPTED_TYPES.includes(file.type)) {
         toast.error('Invalid file type. Allowed: PNG, JPG, WEBP, SVG');
@@ -53,7 +73,7 @@ export default function TenantLogoCard({ tenant }) {
         return;
       }
 
-      setUploading(true);
+      setLogoUploading(true);
       const { key, uploadUrl } = await getTenantLogoUploadUrl({
         contentType: file.type,
         extension,
@@ -68,10 +88,9 @@ export default function TenantLogoCard({ tenant }) {
         throw new Error('Upload failed');
       }
 
-      setSaving(true);
+      setLogoSaving(true);
       const updatedTenant = await saveTenantLogo({ fileKey: key });
 
-      // Update cache and auth context for immediate UI reflection
       queryClient.setQueryData(['tenant'], updatedTenant);
       queryClient.invalidateQueries(['tenant']);
       checkUserSession?.();
@@ -80,22 +99,22 @@ export default function TenantLogoCard({ tenant }) {
       console.error(err);
       toast.error(err?.message || 'Logo upload failed');
     } finally {
-      setUploading(false);
-      setSaving(false);
+      setLogoUploading(false);
+      setLogoSaving(false);
     }
   };
 
-  const handleDrop = async (acceptedFiles) => {
+  const handleLogoDrop = async (acceptedFiles) => {
     const file = acceptedFiles?.[0];
     if (!file) return;
-    setLocalFile(file);
-    await doUpload(file);
-    setLocalFile(null);
+    setLocalLogoFile(file);
+    await doUploadLogo(file);
+    setLocalLogoFile(null);
   };
 
-  const handleRemove = async () => {
+  const handleLogoRemove = async () => {
     try {
-      setSaving(true);
+      setLogoSaving(true);
       const updatedTenant = await saveTenantLogo({ fileKey: null });
       queryClient.setQueryData(['tenant'], updatedTenant);
       queryClient.invalidateQueries(['tenant']);
@@ -105,21 +124,122 @@ export default function TenantLogoCard({ tenant }) {
       console.error(err);
       toast.error(err?.message || 'Failed to remove logo');
     } finally {
-      setSaving(false);
+      setLogoSaving(false);
     }
   };
 
+  // ---------------- Signature Handlers ----------------
+  const doUploadSignature = async (file) => {
+    try {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        toast.error('Invalid file type. Allowed: PNG, JPG, WEBP, SVG');
+        return;
+      }
+      const extension = getExtension(file);
+      if (!extension) {
+        toast.error('Could not detect file extension');
+        return;
+      }
+
+      setSigUploading(true);
+      const { key, uploadUrl } = await getTenantSignatureUploadUrl({
+        contentType: file.type,
+        extension,
+      });
+
+      const res = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      if (!res.ok) {
+        throw new Error('Upload failed');
+      }
+
+      setSigSaving(true);
+      const updatedTenant = await saveTenantSignature({ fileKey: key });
+
+      queryClient.setQueryData(['tenant'], updatedTenant);
+      queryClient.invalidateQueries(['tenant']);
+      checkUserSession?.();
+      toast.success('Authorized signature updated');
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Signature upload failed');
+    } finally {
+      setSigUploading(false);
+      setSigSaving(false);
+    }
+  };
+
+  const handleSignatureDrop = async (acceptedFiles) => {
+    const file = acceptedFiles?.[0];
+    if (!file) return;
+    setLocalSigFile(file);
+    await doUploadSignature(file);
+    setLocalSigFile(null);
+  };
+
+  const handleSignatureRemove = async () => {
+    try {
+      setSigSaving(true);
+      const updatedTenant = await saveTenantSignature({ fileKey: null });
+      queryClient.setQueryData(['tenant'], updatedTenant);
+      queryClient.invalidateQueries(['tenant']);
+      checkUserSession?.();
+      toast.success('Authorized signature removed');
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to remove signature');
+    } finally {
+      setSigSaving(false);
+    }
+  };
+
+  const isSigBusy = isSigUploading || isSigSaving;
+  const isLogoBusy = isLogoUploading || isLogoSaving;
+
+  const {
+    getRootProps: getSigRootProps,
+    getInputProps: getSigInputProps,
+    isDragActive: isSigDragActive,
+    isDragReject: isSigDragReject,
+  } = useDropzone({
+    onDrop: handleSignatureDrop,
+    disabled: isSigBusy,
+    accept: {
+      'image/png': [],
+      'image/jpeg': [],
+      'image/webp': [],
+      'image/svg+xml': [],
+    },
+    maxFiles: 1,
+  });
+
   return (
     <Card>
-      <CardHeader title="Branding" subheader="Upload your company logo" sx={{ mb: 1 }} />
+      <CardHeader
+        title="Branding & Signatures"
+        subheader="Manage your company logo and authorized signatory for lorry receipts and official documents"
+        sx={{ mb: 1 }}
+      />
       <Divider />
-      <Stack spacing={2} alignItems="flex-start" sx={{ p: 3 }}>
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ width: 1 }}>
+
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={4}
+        divider={<Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', md: 'block' } }} />}
+        sx={{ p: 3 }}
+      >
+        {/* Company Logo Section */}
+        <Stack spacing={1.5} alignItems={{ xs: 'center', md: 'flex-start' }} sx={{ flex: 1 }}>
+          <Typography variant="subtitle2">Company Logo</Typography>
+
           <Box sx={{ position: 'relative' }}>
             <UploadAvatar
-              value={localFile || (hasRealLogo ? currentLogoUrl : null)}
-              onDrop={handleDrop}
-              disabled={isUploading || isSaving}
+              value={localLogoFile || (hasRealLogo ? currentLogoUrl : null)}
+              onDrop={handleLogoDrop}
+              disabled={isLogoBusy}
               accept={{
                 'image/png': [],
                 'image/jpeg': [],
@@ -134,7 +254,7 @@ export default function TenantLogoCard({ tenant }) {
               sx={{ width: 124, height: 124 }}
             />
 
-            {(isUploading || isSaving) && (
+            {isLogoBusy && (
               <Box
                 sx={{
                   position: 'absolute',
@@ -150,12 +270,113 @@ export default function TenantLogoCard({ tenant }) {
               </Box>
             )}
           </Box>
+
+          <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: { xs: 'center', md: 'left' } }}>
+            Allowed *.jpeg, *.jpg, *.png, *.svg
+          </Typography>
+
+          {hasRealLogo && (
+            <LoadingButton
+              color="error"
+              variant="soft"
+              size="small"
+              onClick={handleLogoRemove}
+              loading={isLogoSaving}
+            >
+              Remove Logo
+            </LoadingButton>
+          )}
         </Stack>
 
-        <Stack direction="row" spacing={1}>
-          {hasRealLogo && (
-            <LoadingButton color="error" variant="soft" onClick={handleRemove} loading={isSaving}>
-              Remove
+        {/* Authorized Signature Section */}
+        <Stack spacing={1.5} alignItems={{ xs: 'center', md: 'flex-start' }} sx={{ flex: 1 }}>
+          <Typography variant="subtitle2">Authorized Signatory / Stamp</Typography>
+
+          <Box sx={{ position: 'relative', width: 240 }}>
+            <Box
+              {...getSigRootProps()}
+              sx={{
+                width: 240,
+                height: 124,
+                borderRadius: 1.5,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                p: 1.5,
+                bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.06),
+                border: (theme) =>
+                  `dashed 1px ${varAlpha(
+                    isSigDragReject
+                      ? theme.vars.palette.error.mainChannel
+                      : theme.vars.palette.grey['500Channel'],
+                    isSigDragReject ? 1 : 0.24
+                  )}`,
+                ...(isSigDragActive && { opacity: 0.72 }),
+                ...(isSigBusy && { opacity: 0.48, pointerEvents: 'none' }),
+                '&:hover': {
+                  opacity: 0.8,
+                  borderColor: 'primary.main',
+                },
+              }}
+            >
+              <input {...getSigInputProps()} />
+
+              {currentSignatureUrl ? (
+                <Box
+                  component="img"
+                  src={currentSignatureUrl}
+                  alt="Authorized Signatory"
+                  sx={{
+                    maxWidth: 1,
+                    maxHeight: 1,
+                    objectFit: 'contain',
+                  }}
+                />
+              ) : (
+                <Stack spacing={0.5} alignItems="center" sx={{ color: 'text.secondary' }}>
+                  <Iconify icon="mdi:signature-freehand" width={32} />
+                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                    Upload Signature / Stamp
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: 10 }}>
+                    Click or drag & drop image
+                  </Typography>
+                </Stack>
+              )}
+            </Box>
+
+            {isSigBusy && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: 'rgba(255,255,255,0.6)',
+                  borderRadius: 1.5,
+                }}
+              >
+                <CircularProgress size={28} thickness={5} />
+              </Box>
+            )}
+          </Box>
+
+          <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: { xs: 'center', md: 'left' } }}>
+            Recommended: PNG with transparent background
+          </Typography>
+
+          {hasRealSignature && (
+            <LoadingButton
+              color="error"
+              variant="soft"
+              size="small"
+              onClick={handleSignatureRemove}
+              loading={isSigSaving}
+            >
+              Remove Signature
             </LoadingButton>
           )}
         </Stack>

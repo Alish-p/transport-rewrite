@@ -57,3 +57,23 @@ export const saveTenantLogo = async ({ fileKey }) => {
   const { data } = await axios.put(`${ENDPOINT}/branding/logo`, { fileKey });
   return data; // updated tenant
 };
+
+// ----------------------------------------
+// Branding: Tenant Authorized Signature API
+// ----------------------------------------
+
+// Get a presigned S3 upload URL for the tenant signature
+// params: { contentType: string, extension: string }
+export const getTenantSignatureUploadUrl = async ({ contentType, extension }) => {
+  const { data } = await axios.get(`${ENDPOINT}/branding/signature/upload-url`, {
+    params: { contentType, extension },
+  });
+  return data; // { key, uploadUrl }
+};
+
+// Save tenant signature by file key, or remove by passing null
+// body: { fileKey: string | null }
+export const saveTenantSignature = async ({ fileKey }) => {
+  const { data } = await axios.put(`${ENDPOINT}/branding/signature`, { fileKey });
+  return data; // updated tenant
+};

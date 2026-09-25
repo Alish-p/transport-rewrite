@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
-import { Svg, Font, Page, Path, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Svg, Font, Page, Path, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
 import { fVehicleNo } from 'src/utils/format-vehicle';
+import { getTenantSignatureUrl } from 'src/utils/tenant-branding';
 
 import TenantLogo from 'src/pdfs/common/TenantLogo';
 
@@ -331,6 +332,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 1,
   },
+  signatureContainer: {
+    height: 24,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  signatureImage: {
+    maxHeight: 24,
+    maxWidth: 110,
+    objectFit: 'contain',
+  },
   signatoryText: {
     fontSize: 6,
     fontWeight: 700,
@@ -456,7 +468,7 @@ const TERMS_AND_CONDITIONS = [
   '13) In case any dispute or difference arises between the parties with regard to the terms and conditions of this agreement or relating to the interpretation thereof and which could not be solved with mutual understanding then both parties require to approach the local jurisdiction selected by transporter to resolve the same with legal procedure.',
 ];
 
-export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
+export default function Template1LRPDF({ subtrip = {}, tenant = {}, signatureUrl: propSignatureUrl }) {
   const {
     subtripNo = '',
     referenceSubtripNo = '',
@@ -484,13 +496,32 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     '-';
 
   const vehicleType = vehicleId?.vehicleType;
+  const rawWeightUnit = (
+    subtrip?.loadingWeightUnit ||
+    (vehicleType && loadingWeightUnit[vehicleType]) ||
+    'Ton'
+  )
+    .toString()
+    .trim();
   const weightUnit =
-    subtrip?.loadingWeightUnit || (vehicleType && loadingWeightUnit[vehicleType]) || 'MTS';
+    rawWeightUnit.toLowerCase() === 'kl'
+      ? 'KL'
+      : rawWeightUnit.toLowerCase() === 'kg' || rawWeightUnit.toLowerCase() === 'kgs'
+        ? 'Kg'
+        : 'Ton';
 
   // Company Details
   const companyName = tenant?.name || '';
   const companyPhone = tenant?.contactDetails?.phone || tenant?.phone || '';
   const companyEmail = tenant?.contactDetails?.email || tenant?.email || '';
+
+  const signatureUrl =
+    propSignatureUrl ||
+    subtrip?.signatureUrl ||
+    tenant?.signatureUrl ||
+    tenant?.signature ||
+    tenant?.stampUrl ||
+    getTenantSignatureUrl(tenant);
 
   const addressLine1 =
     typeof tenant?.address === 'string'
@@ -541,12 +572,20 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const bankIfsc = tenant?.bankDetails?.ifsc || '';
 
   // Weights & Formats
-  const formattedActualWeight = loadingWeight
-    ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
-    : '35.000 MTS';
-  const formattedChargeWeight = loadingWeight
-    ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
-    : '35.000 MTS';
+  const effectiveChargeWeight =
+    subtrip?.chargeWeight ?? subtrip?.billingWeight ?? loadingWeight;
+
+  const formattedActualWeight =
+    loadingWeight !== undefined && loadingWeight !== null && loadingWeight !== ''
+      ? `${Number(loadingWeight).toFixed(3)} ${weightUnit}`
+      : '-';
+  const formattedChargeWeight =
+    effectiveChargeWeight !== undefined &&
+    effectiveChargeWeight !== null &&
+    effectiveChargeWeight !== ''
+      ? `${Number(effectiveChargeWeight).toFixed(3)} ${weightUnit}`
+      : '-';
+
   const displayMaterial = 'AS PER TAX INVOICE'; // Clients Requirement
   const displayPackaging = getQuantityUnitLabel(
     quantityUnit || packagingType || packaging,
@@ -556,13 +595,100 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   const totalQuantity = quantity !== undefined && quantity !== null ? quantity : '0';
 
   // Freight Calculation
-  const isToBeBilled = freightDetails?.freightModel === 'to_be_billed';
-  let totalFreightAmount = Number(freightDetails?.freightAmount || 0);
+  const freightModel = freightDetails?.freightModel || subtrip?.freightModel || '';
+  const isToBeBilled = freightModel === 'to_be_billed';
+
+  const formatFreightRate = () => {
+    if (isToBeBilled) {
+      return '-';
+    }
+
+    const formatCurrency = (val) =>
+      Number(val).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+    if (freightModel === 'fixed') {
+      const fixedAmount =
+        Number(freightDetails?.freightAmount || 0) ||
+        Number(subtrip?.freightAmount || 0) ||
+        Number(freightDetails?.rate || 0) ||
+        Number(subtrip?.rate || 0);
+
+      if (fixedAmount > 0) {
+        return `₹ ${formatCurrency(fixedAmount)}/FIX`;
+      }
+      return '-';
+    }
+
+    if (freightModel === 'per_ton') {
+      const rate = Number(freightDetails?.rate || subtrip?.rate || 0);
+      if (rate > 0) {
+        return `₹ ${formatCurrency(rate)}/Ton`;
+      }
+      return '-';
+    }
+
+    if (freightModel === 'per_kl') {
+      const rate = Number(freightDetails?.rate || subtrip?.rate || 0);
+      if (rate > 0) {
+        return `₹ ${formatCurrency(rate)}/KL`;
+      }
+      return '-';
+    }
+
+    if (freightModel === 'per_km') {
+      const rate = Number(freightDetails?.rate || subtrip?.rate || 0);
+      if (rate > 0) {
+        return `₹ ${formatCurrency(rate)}/KM`;
+      }
+      return '-';
+    }
+
+    if (freightModel === 'per_hour') {
+      const rate = Number(freightDetails?.rate || subtrip?.rate || 0);
+      if (rate > 0) {
+        return `₹ ${formatCurrency(rate)}/Hr`;
+      }
+      return '-';
+    }
+
+    if (freightModel === 'hybrid') {
+      const rate = Number(freightDetails?.rate || subtrip?.rate || 0);
+      if (rate > 0) {
+        return `₹ ${formatCurrency(rate)}/KM`;
+      }
+      return '-';
+    }
+
+    const fallbackRate = Number(freightDetails?.rate || subtrip?.rate || 0);
+    if (fallbackRate > 0) {
+      return `₹ ${formatCurrency(fallbackRate)}`;
+    }
+
+    const fallbackAmount = Number(freightDetails?.freightAmount || subtrip?.freightAmount || 0);
+    if (fallbackAmount > 0) {
+      return `₹ ${formatCurrency(fallbackAmount)}`;
+    }
+
+    return '-';
+  };
+
+  const formattedFreightRate = formatFreightRate();
+
+  let totalFreightAmount = Number(
+    freightDetails?.freightAmount ||
+      subtrip?.freightAmount ||
+      (freightModel === 'fixed' ? freightDetails?.rate || subtrip?.rate : 0) ||
+      0
+  );
   if (
     !totalFreightAmount &&
-    (freightDetails?.freightModel === 'per_ton' || freightDetails?.freightModel === 'per_kl')
+    (freightModel === 'per_ton' || freightModel === 'per_kl')
   ) {
-    totalFreightAmount = Number(loadingWeight || 0) * Number(freightDetails?.rate || 0);
+    totalFreightAmount =
+      Number(loadingWeight || 0) * Number(freightDetails?.rate || subtrip?.rate || 0);
   }
   const formattedFreightAmount = Number(totalFreightAmount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 0,
@@ -778,9 +904,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
                   <Text style={styles.tdText}>{formattedChargeWeight}</Text>
                 </View>
                 <View style={[styles.tdCol, { width: '12%', borderRightWidth: 0 }]}>
-                  <Text style={styles.tdText}>
-                    {freightDetails?.rate ? `₹ ${freightDetails.rate}` : '-'}
-                  </Text>
+                  <Text style={styles.tdText}>{formattedFreightRate}</Text>
                 </View>
               </View>
 
@@ -794,12 +918,24 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
                   <Text style={styles.totalText}>Total: {totalQuantity}</Text>
                 </View>
                 <View style={[styles.totalCellBox, { width: '11.5%' }]}>
-                  <Text style={styles.totalText}>Total:</Text>
-                  <Text style={styles.totalText}>{formattedActualWeight}</Text>
+                  {formattedActualWeight !== '-' ? (
+                    <>
+                      <Text style={styles.totalText}>Total:</Text>
+                      <Text style={styles.totalText}>{formattedActualWeight}</Text>
+                    </>
+                  ) : (
+                    <Text style={styles.totalText}>-</Text>
+                  )}
                 </View>
                 <View style={[styles.totalCellBox, { width: '11.5%' }]}>
-                  <Text style={styles.totalText}>Total:</Text>
-                  <Text style={styles.totalText}>{formattedChargeWeight}</Text>
+                  {formattedChargeWeight !== '-' ? (
+                    <>
+                      <Text style={styles.totalText}>Total:</Text>
+                      <Text style={styles.totalText}>{formattedChargeWeight}</Text>
+                    </>
+                  ) : (
+                    <Text style={styles.totalText}>-</Text>
+                  )}
                 </View>
                 <View style={[styles.totalCellBox, { width: '12%', borderRightWidth: 0 }]} />
               </View>
@@ -838,7 +974,13 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
             {/* Box 3: Tenant's Signature */}
             <View style={styles.middleCol3}>
               <Text style={styles.signatoryCompany}>For {companyName}</Text>
-              <View style={{ height: 22 }} />
+              {signatureUrl ? (
+                <View style={styles.signatureContainer}>
+                  <Image src={signatureUrl} style={styles.signatureImage} />
+                </View>
+              ) : (
+                <View style={{ height: 22 }} />
+              )}
               <Text style={styles.signatoryText}>Authorized Signatory</Text>
             </View>
           </View>

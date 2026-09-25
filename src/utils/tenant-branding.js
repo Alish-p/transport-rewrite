@@ -44,3 +44,18 @@ export function getTenantLogoUrl(tenant, { size, fallback = true } = {}) {
   const dataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   return dataUrl;
 }
+
+// Returns an authorized signature URL for the given tenant with optional cache-busting.
+export function getTenantSignatureUrl(tenant) {
+  if (!tenant) return '';
+  const { signatureUrl, signatureUpdatedAt, updatedAt } = tenant;
+
+  if (signatureUrl) {
+    const version = signatureUpdatedAt || updatedAt;
+    return version
+      ? `${signatureUrl}${signatureUrl.includes('?') ? '&' : '?'}v=${new Date(version).getTime()}`
+      : signatureUrl;
+  }
+
+  return '';
+}
