@@ -2,6 +2,7 @@
 import { Svg, Font, Page, Path, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
 import { fDate } from 'src/utils/format-time';
+import { fVehicleNo } from 'src/utils/format-vehicle';
 
 import TenantLogo from 'src/pdfs/common/TenantLogo';
 
@@ -424,6 +425,13 @@ const styles = StyleSheet.create({
     fontSize: 8.5,
     fontWeight: 700,
   },
+  page2Columns: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  page2Col: {
+    width: '48.5%',
+  },
   clauseText: {
     fontSize: 6.2,
     lineHeight: 1.35,
@@ -516,7 +524,13 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
     customerId?.address || '';
 
   // Consignee
-  const consigneeName = consignee || '';
+  const rawConsigneeName =
+    (typeof consignee === 'string'
+      ? consignee
+      : consignee?.customerName || consigneeCustomerId?.customerName) ||
+    consigneeCustomerId?.customerName ||
+    '';
+  const consigneeName = rawConsigneeName.toUpperCase();
   const consigneeGst = consigneeCustomerId?.GSTNo || '-';
   const consigneeMobile = consigneeCustomerId?.cellNo || '-';
   const consigneeAddress = consigneeCustomerId?.address || '-';
@@ -558,7 +572,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
   return (
     <Document>
       {/* PAGE 1: LORRY RECEIPT DETAILS */}
-      <Page size="A4" style={styles.page} orientation="portrait">
+      <Page size="A4" style={styles.page} orientation="landscape">
         {/* Header (outside borderContainer) */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -641,7 +655,7 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>Vehicle No</Text>
-                <Text style={styles.metaValue}>{vehicleId?.vehicleNo || 'JH-10DD-1612'}</Text>
+                <Text style={styles.metaValue}>{fVehicleNo(vehicleId?.vehicleNo || 'JH-10DD-1612')}</Text>
               </View>
               <View style={styles.metaRow}>
                 <Text style={styles.metaLabel}>From</Text>
@@ -875,18 +889,27 @@ export default function Template1LRPDF({ subtrip = {}, tenant = {} }) {
       </Page>
 
       {/* PAGE 2: TERMS AND CONDITIONS */}
-      <Page size="A4" style={styles.page} orientation="portrait">
+      <Page size="A4" style={styles.page} orientation="landscape">
         <View style={styles.page2Header}>
           <Text style={styles.page2Title}>Terms and Conditions</Text>
           <Text style={styles.page2Title}>Other Information</Text>
         </View>
 
-        <View>
-          {TERMS_AND_CONDITIONS.map((clause, idx) => (
-            <Text key={idx} style={styles.clauseText}>
-              {clause}
-            </Text>
-          ))}
+        <View style={styles.page2Columns}>
+          <View style={styles.page2Col}>
+            {TERMS_AND_CONDITIONS.slice(0, 7).map((clause, idx) => (
+              <Text key={idx} style={styles.clauseText}>
+                {clause}
+              </Text>
+            ))}
+          </View>
+          <View style={styles.page2Col}>
+            {TERMS_AND_CONDITIONS.slice(7).map((clause, idx) => (
+              <Text key={idx + 7} style={styles.clauseText}>
+                {clause}
+              </Text>
+            ))}
+          </View>
         </View>
       </Page>
     </Document>

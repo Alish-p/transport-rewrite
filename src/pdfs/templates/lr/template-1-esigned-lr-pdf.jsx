@@ -221,7 +221,7 @@ export default function Template1ESignedLRPDF({ subtrip, tenant, mapImageUrl }) 
 
   return (
     <Document>
-      <Page size="A4" style={styles.page} orientation="portrait">
+      <Page size="A4" style={styles.page} orientation="landscape">
         <PDFTitle styles={styles} title="Lorry Receipt — E-Signed" />
         <PDFHeader styles={styles} company={tenant} />
         {renderStructuredHeader()}

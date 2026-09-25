@@ -285,7 +285,7 @@ export default function SubtripSettingForm() {
               <Grid item xs={12} md={6}>
                 <Field.Select name="lrTemplate" label="LR Template" fullWidth>
                   <MenuItem value="standard">Standard (A5 Landscape)</MenuItem>
-                  <MenuItem value="template-1">Template 1 (A4 Portrait)</MenuItem>
+                  <MenuItem value="template-1">Template 1 (A4 Landscape)</MenuItem>
                 </Field.Select>
               </Grid>
             </Grid>
