@@ -182,12 +182,6 @@ export const TABLE_COLUMNS = [
               Transporter Loaded
             </Label>
           )}
-
-          {isTransporterLoaded && row?.referenceSubtripNo && (
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: 11 }}>
-              LR: {row.referenceSubtripNo}
-            </Typography>
-          )}
         </Stack>
       );
     },
