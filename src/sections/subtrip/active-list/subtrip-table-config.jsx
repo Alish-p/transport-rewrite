@@ -22,8 +22,7 @@ export const TABLE_COLUMNS = [
     getter: (row) => row?.subtripNo,
     align: 'center',
     render: (row) => {
-      const isTransporter = row?.customerId?.customerType === 'transporter';
-      const lrLabel = isTransporter ? 'Transporter LR' : 'Ref';
+      const lrLabel = 'Manual LR';
 
       return (
         <Stack spacing={0.25} alignItems="center">
@@ -271,7 +270,7 @@ export const TABLE_COLUMNS = [
   },
   {
     id: 'referenceSubtripNo',
-    label: 'Reference Job No',
+    label: 'Manual LR No',
     defaultVisible: false,
     disabled: false,
     getter: (row) => row?.referenceSubtripNo || '-',

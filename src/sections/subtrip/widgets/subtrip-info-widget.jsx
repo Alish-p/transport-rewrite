@@ -279,7 +279,7 @@ export default function LRInfoCard({ subtrip, sx, ...other }) {
             <SectionHeader icon="solar:file-check-bold" title="Documents & References" />
             <Stack spacing={1} sx={{ px: 2.5, pb: 2 }}>
               {referenceSubtripNo ? (
-                <InfoRow icon="mdi:link-variant" label="Reference Job" value={referenceSubtripNo} />
+                <InfoRow icon="mdi:link-variant" label="Manual LR No" value={referenceSubtripNo} />
               ) : null}
               {shipmentNo ? (
                 <InfoRow icon="mdi:truck-delivery" label="Shipment No" value={shipmentNo} />

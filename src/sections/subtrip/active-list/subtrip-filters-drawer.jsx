@@ -168,7 +168,7 @@ export default function SubtripFiltersDrawer({
               fullWidth
               value={filters.referenceSubtripNo}
               onChange={handleFilterReferenceSubtripNo}
-              placeholder="Refference Job No"
+              placeholder="Manual LR No"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">

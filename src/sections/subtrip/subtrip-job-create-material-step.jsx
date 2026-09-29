@@ -34,7 +34,7 @@ export function SubtripJobCreateMaterialStep({
   const lastRefHelperText = customerId
     ? isLoadingLastRef
       ? 'Loading last reference number...'
-      : `Last reference number: ${lastRefData?.referenceSubtripNo || 'None'}`
+      : `Last manual LR number: ${lastRefData?.referenceSubtripNo || 'None'}`
     : undefined;
 
   if (!isLoadedJob) {
@@ -90,12 +90,12 @@ export function SubtripJobCreateMaterialStep({
           </>
         )}
 
-        {/* Transporter LR No: always visible for transporters, configurable for others */}
+        {/* Manual LR No: always visible for transporters, configurable for others */}
         {selectedCustomer?.customerType === 'transporter' ? (
           <Field.Text
             name="referenceSubtripNo"
-            label="Transporter LR No *"
-            placeholder="Enter transporter's LR number"
+            label="Manual LR No *"
+            placeholder="Enter manual LR number"
             helperText={lastRefHelperText}
           />
         ) : (
@@ -106,8 +106,8 @@ export function SubtripJobCreateMaterialStep({
           >
             <Field.Text
               name="referenceSubtripNo"
-              label={getLabel('referenceSubtripNo', 'Reference Job No')}
-              placeholder="Enter original job no (if created by another transporter)"
+              label={getLabel('referenceSubtripNo', 'Manual LR No')}
+              placeholder="Enter manual LR number"
               helperText={lastRefHelperText}
             />
           </Field.Configurable>
@@ -167,9 +167,9 @@ export function getMaterialStepError(form, context) {
 
   const isTransporterCustomer = selectedCustomer?.customerType === 'transporter';
 
-  // Transporter LR No is required for transporter customers
+  // Manual LR No is required for transporter customers
   if (isTransporterCustomer && !form.referenceSubtripNo) {
-    return 'Please enter Transporter LR No';
+    return 'Please enter Manual LR No';
   }
 
   // Skip validation for fields hidden in transporter flow
@@ -193,7 +193,7 @@ export function getMaterialStepError(form, context) {
       return 'Please enter order number';
     }
     if (isFieldRequired('referenceSubtripNo') && !form.referenceSubtripNo) {
-      return 'Please enter reference job number';
+      return 'Please enter manual LR number';
     }
     if (isFieldRequired('diNumber') && !form.diNumber) {
       return 'Please enter DI/DO number';

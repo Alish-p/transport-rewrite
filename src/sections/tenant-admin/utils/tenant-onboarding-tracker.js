@@ -84,7 +84,7 @@ const SUBTRIP_FIELDS_METADATA = [
   { key: 'ewayExpiryDate', defaultLabel: 'E-Way Expiry Date', notes: 'E-Way Bill valid-until timestamp for validity checks.' },
   { key: 'shipmentNo', defaultLabel: 'Shipment No', notes: 'Customer shipment or consignment number.' },
   { key: 'orderNo', defaultLabel: 'Order No', notes: 'Purchase order (PO) or sales contract number.' },
-  { key: 'referenceSubtripNo', defaultLabel: 'Reference Job No', notes: 'Internal / external reference identifier.' },
+  { key: 'referenceSubtripNo', defaultLabel: 'Manual LR No', notes: 'Manual LR identifier.' },
   { key: 'diNumber', defaultLabel: 'DI/DO No', notes: 'Delivery Instruction / Delivery Order tracking number.' },
   { key: 'consignee', defaultLabel: 'Consignee', notes: 'Receiving party / destination client.' },
   { key: 'loadingPoint', defaultLabel: 'Loading Point', notes: 'Origin factory, plant, yard, or warehouse.' },

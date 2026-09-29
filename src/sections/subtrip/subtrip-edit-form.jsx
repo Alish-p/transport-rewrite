@@ -230,7 +230,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
   const lastRefHelperText = customerId
     ? isLoadingLastRef
       ? 'Loading last reference number...'
-      : `Last reference number: ${lastRefData?.referenceSubtripNo || 'None'}`
+      : `Last manual LR number: ${lastRefData?.referenceSubtripNo || 'None'}`
     : undefined;
 
   const defaultValues = useMemo(
@@ -939,7 +939,7 @@ export default function SubtripEditForm({ currentSubtrip }) {
                   >
                     <Field.Text
                       name="referenceSubtripNo"
-                      label={getLabel('referenceSubtripNo', 'Reference Job No')}
+                      label={getLabel('referenceSubtripNo', 'Manual LR No')}
                       helperText={lastRefHelperText}
                     />
                   </Field.Configurable>

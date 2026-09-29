@@ -41,7 +41,7 @@ const FIELDS_KEYS = [
   { key: 'ewayExpiryDate', defaultLabel: 'Eway Expiry Date' },
   { key: 'shipmentNo', defaultLabel: 'Shipment No' },
   { key: 'orderNo', defaultLabel: 'Order No' },
-  { key: 'referenceSubtripNo', defaultLabel: 'Reference Job No' },
+  { key: 'referenceSubtripNo', defaultLabel: 'Manual LR No' },
   { key: 'diNumber', defaultLabel: 'DI/DO No' },
   { key: 'consignee', defaultLabel: 'Consignee' },
   { key: 'loadingPoint', defaultLabel: 'Loading Point' },
